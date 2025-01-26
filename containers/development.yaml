@@ -1,0 +1,24 @@
+services:
+
+  server:
+    build:
+      context: ..
+      dockerfile: ./containers/nginx.dockerfile
+    image: nginx:stable-alpine-slim
+    container_name: brDev_server
+    network_mode: "host"
+    ports: "5000:5000"
+    volumes:
+      - ../dist/:/var/www/html/:ro
+
+  postgres:
+    image: postgres:alpine
+    container_name: brDev_psql
+    environment:
+      - POSTGRES_PASSWORD=hunter2
+      - POSTGRES_USER=businessDeveloper
+      - POSTGRES_DB=BusinessRoadDev
+
+  valkey:
+    image: valkey:alpine
+    container_name: brDev_valkey
