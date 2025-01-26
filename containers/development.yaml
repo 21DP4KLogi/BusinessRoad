@@ -14,11 +14,13 @@ services:
   postgres:
     image: postgres:alpine
     container_name: brDev_psql
+    ports: "5002:5432"
     environment:
       - POSTGRES_PASSWORD=hunter2
-      - POSTGRES_USER=businessDeveloper
+      - POSTGRES_USER=businessman
       - POSTGRES_DB=BusinessRoadDev
 
   valkey:
     image: valkey:alpine
     container_name: brDev_valkey
+    ports: "5003:6379"
