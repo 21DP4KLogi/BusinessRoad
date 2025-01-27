@@ -29,6 +29,9 @@ task devpsql, "Enter psql in dev container":
 # Dependencies
 
 requires "nim >= 2.0.8"
+# API server
 requires "mummy"
 requires "ready"
 requires "norm"
+# PoW challenge
+requires "nimcrypto"
