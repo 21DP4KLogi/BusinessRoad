@@ -1,9 +1,7 @@
 import mummy, mummy/routers
 import ready
-import std/[os, sysrand, base64]
-import norm/[postgres, types, pool]
+import std/[sysrand, base64]
 import "psql.nim"
-import "models.nim"
 
 # Connections
 let valkey = newRedisConn("localhost", Port(5003))
@@ -15,7 +13,6 @@ proc pingHandler(request: Request) =
 
 proc valkeyCounter(request: Request) = 
   let count = valkey.command("INCR", "valkeyTest")
-  echo count
   var headers: HttpHeaders
   headers["Content-Type"] = "text/plain"
   request.respond(200, headers, $count)
@@ -28,6 +25,20 @@ proc registerHandler(request: Request) =
   var headers: HttpHeaders
   headers["Content-Type"] = "text/plain"
   request.respond(200, headers, newCode)
+
+proc loginHandler(request: Request) =
+  var headers: HttpHeaders
+  headers["Content-Type"] = "text/plain"
+  let codeReq = request.body
+  if codeReq.len != 8:
+    request.respond(400, headers, "code is malformed")
+  var codeValid = false
+  psql:
+    codeValid = db.exists(Player, "code = $1", codeReq)
+  if codeValid:
+    request.respond(200, headers, "auth token goes here")
+  else:
+    request.respond(400, headers, "who the hell are you")
   
 # Valkey setup
 discard valkey.command("SET", "valkeyTest", "0")
@@ -39,6 +50,7 @@ var router: Router
 router.get("/ping", pingHandler)
 router.get("/counter", valkeyCounter)
 router.post("/register", registerHandler)
+router.post("/login", loginHandler)
 
 let server = newServer(router)
 echo "Serving on http://localhost:5001"
