@@ -6,9 +6,11 @@ let page = render:
   html:
     head:
       script:
+        src "pow.js"
+        tdefer "uhuh"
+      script:
         src "script.js"
         tdefer "yep"
-      script: src "pow.js"
       title: say "Business Road"
     body:
       h1: say "Hello, Economy!"
@@ -20,7 +22,11 @@ let page = render:
         input:
           sValue "input"
         pre:
-          sText "hash(input)"
+          sText "input == '' ? '-' : hash(input)"
+      button:
+        # sWith "{val: ''}"
+        sOn "click", "() => {pingServerCounter()}"
+        sText "'Times the /api/counter endpoint has been pinged: ' + serverCount"
 
 writeFile "dist/index.html", page
 echo "'index.html' written!"
