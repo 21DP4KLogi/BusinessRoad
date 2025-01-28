@@ -26,6 +26,9 @@ task devvalkey, "Enter valkey-cli in dev container":
 task devpsql, "Enter psql in dev container":
   exec "podman exec -ti brDev_psql psql -U businessman BusinessRoadDev"
 
+task devpage, "Start ESBuild in page/ for development":
+  exec "(cd page && npm run dev)"
+
 # Dependencies
 
 requires "nim >= 2.0.8"
@@ -33,5 +36,7 @@ requires "nim >= 2.0.8"
 requires "mummy"
 requires "ready"
 requires "norm"
+# Frontend
+requires "dekao"
 # PoW challenge
 requires "nimcrypto"

@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "esbuild": "^0.24.2",
+    "sprae": "^11.0.4"
+  },
+  "scripts": {
+    "dev": "esbuild script.ts --watch --bundle --outdir=../dist --minify --sourcemap"
+  }
+}
