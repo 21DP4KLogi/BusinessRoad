@@ -4,36 +4,50 @@ import std/[sysrand, base64]
 import "psql.nim"
 import "motd.nim"
 
-# Connections
-let valkey = newRedisPool(4, "localhost", Port(5003))
+template get(endpoint: string, body: untyped) =
+  router.get(endpoint, RequestHandler(proc (request {.inject.}: Request) {.gcsafe.} =
+    var headers {.inject.}: HttpHeaders
+    body
+  ))
 
-proc pingHandler(request: Request) =
-  var headers: HttpHeaders
+template post(endpoint: string, body: untyped) =
+  router.post(endpoint, RequestHandler(proc (request {.inject.}: Request) {.gcsafe.} =
+    var headers {.inject.}: HttpHeaders
+    body
+  ))
+
+# Valkey setup
+let valkey = newRedisPool(4, "localhost", Port(5003))
+discard valkey.command("SET", "valkeyTest", "0")
+valkey.randomizeMotd()
+# PostgreSQL setup
+psql:
+  db.createTables(newPlayer())
+# Mummy router definition
+var router: Router
+
+get "/ping":
   headers["Content-Type"] = "text/plain"
   request.respond(200, headers, "pong")
 
-proc valkeyCounter(request: Request) = 
+get "/counter":
   let count = valkey.command("INCR", "valkeyTest")
-  var headers: HttpHeaders
   headers["Content-Type"] = "text/plain"
   request.respond(200, headers, $count)
 
-proc motdHandler(request: Request) =
-  var headers: HttpHeaders
+get "/motd":
   headers["Content-Type"] = "text/plain"
   request.respond(200, headers, valkey.getMotd)
 
-proc registerHandler(request: Request) =
+post "/register":
   let newCode: string = urandom(6).encode
   var playerQuery = newPlayer(newCode)
   psql:
     db.insert(playerQuery)
-  var headers: HttpHeaders
   headers["Content-Type"] = "text/plain"
   request.respond(200, headers, newCode)
 
-proc loginHandler(request: Request) =
-  var headers: HttpHeaders
+post "/login":
   headers["Content-Type"] = "text/plain"
   let codeReq = request.body
   if codeReq.len != 8:
@@ -45,20 +59,6 @@ proc loginHandler(request: Request) =
     request.respond(200, headers, "auth token goes here")
   else:
     request.respond(400, headers, "who the hell are you")
-  
-# Valkey setup
-discard valkey.command("SET", "valkeyTest", "0")
-valkey.randomizeMotd()
-# PostgreSQL setup
-psql:
-  db.createTables(newPlayer())
-
-var router: Router
-router.get("/ping", pingHandler)
-router.get("/counter", valkeyCounter)
-router.get("/motd", motdHandler)
-router.post("/register", registerHandler)
-router.post("/login", loginHandler)
 
 let server = newServer(router)
 echo "Serving on http://localhost:5001"
