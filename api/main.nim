@@ -2,9 +2,10 @@ import mummy, mummy/routers
 import ready
 import std/[sysrand, base64]
 import "psql.nim"
+import "motd.nim"
 
 # Connections
-let valkey = newRedisConn("localhost", Port(5003))
+let valkey = newRedisPool(4, "localhost", Port(5003))
 
 proc pingHandler(request: Request) =
   var headers: HttpHeaders
@@ -16,6 +17,11 @@ proc valkeyCounter(request: Request) =
   var headers: HttpHeaders
   headers["Content-Type"] = "text/plain"
   request.respond(200, headers, $count)
+
+proc motdHandler(request: Request) =
+  var headers: HttpHeaders
+  headers["Content-Type"] = "text/plain"
+  request.respond(200, headers, valkey.getMotd)
 
 proc registerHandler(request: Request) =
   let newCode: string = urandom(6).encode
@@ -42,6 +48,7 @@ proc loginHandler(request: Request) =
   
 # Valkey setup
 discard valkey.command("SET", "valkeyTest", "0")
+valkey.randomizeMotd()
 # PostgreSQL setup
 psql:
   db.createTables(newPlayer())
@@ -49,6 +56,7 @@ psql:
 var router: Router
 router.get("/ping", pingHandler)
 router.get("/counter", valkeyCounter)
+router.get("/motd", motdHandler)
 router.post("/register", registerHandler)
 router.post("/login", loginHandler)
 

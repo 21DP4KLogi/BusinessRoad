@@ -14,6 +14,7 @@ let page = render:
       title: say "Business Road"
     body:
       h1: say "Hello, Economy!"
+      q: sText "motd"
       p:
         sIf "1 != 1"
         say "if youre seeing this, sprae didnt work"
@@ -22,7 +23,7 @@ let page = render:
         input:
           sValue "input"
         pre:
-          sText "input == '' ? '-' : hash(input)"
+          sText "input == '' ? '\\n' : hash(input)"
       button:
         # sWith "{val: ''}"
         sOn "click", "() => {pingServerCounter()}"
