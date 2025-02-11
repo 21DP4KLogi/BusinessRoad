@@ -22,19 +22,23 @@ template post*(endpoint: string, body: untyped) =
     body
   ))
 
+template resp*(code: int, body: sink string) = # I don't really know what the 'sink' does, but that is what Mummy uses.
+  request.respond(code, headers, body)
+  return
+
 # Routes
 get "/ping":
   headers["Content-Type"] = "text/plain"
-  request.respond(200, headers, "pong")
+  resp 200, "pong"
 
 get "/counter":
-  let count = valkey.command("INCR", "valkeyTest")
-  headers["Content-Type"] = "text/plain"
-  request.respond(200, headers, $count)
+    let count = valkey.command("INCR", "valkeyTest")
+    headers["Content-Type"] = "text/plain"
+    resp 200, $count
 
 get "/motd":
   headers["Content-Type"] = "text/plain"
-  request.respond(200, headers, valkey.getMotd)
+  resp 200, valkey.getMotd
 
 post "/register":
   let newCode: string = urandom(6).encode
@@ -42,18 +46,18 @@ post "/register":
   psql:
     db.insert(playerQuery)
   headers["Content-Type"] = "text/plain"
-  request.respond(200, headers, newCode)
+  resp 200, newCode
 
 post "/login":
   headers["Content-Type"] = "text/plain"
   let codeReq = request.body
   if codeReq.len != 8:
-    request.respond(400, headers, "code is malformed")
+    resp 400, "code is malformed"
   var codeValid = false
   psql:
     codeValid = db.exists(Player, "code = $1", codeReq)
   if codeValid:
-    request.respond(200, headers, "auth token goes here")
+    resp 200, "auth token goes here"
   else:
-    request.respond(400, headers, "who the hell are you")
+    resp 400, "who the hell are you"
 
