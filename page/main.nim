@@ -27,7 +27,7 @@ let page = render:
       button:
         # sWith "{val: ''}"
         sOn "click", "() => {pingServerCounter()}"
-        sText "'Times the /api/counter endpoint has been pinged: ' + serverCount"
+        sText "'Valkey counter: ' + serverCount"
 
 writeFile "dist/index.html", page
 echo "'index.html' written!"

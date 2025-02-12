@@ -10,6 +10,7 @@ putEnv("DB_USER", "businessman")
 putEnv("DB_PASS", "hunter2")
 putEnv("DB_NAME", "BusinessRoadDev")
 var psqlPool = newPool[DbConn](8)
+let psqlSingle* = getDb() # For use by the singlethreaded logic computer
 
 template psql*(body: untyped) =
   {.gcsafe.}:
