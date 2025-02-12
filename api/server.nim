@@ -1,5 +1,6 @@
 import mummy, mummy/routers
-import std/[sysrand, base64]
+import std/[sysrand, base64, strutils, parseutils]
+import "pow.nim"
 import "valkey.nim" as valkeyFile
 import "psql.nim"
 import "motd.nim"
@@ -35,18 +36,33 @@ get "/init":
     content = $counterData & ":" & motdData
   resp 200, content
 
-# get "/ping":
-#   headers["Content-Type"] = "text/plain"
-#   resp 200, "pong"
+get "/ping":
+  headers["Content-Type"] = "text/plain"
+  resp 200, "pong"
 
 get "/counter":
-    let count = valkey.command("INCR", "valkeyTest")
-    headers["Content-Type"] = "text/plain"
-    resp 200, $count
+  let count = valkey.command("INCR", "valkeyTest")
+  headers["Content-Type"] = "text/plain"
+  resp 200, $count
 
 # get "/motd":
 #   headers["Content-Type"] = "text/plain"
 #   resp 200, valkey.getMotd
+
+get "/challenge":
+  headers["Content-Type"] = "text/plain"
+  resp 200, generatePowChallenge()
+
+post "/debugverifychallenge":
+  let reqBody = request.body.split(":")
+  let
+    sentSalt = reqBody[0]
+    sentSignature = reqBody[1]
+    sentSecretNumber = reqBody[2].parseInt
+  if verifyPowResponse(sentSalt, sentSignature, sentSecretNumber):
+    resp 200, "is good"
+  else:
+    resp 400, "ew"
 
 post "/register":
   let newCode: string = urandom(6).encode
