@@ -31,6 +31,9 @@ template resp*(code: int) =
   request.respond(code)
   return
 
+proc containsAnythingBut*(s: string,  sub: set[char]): bool =
+  return s.contains(AllChars - sub)
+
 # Apparently using the colon syntax 'usually' requires it to be the untyped type, so couldn't quite get it to work.
 # template verifyAllConditions(conditions: untyped): void =
 #   if (false in conditions):
@@ -82,11 +85,11 @@ post "/register":
   if
     body.len != 3 or
     "" in body or
-    body[0].contains(AllChars - UppercaseHexDigits) or
+    body[0].containsAnythingBut(UppercaseHexDigits) or
     body[0].len != SaltHexLength or
-    body[1].contains(AllChars - UppercaseHexDigits) or
+    body[1].containsAnythingBut(UppercaseHexDigits) or
     body[1].len != HashSignatureHexLenght or
-    body[2].contains(AllChars - Digits)
+    body[2].containsAnythingBut(Digits)
     : resp 400
   let
     sentSalt = body[0]
@@ -108,12 +111,12 @@ post "/login":
     body.len != 4 or
     "" in body or
     body[0].len != 8 or
-    body[0].contains(AllChars - Base64digits) or
-    body[1].contains(AllChars - UppercaseHexDigits) or
+    body[0].containsAnythingBut(Base64digits) or
+    body[1].containsAnythingBut(UppercaseHexDigits) or
     body[1].len != SaltHexLength or
-    body[2].contains(AllChars - UppercaseHexDigits) or
+    body[2].containsAnythingBut(UppercaseHexDigits) or
     body[2].len != HashSignatureHexLenght or
-    body[3].contains(AllChars - Digits)
+    body[3].containsAnythingBut(Digits)
     : resp 400
   let
     sentCode = body[0]

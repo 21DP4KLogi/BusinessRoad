@@ -3,11 +3,12 @@ import std/[sysrand]
 import "valkey.nim" as valkeyFile
 
 const
-  Base64digits* = {'a'..'z', 'A'..'Z', '0'..'9', '+', '/'}
+  Base64digits* = {'a'..'z', 'A'..'Z', '0'..'9', '+', '/'} # Used in the server.nim file, but kept here for tidyness
   UppercaseHexDigits* = {'0'..'9', 'A'..'F'} # strutils' HexDigits contains both upper and lower case, but lower is not expected here
   SaltByteCount* = 5
   SaltHexLength* = SaltByteCount * 2
   HashSignatureHexLenght* = 64
+  MaxSecretNumber = 1_000_000
 
 # Utilizes std/sysrand, which, while not audited, is supposed to be secure.
 # Base64 would be more concise, but im too lazy to account for the 3:4 bit ratio.
@@ -30,7 +31,7 @@ proc generatePowChallenge*: string =
   let
     serverKey = valkey.command("GET", "powSignatureKey").to(string)
     salt = secureRandomHexadecimal(SaltByteCount)
-    secretNumber = secureRandomNumber(100000)
+    secretNumber = secureRandomNumber(MaxSecretNumber)
     hash = $sha256.digest(salt & $secretNumber)
     hashSignature = $sha256.hmac(serverKey, hash)
   return salt & ":" & hash & ":" & hashSignature

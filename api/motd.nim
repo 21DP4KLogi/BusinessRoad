@@ -7,7 +7,7 @@ const MOTDs = [
   "Finest business simulator since UNDEFINED!",
   "Budget does not exceed 17 Yen",
   "Generates interest!",
-  "Free (as in Libre) money!",
+  "Free (Libre) money!",
   "Hey, nice credit card number!",
   "Nice profi- Aaaaand, its gone!",
   "Noticeably Fungible (legal-)Tender",
@@ -31,6 +31,10 @@ const MOTDs = [
   "9€ Plov, 10€ bill, do the math",
   "DO NOT REDEEM",
   "Hummus, it's going places!",
+  "It costs 400000$ to run this instance, for 12 seconds",
+  "Technically not a cryptominer!",
+  "Does not use Bootstrap, you have to pick that up yourself",
+  "I will not buy this record, it is scratched!",
 ]
 
 randomize()

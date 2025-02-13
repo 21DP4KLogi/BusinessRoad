@@ -9,7 +9,7 @@ export async function solveChallenge() {
   let salt = responseData[0]
   let hash = responseData[1]
   let signature = responseData[2]
-  let secretNumber = solve(hash, salt, 100000);
+  let secretNumber = solve(hash, salt, 1000000);
   console.log(secretNumber)
   return salt + ":" + signature + ":" + secretNumber.toString();
 }
