@@ -26,7 +26,7 @@ const MOTDs = [
   "First step is to dress nice if you want to make some serious money",
   "Put food on your family",
   "The government needs 7 dollars.",
-  "Brought to you by today's sponsor: JustWireMeTheMoneyAlready.su",
+  "Brought to you by today's sponsor - JustWireMeTheMoneyAlready.su",
   "EA Nasir - it's in the trade",
   "9€ Plov, 10€ bill, do the math",
   "DO NOT REDEEM",
