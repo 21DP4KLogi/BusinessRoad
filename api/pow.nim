@@ -1,11 +1,27 @@
 import nimcrypto
-import std/[sysrand, strutils]
+import std/[sysrand]
 import "valkey.nim" as valkeyFile
 
-# Base64 would be more concise, but im too lazy to account for the 3:4 bit ratio
+const
+  Base64digits* = {'a'..'z', 'A'..'Z', '0'..'9', '+', '/'}
+  UppercaseHexDigits* = {'0'..'9', 'A'..'F'} # strutils' HexDigits contains both upper and lower case, but lower is not expected here
+  SaltByteCount* = 5
+  SaltHexLength* = SaltByteCount * 2
+  HashSignatureHexLenght* = 64
+
+# Utilizes std/sysrand, which, while not audited, is supposed to be secure.
+# Base64 would be more concise, but im too lazy to account for the 3:4 bit ratio.
 proc secureRandomHexadecimal*(length: int): string =
   let randomBytes = urandom(length)
   return randomBytes.toHex
+
+proc secureRandomNumber*(max: uint): uint =
+  let randomBytes = urandom(4)
+  var random32bitNumber: uint
+  for i in 0..(randomBytes.len - 1):
+    random32bitNumber += randomBytes[i]
+    random32bitNumber = random32bitNumber shl 8
+  return random32bitNumber mod max
 
 proc generateHmacKeyForPow* =
   discard valkey.command("SET", "powSignatureKey", secureRandomHexadecimal(20))
@@ -13,13 +29,13 @@ proc generateHmacKeyForPow* =
 proc generatePowChallenge*: string =
   let
     serverKey = valkey.command("GET", "powSignatureKey").to(string)
-    salt = secureRandomHexadecimal(5)
-    secretNumber = 3  #TODO: actually randomize this 
+    salt = secureRandomHexadecimal(SaltByteCount)
+    secretNumber = secureRandomNumber(100000)
     hash = $sha256.digest(salt & $secretNumber)
     hashSignature = $sha256.hmac(serverKey, hash)
   return salt & ":" & hash & ":" & hashSignature
 
-proc verifyPowResponse*(salt, signature: string, secretNumber: int): bool =
+proc submitPowResponse*(salt, signature: string, secretNumber: int): bool =
   if valkey.command("SISMEMBER", "usedPowSignatures", signature).to(int) == 1:
     return false
   let serverKey = valkey.command("GET", "powSignatureKey").to(string)

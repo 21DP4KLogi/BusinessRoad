@@ -9,7 +9,8 @@ export async function solveChallenge() {
   let salt = responseData[0]
   let hash = responseData[1]
   let signature = responseData[2]
-  let secretNumber = solve(hash, salt, 5);
+  let secretNumber = solve(hash, salt, 100000);
+  console.log(secretNumber)
   return salt + ":" + signature + ":" + secretNumber.toString();
 }
 
@@ -24,10 +25,31 @@ async function initPage(): Promise<void> {
   state.motd = parsedContent[1];
 }
 
+async function register(): Promise<void> {
+  state.registerOngoing = true
+  let powSolution = await solveChallenge();
+  let response = await fetch("/api/register", {
+    method: "POST",
+    body: powSolution
+  })
+  switch (response.status) {
+    case 400:
+      alert("Error: Server considers request malformed (400 response)");
+    case 401:
+      alert("Error: Server considers solution incorrect (401 response)");
+    case 200:
+      state.registeredCode = await response.text();
+  }
+  state.registerOngoing = false
+}
+
 let scope = {
   serverCount: 0,
   pingServerCounter: async () => {state.serverCount = await processedFetch("/api/counter")},
   motd: "",
+  registeredCode: "",
+  registerOngoing: false,
+  registerFunc: register,
   // getMotd: async () => {state.motd = await processedFetch("/api/motd")},
 }
 

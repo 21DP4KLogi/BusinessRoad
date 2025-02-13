@@ -27,6 +27,15 @@ template resp*(code: int, body: sink string) = # I don't really know what the 's
   request.respond(code, headers, body)
   return
 
+template resp*(code: int) =
+  request.respond(code)
+  return
+
+# Apparently using the colon syntax 'usually' requires it to be the untyped type, so couldn't quite get it to work.
+# template verifyAllConditions(conditions: untyped): void =
+#   if (false in conditions):
+#     resp 400
+
 # Routes
 get "/init":
   headers["Content-Type"] = "text/plain"
@@ -55,33 +64,69 @@ get "/challenge":
 
 post "/debugverifychallenge":
   let reqBody = request.body.split(":")
+  if reqBody.len != 3:
+    resp 400
+  if reqBody[2].contains(AllChars - Digits):
+    resp 400
   let
     sentSalt = reqBody[0]
     sentSignature = reqBody[1]
     sentSecretNumber = reqBody[2].parseInt
-  if verifyPowResponse(sentSalt, sentSignature, sentSecretNumber):
+  if submitPowResponse(sentSalt, sentSignature, sentSecretNumber):
     resp 200, "is good"
   else:
     resp 400, "ew"
 
 post "/register":
-  let newCode: string = urandom(6).encode
-  var playerQuery = newPlayer(newCode)
-  psql:
-    db.insert(playerQuery)
-  headers["Content-Type"] = "text/plain"
-  resp 200, newCode
+  let body = request.body.split(":")
+  if
+    body.len != 3 or
+    "" in body or
+    body[0].contains(AllChars - UppercaseHexDigits) or
+    body[0].len != SaltHexLength or
+    body[1].contains(AllChars - UppercaseHexDigits) or
+    body[1].len != HashSignatureHexLenght or
+    body[2].contains(AllChars - Digits)
+    : resp 400
+  let
+    sentSalt = body[0]
+    sentSignature = body[1]
+    sentSecretNumber = body[2].parseInt
+  if submitPowResponse(sentSalt, sentSignature, sentSecretNumber):
+    let newCode: string = base64.encode urandom(6) # specifying base64 because 'encode' is quite vague
+    var playerQuery = newPlayer(newCode)
+    psql:
+      db.insert(playerQuery)
+    headers["Content-Type"] = "text/plain"
+    resp 200, newCode
+  else:
+    resp 401
 
 post "/login":
-  headers["Content-Type"] = "text/plain"
-  let codeReq = request.body
-  if codeReq.len != 8:
-    resp 400, "code is malformed"
-  var codeValid = false
-  psql:
-    codeValid = db.exists(Player, "code = $1", codeReq)
-  if codeValid:
-    resp 200, "auth token goes here"
+  let body = request.body.split(":")
+  if
+    body.len != 4 or
+    "" in body or
+    body[0].len != 8 or
+    body[0].contains(AllChars - Base64digits) or
+    body[1].contains(AllChars - UppercaseHexDigits) or
+    body[1].len != SaltHexLength or
+    body[2].contains(AllChars - UppercaseHexDigits) or
+    body[2].len != HashSignatureHexLenght or
+    body[3].contains(AllChars - Digits)
+    : resp 400
+  let
+    sentCode = body[0]
+    sentSalt = body[1]
+    sentSignature = body[2]
+    sentSecretNumber = body[3].parseInt
+  if submitPowResponse(sentSalt, sentSignature, sentSecretNumber):
+    var codeValid = false
+    psql:
+      codeValid = db.exists(Player, "code = $1", sentCode)
+    if codeValid:
+      headers["Content-Type"] = "text/plain"
+      resp 200, "auth token goes here"
   else:
-    resp 400, "who the hell are you"
+    resp 401
 

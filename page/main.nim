@@ -28,6 +28,11 @@ let page = render:
         # sWith "{val: ''}"
         sOn "click", "() => {pingServerCounter()}"
         sText "'Valkey counter: ' + serverCount"
+      button:
+        sText "registeredCode == '' ? 'Register' : 'Registered code: ' + registeredCode"
+        sOn "click", "() => {registerFunc()}"
+        style "font-family: monospace"
+        sProp "disabled", "registerOngoing"
 
 writeFile "dist/index.html", page
 echo "'index.html' written!"
