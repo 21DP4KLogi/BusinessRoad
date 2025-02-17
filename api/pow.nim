@@ -8,7 +8,10 @@ const
   SaltByteCount* = 5
   SaltHexLength* = SaltByteCount * 2
   HashSignatureHexLenght* = 64
-  MaxSecretNumber = 10
+when defined(powNumberAlwaysZero):
+  const MaxSecretNumber = 0
+else:
+  const MaxSecretNumber = 1_000_000
 
 # Utilizes std/sysrand, which, while not audited, is supposed to be secure.
 # Base64 would be more concise, but im too lazy to account for the 3:4 bit ratio.
@@ -16,13 +19,16 @@ proc secureRandomHexadecimal*(length: int): string =
   let randomBytes = urandom(length)
   return randomBytes.toHex
 
-proc secureRandomNumber*(max: uint): uint =
-  let randomBytes = urandom(4)
-  var random32bitNumber: uint
-  for i in 0..(randomBytes.len - 1):
-    random32bitNumber += randomBytes[i]
-    random32bitNumber = random32bitNumber shl 8
-  return random32bitNumber mod max
+proc secureRandomNumber*(): uint =
+  when MaxSecretNumber == 0:
+    return 0
+  else:
+    let randomBytes = urandom(4)
+    var random32bitNumber: uint
+    for i in 0..(randomBytes.len - 1):
+      random32bitNumber += randomBytes[i]
+      random32bitNumber = random32bitNumber shl 8
+    return random32bitNumber mod MaxSecretNumber
 
 proc generateHmacKeyForPow* =
   discard valkey.command("SET", "powSignatureKey", secureRandomHexadecimal(20))
@@ -31,7 +37,7 @@ proc generatePowChallenge*: string =
   let
     serverKey = valkey.command("GET", "powSignatureKey").to(string)
     salt = secureRandomHexadecimal(SaltByteCount)
-    secretNumber = secureRandomNumber(MaxSecretNumber)
+    secretNumber = secureRandomNumber()
     hash = $sha256.digest(salt & $secretNumber)
     hashSignature = $sha256.hmac(serverKey, hash)
   return salt & ":" & hash & ":" & hashSignature
