@@ -5,6 +5,8 @@ let page = render:
   say: "<!DOCTYPE html>"
   html:
     head:
+      meta:
+        charset "utf-8"
       script:
         src "pow.js"
         tdefer "uhuh"
@@ -14,25 +16,24 @@ let page = render:
       title: say "Business Road"
     body:
       h1: say "Hello, Economy!"
-      q: sText "motd"
+      q: i: sText "motd"
       p:
         sIf "1 != 1"
         say "if youre seeing this, sprae didnt work"
-      tdiv:
-        sWith "{input: ''}"
-        input:
-          sValue "input"
-        pre:
-          sText "input == '' ? '\\n' : hash(input)"
+      input:
+        placeholder "••••••••"
+        sValue "authInput"
+        style "font-family: monospace; width: 8ch; display: block;"
+        maxlength "8"
       button:
-        # sWith "{val: ''}"
-        sOn "click", "() => {pingServerCounter()}"
-        sText "'Valkey counter: ' + serverCount"
-      button:
-        sText "registeredCode == '' ? 'Register' : 'Registered code: ' + registeredCode"
+        say "Register"
         sOn "click", "() => {registerFunc()}"
-        style "font-family: monospace"
-        sProp "disabled", "registerOngoing"
+      button:
+        say "Log in"
+        sOn "click", "() => {loginFunc()}"
+      button:
+        say "Delete account"
+        sOn "click", "() => {deleteFunc()}"
 
 writeFile "dist/index.html", page
 echo "'index.html' written!"

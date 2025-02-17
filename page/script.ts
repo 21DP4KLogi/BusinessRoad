@@ -3,8 +3,7 @@ import sprae from "sprae";
 declare function hash(input: string): string;
 declare function solve(hash: string, salt: string, maxInt: number): number;
 
-// Currently for debugging, requires a --global-name parameter for ESBuild
-export async function solveChallenge() {
+async function solveChallenge() {
   let responseData = (await processedFetch("/api/challenge")).split(":");
   let salt = responseData[0]
   let hash = responseData[1]
@@ -45,18 +44,74 @@ async function register(): Promise<void> {
     case 401:
       alert("Error: Server considers solution incorrect (401 response)");
     case 200:
-      state.registeredCode = await response.text();
+      state.authInput = await response.text();
   }
   state.registerOngoing = false
+}
+
+async function login(): Promise<void> {
+  let powSolution = await solveChallenge();
+  if (powSolution == "err") {
+    alert("Error: The PoW solver returned -1");
+    return;
+  }
+  let code = state.authInput;
+  let response = await fetch("/api/login", {
+    method: "POST",
+    body: code + ":" + powSolution
+  })
+  switch (response.status) {
+    case 400:
+      alert("Error: Server considers request malformed (400 response)");
+      break;
+    case 401:
+      alert("Error: Server considers solution incorrect (401 response)");
+      break;
+    case 404:
+      alert("Error: Server cannot find user with that code (404 response)");
+      break;
+    case 200:
+      alert("Logged in successfully!")
+      break;
+  }
+}
+
+async function deleteAccount(): Promise<void> {
+  let powSolution = await solveChallenge();
+  if (powSolution == "err") {
+    alert("Error: The PoW solver returned -1");
+    return;
+  }
+  let code = state.authInput;
+  let response = await fetch("/api/delete", {
+    method: "POST",
+    body: code + ":" + powSolution
+  })
+  switch (response.status) {
+    case 400:
+      alert("Error: Server considers request malformed (400 response)");
+      break;
+    case 401:
+      alert("Error: Server considers solution incorrect (401 response)");
+      break;
+    case 404:
+      alert("Error: Server cannot find user with that code (404 response)");
+      break;
+    case 200:
+      alert("Account deleted successfully!")
+      break;
+  }
 }
 
 let scope = {
   serverCount: 0,
   pingServerCounter: async () => {state.serverCount = await processedFetch("/api/counter")},
   motd: "",
-  registeredCode: "",
+  authInput: "",
   registerOngoing: false,
   registerFunc: register,
+  loginFunc: login,
+  deleteFunc: deleteAccount,
   // getMotd: async () => {state.motd = await processedFetch("/api/motd")},
 }
 

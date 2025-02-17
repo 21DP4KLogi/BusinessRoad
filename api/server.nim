@@ -130,6 +130,41 @@ post "/login":
     if codeValid:
       headers["Content-Type"] = "text/plain"
       resp 200, "auth token goes here"
+    else:
+      resp 404
   else:
     resp 401
 
+post "/delete":
+  let body = request.body.split(":")
+  if
+    body.len != 4 or
+    "" in body or
+    body[0].len != 8 or
+    body[0].containsAnythingBut(Base64digits) or
+    body[1].containsAnythingBut(UppercaseHexDigits) or
+    body[1].len != SaltHexLength or
+    body[2].containsAnythingBut(UppercaseHexDigits) or
+    body[2].len != HashSignatureHexLenght or
+    body[3].containsAnythingBut(Digits)
+    : resp 400
+  let
+    sentCode = body[0]
+    sentSalt = body[1]
+    sentSignature = body[2]
+    sentSecretNumber = body[3].parseInt
+  if submitPowResponse(sentSalt, sentSignature, sentSecretNumber):
+    var codeValid = false
+    psql:
+      codeValid = db.exists(Player, "code = $1", sentCode)
+      if codeValid:
+        var playerQuery = newPlayer()
+        db.select(playerQuery, "code = $1", sentCode)
+        # Will be more complicated when more features get added
+        db.delete(playerQuery)
+        headers["Content-Type"] = "text/plain"
+        resp 200, "auth token goes here"
+      else:
+        resp 404
+  else:
+    resp 401

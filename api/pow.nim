@@ -8,7 +8,7 @@ const
   SaltByteCount* = 5
   SaltHexLength* = SaltByteCount * 2
   HashSignatureHexLenght* = 64
-  MaxSecretNumber = 1_000_000
+  MaxSecretNumber = 10
 
 # Utilizes std/sysrand, which, while not audited, is supposed to be secure.
 # Base64 would be more concise, but im too lazy to account for the 3:4 bit ratio.
