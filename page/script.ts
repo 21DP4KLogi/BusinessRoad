@@ -21,14 +21,19 @@ async function processedFetch(endpoint: string): Promise<string> {
 }
 
 async function initPage(): Promise<void> {
-  let content = await processedFetch("/api/init");
+  let response = await fetch("/api/init");
+  if (response.status == 502) {
+    alert("Error: API server is offline (502)");
+    return;
+  }
+  let content = await response.text();
   let parsedContent = content.split(":");
   state.serverCount = parsedContent[0];
   state.motd = parsedContent[1];
 }
 
 async function register(): Promise<void> {
-  state.registerOngoing = true
+  state.authOngoing = true
   let powSolution = await solveChallenge();
   if (powSolution == "err") {
     alert("Error: The PoW solver returned -1");
@@ -40,19 +45,21 @@ async function register(): Promise<void> {
   })
   switch (response.status) {
     case 400:
-      alert("Error: Server considers request malformed (400 response)");
+      alert("Error: Server considers request malformed (400)");
     case 401:
-      alert("Error: Server considers solution incorrect (401 response)");
+      alert("Error: Server considers solution incorrect (401)");
     case 200:
       state.authInput = await response.text();
   }
-  state.registerOngoing = false
+  state.authOngoing = false
 }
 
 async function login(): Promise<void> {
+  state.authOngoing = true
   let powSolution = await solveChallenge();
   if (powSolution == "err") {
     alert("Error: The PoW solver returned -1");
+    state.authOngoing = false
     return;
   }
   let code = state.authInput;
@@ -62,24 +69,27 @@ async function login(): Promise<void> {
   })
   switch (response.status) {
     case 400:
-      alert("Error: Server considers request malformed (400 response)");
+      alert("Error: Server considers request malformed (400)");
       break;
     case 401:
-      alert("Error: Server considers solution incorrect (401 response)");
+      alert("Error: Server considers solution incorrect (401)");
       break;
     case 404:
-      alert("Error: Server cannot find user with that code (404 response)");
+      alert("Error: Server cannot find user with that code (404)");
       break;
     case 200:
       alert("Logged in successfully!")
       break;
   }
+  state.authOngoing = false
 }
 
 async function deleteAccount(): Promise<void> {
+  state.authOngoing = true
   let powSolution = await solveChallenge();
   if (powSolution == "err") {
     alert("Error: The PoW solver returned -1");
+    state.authOngoing = false
     return;
   }
   let code = state.authInput;
@@ -89,18 +99,19 @@ async function deleteAccount(): Promise<void> {
   })
   switch (response.status) {
     case 400:
-      alert("Error: Server considers request malformed (400 response)");
+      alert("Error: Server considers request malformed (400)");
       break;
     case 401:
-      alert("Error: Server considers solution incorrect (401 response)");
+      alert("Error: Server considers solution incorrect (401)");
       break;
     case 404:
-      alert("Error: Server cannot find user with that code (404 response)");
+      alert("Error: Server cannot find user with that code (404)");
       break;
     case 200:
       alert("Account deleted successfully!")
       break;
   }
+  state.authOngoing = false
 }
 
 let scope = {
@@ -108,7 +119,7 @@ let scope = {
   pingServerCounter: async () => {state.serverCount = await processedFetch("/api/counter")},
   motd: "",
   authInput: "",
-  registerOngoing: false,
+  authOngoing: false,
   registerFunc: register,
   loginFunc: login,
   deleteFunc: deleteAccount,

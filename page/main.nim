@@ -28,12 +28,15 @@ let page = render:
       button:
         say "Register"
         sOn "click", "() => {registerFunc()}"
+        sProp "disabled", "authOngoing"
       button:
         say "Log in"
         sOn "click", "() => {loginFunc()}"
+        sProp "disabled", "authOngoing"
       button:
         say "Delete account"
         sOn "click", "() => {deleteFunc()}"
+        sProp "disabled", "authOngoing"
 
 writeFile "dist/index.html", page
 echo "'index.html' written!"
