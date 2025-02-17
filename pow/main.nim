@@ -6,8 +6,8 @@ proc hash(input: cstring): cstring {.exportc.} =
 proc solve(hash, salt: cstring, maxInt: int): int {.exportc.} =
   let strHash = $hash
   let strSalt = $salt
-  for i in 1..maxInt:
+  for i in 0..maxInt:
     # NOTE: requires UPPERCASE hash input
     if $sha256.digest(strSalt & $i) == strHash:
       return i
-  return 0;
+  return -1;

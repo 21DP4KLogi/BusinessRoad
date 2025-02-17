@@ -1,7 +1,7 @@
 import sprae from "sprae";
 
 declare function hash(input: string): string;
-declare function solve(hash: string, salt: string, maxInt: number);
+declare function solve(hash: string, salt: string, maxInt: number): number;
 
 // Currently for debugging, requires a --global-name parameter for ESBuild
 export async function solveChallenge() {
@@ -10,6 +10,9 @@ export async function solveChallenge() {
   let hash = responseData[1]
   let signature = responseData[2]
   let secretNumber = solve(hash, salt, 1000000);
+  if (secretNumber == -1) {
+    return "err";
+  }
   console.log(secretNumber)
   return salt + ":" + signature + ":" + secretNumber.toString();
 }
@@ -28,6 +31,10 @@ async function initPage(): Promise<void> {
 async function register(): Promise<void> {
   state.registerOngoing = true
   let powSolution = await solveChallenge();
+  if (powSolution == "err") {
+    alert("Error: The PoW solver returned -1");
+    return;
+  }
   let response = await fetch("/api/register", {
     method: "POST",
     body: powSolution
