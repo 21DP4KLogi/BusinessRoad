@@ -1,5 +1,5 @@
 import mummy, mummy/routers
-import std/[sysrand, base64, strutils, parseutils]
+import std/[sysrand, base64, strutils, locks, sets]
 import "pow.nim"
 import "valkey.nim" as valkeyFile
 import "psql.nim"
@@ -39,6 +39,37 @@ proc containsAnythingBut*(s: string,  sub: set[char]): bool =
 #   if (false in conditions):
 #     resp 400
 
+# Websocket
+template withLockedWs(body: untyped) =
+  {.gcsafe.}:
+    withLock(wsLock):
+      body
+
+var
+  wsLock: Lock
+  websockets: HashSet[WebSocket]
+
+get "/ws":
+  discard request.upgradeToWebSocket()
+
+proc websocketHandler*(
+  websocket: WebSocket,
+  event: WebSocketEvent,
+  message: Message
+) =
+  case event:
+  of OpenEvent:
+    {.gcsafe.}:
+      withLock(wsLock):
+        websockets.incl websocket
+  of MessageEvent:
+    websocket.send('"' & message.data & "\", to you too")
+  of ErrorEvent:
+    discard
+  of CloseEvent:
+    withLockedWs:
+      websockets.excl websocket
+
 # Routes
 get "/init":
   headers["Content-Type"] = "text/plain"
@@ -51,6 +82,12 @@ get "/init":
 get "/ping":
   headers["Content-Type"] = "text/plain"
   resp 200, "pong"
+
+get "/pingall":
+  withLockedWs:
+    for ws in websockets:
+      ws.send("ping")
+  resp 200
 
 get "/counter":
   let count = valkey.command("INCR", "valkeyTest")

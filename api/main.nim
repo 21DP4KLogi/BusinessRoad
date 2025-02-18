@@ -19,7 +19,7 @@ var thread: Thread[void]
 createThread(thread, computeGameLogic)
 
 # API server setup
-let apiServer = newServer(router)
+let apiServer = newServer(router, websocketHandler)
 
 # API server launch
 echo "Serving on http://localhost:5001"
