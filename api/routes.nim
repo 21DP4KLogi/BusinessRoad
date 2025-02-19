@@ -1,121 +1,22 @@
-import mummy, mummy/routers
-import std/[sysrand, base64, strutils, locks, sets]
-import "pow.nim"
-import "valkey.nim" as valkeyFile
-import "psql.nim"
-import "motd.nim"
+import "mummy_base.nim"
+import std/[sysrand, base64, strutils]
+import "security.nim"
+import "valkey.nim" as _
+import "psql_base.nim"
 
-export mummy, routers
+let valkey = valkeyPool
 
-# Mummy router definition
-var router*: Router
-
-# Templates for Jester syntax
-template get*(endpoint: string, body: untyped) =
-  router.get(endpoint, RequestHandler(proc (request {.inject.}: Request) {.gcsafe.} =
-    var headers {.inject.}: HttpHeaders
-    body
-  ))
-
-template post*(endpoint: string, body: untyped) =
-  router.post(endpoint, RequestHandler(proc (request {.inject.}: Request) {.gcsafe.} =
-    var headers {.inject.}: HttpHeaders
-    body
-  ))
-
-template resp*(code: int, body: sink string) = # I don't really know what the 'sink' does, but that is what Mummy uses.
-  request.respond(code, headers, body)
-  return
-
-template resp*(code: int) =
-  request.respond(code)
-  return
-
-proc containsAnythingBut*(s: string,  sub: set[char]): bool =
-  return s.contains(AllChars - sub)
-
-# Apparently using the colon syntax 'usually' requires it to be the untyped type, so couldn't quite get it to work.
-# template verifyAllConditions(conditions: untyped): void =
-#   if (false in conditions):
-#     resp 400
-
-# Websocket
-template withLockedWs(body: untyped) =
-  {.gcsafe.}:
-    withLock(wsLock):
-      body
-
-var
-  wsLock: Lock
-  websockets: HashSet[WebSocket]
-
-get "/ws":
-  discard request.upgradeToWebSocket()
-
-proc websocketHandler*(
-  websocket: WebSocket,
-  event: WebSocketEvent,
-  message: Message
-) =
-  case event:
-  of OpenEvent:
-    {.gcsafe.}:
-      withLock(wsLock):
-        websockets.incl websocket
-  of MessageEvent:
-    websocket.send('"' & message.data & "\", to you too")
-  of ErrorEvent:
-    discard
-  of CloseEvent:
-    withLockedWs:
-      websockets.excl websocket
-
-# Routes
 get "/init":
   headers["Content-Type"] = "text/plain"
   let
     counterData = valkey.command("GET", "valkeyTest").to(string)
-    motdData = valkey.getMotd()
+    motdData = valkey.command("GET", "currentMotd").to(string)
     content = $counterData & ":" & motdData
   resp 200, content
-
-get "/ping":
-  headers["Content-Type"] = "text/plain"
-  resp 200, "pong"
-
-get "/pingall":
-  withLockedWs:
-    for ws in websockets:
-      ws.send("ping")
-  resp 200
-
-get "/counter":
-  let count = valkey.command("INCR", "valkeyTest")
-  headers["Content-Type"] = "text/plain"
-  resp 200, $count
-
-# get "/motd":
-#   headers["Content-Type"] = "text/plain"
-#   resp 200, valkey.getMotd
 
 get "/challenge":
   headers["Content-Type"] = "text/plain"
   resp 200, generatePowChallenge()
-
-post "/debugverifychallenge":
-  let reqBody = request.body.split(":")
-  if reqBody.len != 3:
-    resp 400
-  if reqBody[2].contains(AllChars - Digits):
-    resp 400
-  let
-    sentSalt = reqBody[0]
-    sentSignature = reqBody[1]
-    sentSecretNumber = reqBody[2].parseInt
-  if submitPowResponse(sentSalt, sentSignature, sentSecretNumber):
-    resp 200, "is good"
-  else:
-    resp 400, "ew"
 
 post "/register":
   let body = request.body.split(":")

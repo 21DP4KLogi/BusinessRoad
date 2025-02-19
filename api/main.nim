@@ -1,18 +1,22 @@
-import "server.nim"
-import "valkey.nim" as valkeyFile # 'as' added to prevent name conflict with 'valkey' variable
-import "psql.nim"
+import "valkey.nim" as _
+import "psql_base.nim"
 import "motd.nim"
 import "logic.nim"
-import "pow.nim"
+import "security.nim"
+
+import "mummy_base.nim"
+import "routes.nim" # Has effect, despite not being considered used
+import "websocket.nim"
 
 # Valkey setup
+let valkey = valkeySingle
 discard valkey.command("SET", "valkeyTest", "0")
-valkey.randomizeMotd()
-generateHmacKeyForPow()
+discard valkey.command("SET", "currentMotd", getRandomMotd())
+discard valkey.command("SET", "powSignatureKey", secureRandomHexadecimal(20))
 
 # PostgreSQL setup
-psql:
-  db.createTables(newPlayer())
+let db = psqlSingle
+db.createTables(newPlayer())
 
 # Game logic computer setup
 var thread: Thread[void]

@@ -1,7 +1,10 @@
 import std/[os]
-import "psql.nim"
+import "psql_base.nim"
+import "valkey.nim" as _
 
-let db = psqlSingle
+let
+  db = psqlSingle
+  valkey = valkeySingle
 
 proc computeGameLogic* =
   var i = 0

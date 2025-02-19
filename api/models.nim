@@ -1,5 +1,4 @@
-import norm/[types, model, pragmas]
-# import std/[options, json]
+import norm/[types, model]
 
 type
   Player* = ref object of Model

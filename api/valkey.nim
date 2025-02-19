@@ -1,5 +1,5 @@
 import ready
 export ready
 
-let valkey*: RedisPool = newRedisPool(4, "localhost", Port(5003))
-
+let valkeyPool*: RedisPool = newRedisPool(4, "localhost", Port(5003))
+let valkeySingle*: RedisConn = newRedisConn("localhost", Port(5003))

@@ -7,7 +7,7 @@ services:
     image: nginx:stable-alpine-slim
     container_name: brDev_server
     network_mode: "host"
-    ports: "5000:5000"
+    # ports: "5000:5000" # Unused with the 'host' network_mode
     volumes:
       - ../dist/:/var/www/html/:ro
 
