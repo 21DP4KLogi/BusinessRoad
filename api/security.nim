@@ -1,6 +1,9 @@
 import nimcrypto
 import std/[sysrand, strutils]
 import "valkey.nim" as _
+import "cookies.nim"
+
+export cookies
 
 let valkey = valkeyPool
 

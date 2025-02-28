@@ -67,6 +67,14 @@ post "/login":
       codeValid = db.exists(Player, "code = $1", sentCode)
     if codeValid:
       headers["Content-Type"] = "text/plain"
+      headers["Set-Cookie"] = makeCookie(
+        "a", secureRandomHexadecimal(8),
+        expires=daysForward(7),
+        path="/",
+        secure=true,
+        httpOnly=true,
+        sameSite=Strict
+      )
       resp 200, "auth token goes here"
     else:
       resp 404
