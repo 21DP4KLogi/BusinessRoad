@@ -12,7 +12,7 @@ import "websocket.nim"
 let valkey = valkeySingle
 discard valkey.command("SET", "valkeyTest", "0")
 discard valkey.command("SET", "currentMotd", getRandomMotd())
-discard valkey.command("SET", "powSignatureKey", secureRandomHexadecimal(20))
+discard valkey.command("SET", "powSignatureKey", secureRandomBase64(18))
 
 # PostgreSQL setup
 let db = psqlSingle

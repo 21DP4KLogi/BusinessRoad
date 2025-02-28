@@ -22,5 +22,5 @@ template resp*(code: int, body: sink string) = # I don't really know what the 's
   return
 
 template resp*(code: int) =
-  request.respond(code)
+  request.respond(code, headers)
   return

@@ -1,5 +1,5 @@
 import nimcrypto
-import std/[sysrand, strutils]
+import std/[sysrand, strutils, base64]
 import "valkey.nim" as _
 import "cookies.nim"
 
@@ -22,10 +22,11 @@ proc containsAnythingBut*(s: string,  sub: set[char]): bool =
   return s.contains(AllChars - sub)
 
 # Utilizes std/sysrand, which, while not audited, is supposed to be secure.
-# Base64 would be more concise, but im too lazy to account for the 3:4 bit ratio.
-proc secureRandomHexadecimal*(length: int): string =
-  let randomBytes = urandom(length)
-  return randomBytes.toHex
+proc secureRandomHexadecimal*(bytes: int): string =
+  return toHex urandom(bytes)
+
+proc secureRandomBase64*(bytes: int): string =
+  return base64.encode urandom(bytes)
 
 proc secureRandomNumber*(): uint =
   let randomBytes = urandom(4)
