@@ -28,11 +28,14 @@ async function initPage(): Promise<void> {
   }
   let content = await response.text();
   let parsedContent = content.split(":");
-  state.amAuthed = parsedContent[0] == "1";
+  state.authed = parsedContent[0] == "1";
   state.motd = parsedContent[1];
-  if (state.amAuthed) {
+  state.fullName = parsedContent[2] + " " + parsedContent[3];
+  state.money = parsedContent[4];
+  if (state.authed) {
     openGamePage();
   }
+  state.loaded = true;
 }
 
 async function register(): Promise<void> {
@@ -81,14 +84,18 @@ async function login(): Promise<void> {
       alert("Error: Server cannot find user with that code (404)");
       break;
     case 200:
-      state.amAuthed = true;
+      let content = await response.text();
+      let parsedContent = content.split(":");
+      state.fullName = parsedContent[0] + " " + parsedContent[1];
+      state.money = parsedContent[2];
+      state.authed = true;
       break;
     default:
       alert("Error: Unexpected status code - " + response.status);
       break;
   }
   state.authOngoing = false
-  if (state.amAuthed) {
+  if (state.authed) {
     openGamePage();
   }
 }
@@ -128,8 +135,11 @@ async function deleteAccount(): Promise<void> {
 
 async function logout(): Promise<void> {
   await fetch("/api/logout", {"method": "POST"});
-  state.isAuthed = false;
+  state.authed = false;
   state.curPage = "guest";
+  state.fullName = "";
+  state.money = -1;
+  clearInterval(wsPingIntervalId)
   ws.close();
   ws = null;
 }
@@ -138,14 +148,16 @@ async function openGamePage(): Promise<void> {
   ws = new WebSocket("/api/ws");
   ws.onopen = () => {
     // if (ws == null) return
-    ws.send("m?")
+    ws.send("i")
+    wsPingIntervalId = setInterval(function () {ws.send("i")}, 30000); 
   }
   state.curPage = "game"
 }
 
 let scope = {
+  loaded: false,
   motd: "",
-  amAuthed: false,
+  authed: false,
   curPage: "guest",
   authInput: "",
   authOngoing: false,
@@ -154,8 +166,10 @@ let scope = {
   deleteFunc: deleteAccount,
   logoutFunc: logout,
   money: -1,
+  fullName: "",
 }
 let ws: WebSocket|null = null
+let wsPingIntervalId = 0
 
 let state = sprae(document.body, scope);
 initPage();

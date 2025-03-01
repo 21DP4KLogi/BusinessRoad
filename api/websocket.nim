@@ -26,6 +26,9 @@ get "/ws":
     websockets[request.upgradeToWebSocket()] = playerQuery.id
 
 proc messageHandler(ws: WebSocket, event: WebSocketEvent, message: Message) =
+  if message.data == "i":
+    ws.send("o")
+    return
   var playerId = 0
   if message.data == "m?":
     var playerQuery = newPlayer()

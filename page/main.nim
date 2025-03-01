@@ -14,16 +14,17 @@ let guestPage = render:
   button:
     say "Log in"
     sOn "click", "() => {loginFunc()}"
-    sProp "disabled", "authOngoing"
+    sProp "disabled", "authOngoing || authInput.length != 8"
   button:
     say "Delete account"
     sOn "click", "() => {deleteFunc()}"
-    sProp "disabled", "authOngoing"
+    sProp "disabled", "authOngoing || authInput.length != 8"
 
 let gamePage = render:
   button:
     say "Logout"
     sOn "click", "() => {logoutFunc()}"
+  h3: sText: "'Hello, ' + fullName + '!'"
   p:
     sText: "'Money: $' + money"
 
@@ -43,14 +44,16 @@ let main = render:
     body:
       h1: say "Hello, Economy!"
       q: i: sText "motd"
-      p:
-        sIf "1 != 1"
-        say "if youre seeing this, sprae didnt work"
+      hr: discard
       tdiv:
-        sIf "curPage == 'guest'"
+        sIf "!loaded"
+        h3: say "Loading..."
+        noscript: h3: say "or not? JavaScript seems to be disabled."
+      tdiv:
+        sIf "curPage == 'guest' && loaded"
         say guestPage
       tdiv:
-        sIf "curPage == 'game'"
+        sIf "curPage == 'game' && loaded"
         say gamePage
 
 writeFile "dist/index.html", main

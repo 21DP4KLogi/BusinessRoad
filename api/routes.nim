@@ -1,20 +1,36 @@
 import "mummy_base.nim"
-import std/[sysrand, base64, strutils, tables, options]
+import std/[strutils, tables, options]
 import "security.nim"
 import "valkey.nim" as _
 import "psql_base.nim"
 
 let valkey = valkeyPool
 
-get "/init":
-  
-  let
-    motdData = valkey.command("GET", "currentMotd").to(string)
-    authData = if request.headers.hasValidAuthCookie(): "1" else: "0"
-    content = authData & ":" & motdData
+proc getUserGameData(player: Player): string =
+  colonSerialize(
+    "Billy", # First name
+    "Nair", # Last name
+    player.money, # Money
+  )
 
+get "/init":
+
+  let
+    userCookie = request.headers.getAuthCookie()
+    userAuthenticated = authCookieValid(userCookie)
+    authStatusData = if userAuthenticated: "1" else: "0"
+
+  var gameData = ""
+  if userAuthenticated:
+    psql:
+      var playerQuery = newPlayer()
+      db.select(playerQuery, "authToken = $1", userCookie)
+      gameData = getUserGameData(playerQuery)
+  
+  let motdData = valkey.command("GET", "currentMotd").to(string)
+  
   headers["Content-Type"] = "text/plain"
-  resp 200, content
+  resp 200, colonSerialize(authStatusData, motdData, gameData)
 
 get "/challenge":
   headers["Content-Type"] = "text/plain"
@@ -80,7 +96,8 @@ post "/login":
       httpOnly=true,
       sameSite=Strict
     )
-  resp 200
+    headers["Content-Type"] = "text/plain"
+    resp 200, getUserGameData(playerQuery)
 
 post "/delete":
   let body = request.body.split(":")

@@ -20,12 +20,30 @@ when defined(powNumberAlwaysZero):
 else:
   const MaxSecretNumber = 1_000_000
 
+# Concatenates all given strings with ':' as separator
+proc colonSerialize*(data: varargs[string, `$`]): string =
+  for str in data:
+    result.addSep ":" # Does add separator around empty strings, i dont know if that is a problem
+    result.add str
+
 proc hasValidAuthCookie*(headers: HttpHeaders): bool =
   let reqCookies = parseCookies headers["Cookie"]
   if reqCookies.hasKey("a"):
     let authCookie = reqCookies["a"]
     psql:
       return db.exists(Player, "authToken = $1", authCookie)
+
+proc getAuthCookie*(headers: HttpHeaders): string =
+  let reqCookies = parseCookies headers["Cookie"]
+  if reqCookies.hasKey("a"):
+    return reqCookies["a"]
+  else:
+    return ""
+
+proc authCookieValid*(cookie: string): bool =
+  if cookie == "": return false
+  psql:
+    return db.exists(Player, "authToken = $1", cookie)
 
 proc containsAnythingBut*(s: string,  sub: set[char]): bool =
   return s.contains(AllChars - sub)
@@ -52,7 +70,7 @@ proc generatePowChallenge*(): string =
     secretNumber = when MaxSecretNumber == 0: 0 else: secureRandomNumber()
     hash = $sha256.digest(salt & $secretNumber)
     hashSignature = $sha256.hmac(serverKey, hash)
-  return salt & ":" & hash & ":" & hashSignature
+  return colonSerialize(salt, hash, hashSignature)
 
 proc submitPowResponse*(salt, signature: string, secretNumber: int): bool =
   if valkey.command("SISMEMBER", "usedPowSignatures", signature).to(int) == 1:
