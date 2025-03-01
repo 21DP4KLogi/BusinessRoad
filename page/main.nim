@@ -1,7 +1,33 @@
 import dekao
 import "sprae.nim"
 
-let page = render:
+let guestPage = render:
+  input:
+    placeholder "••••••••"
+    sValue "authInput"
+    style "font-family: monospace; width: 8ch; display: block;"
+    maxlength "8"
+  button:
+    say "Register"
+    sOn "click", "() => {registerFunc()}"
+    sProp "disabled", "authOngoing"
+  button:
+    say "Log in"
+    sOn "click", "() => {loginFunc()}"
+    sProp "disabled", "authOngoing"
+  button:
+    say "Delete account"
+    sOn "click", "() => {deleteFunc()}"
+    sProp "disabled", "authOngoing"
+
+let gamePage = render:
+  button:
+    say "Logout"
+    sOn "click", "() => {logoutFunc()}"
+  p:
+    sText: "'Money: $' + money"
+
+let main = render:
   say: "<!DOCTYPE html>"
   html:
     head:
@@ -20,23 +46,12 @@ let page = render:
       p:
         sIf "1 != 1"
         say "if youre seeing this, sprae didnt work"
-      input:
-        placeholder "••••••••"
-        sValue "authInput"
-        style "font-family: monospace; width: 8ch; display: block;"
-        maxlength "8"
-      button:
-        say "Register"
-        sOn "click", "() => {registerFunc()}"
-        sProp "disabled", "authOngoing"
-      button:
-        say "Log in"
-        sOn "click", "() => {loginFunc()}"
-        sProp "disabled", "authOngoing"
-      button:
-        say "Delete account"
-        sOn "click", "() => {deleteFunc()}"
-        sProp "disabled", "authOngoing"
+      tdiv:
+        sIf "curPage == 'guest'"
+        say guestPage
+      tdiv:
+        sIf "curPage == 'game'"
+        say gamePage
 
-writeFile "dist/index.html", page
+writeFile "dist/index.html", main
 echo "'index.html' written!"

@@ -1,9 +1,11 @@
 import "mummy_base.nim"
-import std/[locks, sets]
+import std/[locks, tables]
+import "security.nim"
+import "psql_base.nim"
 
 var
   wsLock: Lock
-  websockets: HashSet[WebSocket]
+  websockets: Table[WebSocket, int64]
 
 template withLockedWs(body: untyped) =
   {.gcsafe.}:
@@ -11,7 +13,29 @@ template withLockedWs(body: untyped) =
       body
 
 get "/ws":
-  discard request.upgradeToWebSocket()
+  let
+    reqCookies = parseCookies request.headers["Cookie"]
+  if not reqCookies.hasKey("a"): resp 401
+  let authCookie = reqCookies["a"]
+  var playerQuery = newPlayer()
+  psql:
+    if not db.exists(Player, "authToken = $1", authCookie):
+      resp 401
+    db.select(playerQuery, "authToken = $1", authCookie)
+  withLockedWs:
+    websockets[request.upgradeToWebSocket()] = playerQuery.id
+
+proc messageHandler(ws: WebSocket, event: WebSocketEvent, message: Message) =
+  var playerId = 0
+  if message.data == "m?":
+    var playerQuery = newPlayer()
+    withLockedWs:
+      playerId = websockets[ws]
+    psql:
+      db.select(playerQuery, "id = $1", playerId)
+    ws.send($playerQuery.money)
+  else:
+    ws.send('"' & message.data & "\", to you too")
 
 proc websocketHandler*(
   websocket: WebSocket,
@@ -20,13 +44,12 @@ proc websocketHandler*(
 ) =
   case event:
   of OpenEvent:
-    {.gcsafe.}:
-      withLock(wsLock):
-        websockets.incl websocket
+    discard
   of MessageEvent:
-    websocket.send('"' & message.data & "\", to you too")
+    messageHandler(websocket, event, message)
   of ErrorEvent:
     discard
   of CloseEvent:
     withLockedWs:
-      websockets.excl websocket
+      websockets.del(websocket)
+

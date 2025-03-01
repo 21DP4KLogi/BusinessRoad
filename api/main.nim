@@ -10,7 +10,6 @@ import "websocket.nim"
 
 # Valkey setup
 let valkey = valkeySingle
-discard valkey.command("SET", "valkeyTest", "0")
 discard valkey.command("SET", "currentMotd", getRandomMotd())
 discard valkey.command("SET", "powSignatureKey", secureRandomBase64(18))
 

@@ -7,20 +7,11 @@ import "psql_base.nim"
 let valkey = valkeyPool
 
 get "/init":
-
-  let reqCookies = parseCookies request.headers["Cookie"]
-  let hasAuthCookie = reqCookies.hasKey("a")
-  let authCookie = reqCookies["a"]
-  var isLoggedIn = false
-
-  psql:
-    isLoggedIn = db.exists(Player, "authToken = $1", authCookie)
-
+  
   let
-    counterData = valkey.command("GET", "valkeyTest").to(string)
     motdData = valkey.command("GET", "currentMotd").to(string)
-    authData = if isLoggedIn: "1" else: "0"
-    content = $counterData & ":" & motdData & ":" & authData
+    authData = if request.headers.hasValidAuthCookie(): "1" else: "0"
+    content = authData & ":" & motdData
 
   headers["Content-Type"] = "text/plain"
   resp 200, content
@@ -118,14 +109,14 @@ post "/delete":
         db.select(playerQuery, "code = $1", sentCode)
         # Will be more complicated when more features get added
         db.delete(playerQuery)
-        headers["Content-Type"] = "text/plain"
-        resp 200, "auth token goes here"
+        resp 204
       else:
         resp 404
   else:
     resp 401
 
 post "/logout":
+  # I'm not sure if I have to check whether the key "Cookie" exists
   let reqCookies = parseCookies request.headers["Cookie"]
   if not reqCookies.hasKey("a"): resp 401
   let authCookie = reqCookies["a"]

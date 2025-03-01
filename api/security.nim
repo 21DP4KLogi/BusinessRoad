@@ -1,7 +1,9 @@
 import nimcrypto
-import std/[sysrand, strutils, base64]
+import std/[sysrand, strutils, base64, tables]
 import "valkey.nim" as _
 import "cookies.nim"
+import "mummy_base.nim"
+import "psql_base.nim"
 
 export cookies
 
@@ -17,6 +19,13 @@ when defined(powNumberAlwaysZero):
   const MaxSecretNumber = 0
 else:
   const MaxSecretNumber = 1_000_000
+
+proc hasValidAuthCookie*(headers: HttpHeaders): bool =
+  let reqCookies = parseCookies headers["Cookie"]
+  if reqCookies.hasKey("a"):
+    let authCookie = reqCookies["a"]
+    psql:
+      return db.exists(Player, "authToken = $1", authCookie)
 
 proc containsAnythingBut*(s: string,  sub: set[char]): bool =
   return s.contains(AllChars - sub)
@@ -36,7 +45,7 @@ proc secureRandomNumber*(): uint =
     random32bitNumber = random32bitNumber shl 8
   return random32bitNumber mod MaxSecretNumber
 
-proc generatePowChallenge*: string =
+proc generatePowChallenge*(): string =
   let
     serverKey = valkey.command("GET", "powSignatureKey").to(string)
     salt = secureRandomHexadecimal(SaltByteCount)

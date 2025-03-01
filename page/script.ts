@@ -3,7 +3,7 @@ import sprae from "sprae";
 declare function hash(input: string): string;
 declare function solve(hash: string, salt: string, maxInt: number): number;
 
-async function solveChallenge() {
+async function solveChallenge(): Promise<string> {
   let responseData = (await processedFetch("/api/challenge")).split(":");
   let salt = responseData[0]
   let hash = responseData[1]
@@ -28,8 +28,11 @@ async function initPage(): Promise<void> {
   }
   let content = await response.text();
   let parsedContent = content.split(":");
-  state.serverCount = parsedContent[0];
+  state.amAuthed = parsedContent[0] == "1";
   state.motd = parsedContent[1];
+  if (state.amAuthed) {
+    openGamePage();
+  }
 }
 
 async function register(): Promise<void> {
@@ -78,10 +81,16 @@ async function login(): Promise<void> {
       alert("Error: Server cannot find user with that code (404)");
       break;
     case 200:
-      alert("Logged in successfully!")
+      state.amAuthed = true;
+      break;
+    default:
+      alert("Error: Unexpected status code - " + response.status);
       break;
   }
   state.authOngoing = false
+  if (state.amAuthed) {
+    openGamePage();
+  }
 }
 
 async function deleteAccount(): Promise<void> {
@@ -107,24 +116,46 @@ async function deleteAccount(): Promise<void> {
     case 404:
       alert("Error: Server cannot find user with that code (404)");
       break;
-    case 200:
+    case 204:
       alert("Account deleted successfully!")
+      break;
+    default:
+      alert("Error: Unexpected status code - " + response.status);
       break;
   }
   state.authOngoing = false
 }
 
+async function logout(): Promise<void> {
+  await fetch("/api/logout", {"method": "POST"});
+  state.isAuthed = false;
+  state.curPage = "guest";
+  ws.close();
+  ws = null;
+}
+
+async function openGamePage(): Promise<void> {
+  ws = new WebSocket("/api/ws");
+  ws.onopen = () => {
+    // if (ws == null) return
+    ws.send("m?")
+  }
+  state.curPage = "game"
+}
+
 let scope = {
-  serverCount: 0,
-  pingServerCounter: async () => {state.serverCount = await processedFetch("/api/counter")},
   motd: "",
+  amAuthed: false,
+  curPage: "guest",
   authInput: "",
   authOngoing: false,
   registerFunc: register,
   loginFunc: login,
   deleteFunc: deleteAccount,
-  // getMotd: async () => {state.motd = await processedFetch("/api/motd")},
+  logoutFunc: logout,
+  money: -1,
 }
+let ws: WebSocket|null = null
 
 let state = sprae(document.body, scope);
 initPage();
