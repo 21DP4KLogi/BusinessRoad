@@ -42,8 +42,15 @@ let main = render:
         tdefer "yep"
       title: say "Business Road"
     body:
-      h1: say "Hello, Economy!"
+      h1: sText "loc(lang, 'title')"
       q: i: sText "motd"
+      button:
+        sOn "click", "() => {lang = langen}"
+        say "English"
+      button:
+        sOn "click", "() => {lang = langlv}"
+        say "Latviešu"
+      h3: sText "loc(lang, 'conjugationTest ')"
       hr: discard
       tdiv:
         sIf "!loaded"
