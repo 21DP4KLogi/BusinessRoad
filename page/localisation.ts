@@ -2,7 +2,6 @@ export function localise(lang: Object, query: string): string {
   let text = lang[query]
   let gaps: Array<string> | null = text.match(/\[.*?\]/g) // [Matches] [anything] [in] [square brackets]
   if (gaps == null) {return text} 
-  console.log(gaps)
   for (let gap of gaps) {
     text = text.replace(gap, lang[gap.slice(1,-1)])
   }
@@ -11,16 +10,26 @@ export function localise(lang: Object, query: string): string {
 
 export const en = {
   title: "Business Road",
-  conjugationTest: "You are [firstname] [lastname], hi [firstname] [lastname]!",
+  greeting: "Hello, [firstname] [lastname]!",
   firstname: "Billy",
   lastname: "Nair",
+  logout: "Log out",
+  register: "Register",
+  login: "Log in",
+  delete: "Delete",
+  moneyIndicator: "Money: $",
 }
 
 export const lv = {
   title: "Biznesa Ceļš",
-  conjugationTest: "Jūs esat [firstnameNom] [lastnameNom], sveiki [firstnameVoc] [lastnameVoc]!",
   firstnameNom: "Bilijs",
   lastnameNom: "Nērs",
+  greeting: "Sveiki, [firstnameVoc] [lastnameVoc]!",
   firstnameVoc: "Bilij",
   lastnameVoc: "Nēr",
+  logout: "Izrakstīties",
+  register: "Reģistrēties",
+  login: "Pierakstīties",
+  delete: "Dzēst",
+  moneyIndicator: "Nauda: $",
 }

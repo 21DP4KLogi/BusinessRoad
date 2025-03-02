@@ -8,25 +8,25 @@ let guestPage = render:
     style "font-family: monospace; width: 8ch; display: block;"
     maxlength "8"
   button:
-    say "Register"
+    sText: "l('register')"
     sOn "click", "() => {registerFunc()}"
     sProp "disabled", "authOngoing"
   button:
-    say "Log in"
+    sText: "l('login')"
     sOn "click", "() => {loginFunc()}"
     sProp "disabled", "authOngoing || authInput.length != 8"
   button:
-    say "Delete account"
+    sText: "l('delete')"
     sOn "click", "() => {deleteFunc()}"
     sProp "disabled", "authOngoing || authInput.length != 8"
 
 let gamePage = render:
   button:
-    say "Logout"
+    sText "l('logout')"
     sOn "click", "() => {logoutFunc()}"
-  h3: sText: "'Hello, ' + fullName + '!'"
+  h3: sText: "l('greeting')"
   p:
-    sText: "'Money: $' + money"
+    sText: "l('moneyIndicator') + money"
 
 let main = render:
   say: "<!DOCTYPE html>"
@@ -42,15 +42,16 @@ let main = render:
         tdefer "yep"
       title: say "Business Road"
     body:
-      h1: sText "loc(lang, 'title')"
+      h1: sText "l('title')"
       q: i: sText "motd"
+      # TODO: improve language selector
+      br: discard
       button:
         sOn "click", "() => {lang = langen}"
         say "English"
       button:
         sOn "click", "() => {lang = langlv}"
         say "Latviešu"
-      h3: sText "loc(lang, 'conjugationTest ')"
       hr: discard
       tdiv:
         sIf "!loaded"

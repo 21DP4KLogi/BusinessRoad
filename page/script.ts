@@ -155,17 +155,12 @@ async function openGamePage(): Promise<void> {
   state.curPage = "game"
 }
 
-// function localiseCurrent(query: string) {
-//   if (state == undefined) {return ""}
-//   return localise(state.lang, query);
-// }
 
 let scope = {
   lang: en,
   langen: en,
   langlv: lv,
-  loc: localise,
-  // l(query: string) {localiseCurrent(query)},
+  l(query: string) {return localise(this.lang, query)},
   loaded: false,
   motd: "",
   authed: false,
