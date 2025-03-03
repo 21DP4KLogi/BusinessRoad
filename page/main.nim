@@ -2,7 +2,7 @@ import dekao
 import "sprae.nim"
 
 let guestPage = render:
-  input:
+  input "#authInput":
     placeholder "••••••••"
     sValue "authInput"
     style "font-family: monospace; width: 8ch; display: block;"
@@ -24,7 +24,7 @@ let gamePage = render:
   button:
     sText "l('logout')"
     sOn "click", "() => {logoutFunc()}"
-  h3: sText: "l('greeting')"
+  # h3: sText: "l('greeting')"
   p:
     sText: "l('moneyIndicator') + money"
 
@@ -40,18 +40,21 @@ let main = render:
       script:
         src "script.js"
         tdefer "yep"
+      link:
+        href "style.css"
+        rel "stylesheet"
       title: say "Business Road"
     body:
-      h1: sText "l('title')"
+      h1 "#title": sText "l('title')"
       q: i: sText "motd"
       # TODO: improve language selector
-      br: discard
-      button:
-        sOn "click", "() => {lang = langen}"
-        say "English"
-      button:
-        sOn "click", "() => {lang = langlv}"
-        say "Latviešu"
+      tdiv "#langSelection":
+        button:
+          sOn "click", "() => {lang = langen}"
+          say "English"
+        button:
+          sOn "click", "() => {lang = langlv}"
+          say "Latviešu"
       hr: discard
       tdiv:
         sIf "!loaded"

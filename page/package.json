@@ -4,7 +4,7 @@
     "sprae": "^11.0.4"
   },
   "scripts": {
-    "dev": "esbuild script.ts --watch --bundle --outdir=../dist --sourcemap",
-    "preview": "esbuild script.ts --watch --bundle --outdir=../dist --minify"
+    "dev": "esbuild script.ts style.css --watch --bundle --outdir=../dist --sourcemap",
+    "preview": "esbuild script.ts style.css --watch --bundle --outdir=../dist --minify"
   }
 }

@@ -1,0 +1,17 @@
+body {
+  background-color: #EEE;
+  font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS", sans-serif;
+}
+#title {
+  display: inline;
+  margin: 1rem;
+}
+#langSelection {
+	right: 1rem;
+	position: absolute;
+	display: inline;
+}
+#authInput {
+  font-size: 2rem;
+  margin: 0.5rem;
+}
