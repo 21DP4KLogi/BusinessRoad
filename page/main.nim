@@ -24,7 +24,9 @@ let gamePage = render:
   button:
     sText "l('logout')"
     sOn "click", "() => {logoutFunc()}"
-  # h3: sText: "l('greeting')"
+  span:
+    sText "l('fullname')"
+  h3: sText: "l('greeting')"
   p:
     sText: "l('moneyIndicator') + money"
 
@@ -46,7 +48,10 @@ let main = render:
       title: say "Business Road"
     body:
       h1 "#title": sText "l('title')"
-      q: i: sText "motd"
+      i:
+        sIf "loaded"
+        q:
+          sText "motd"
       # TODO: improve language selector
       tdiv "#langSelection":
         button:
@@ -60,12 +65,16 @@ let main = render:
         sIf "!loaded"
         h3: say "Loading..."
         noscript: h3: say "or not? JavaScript seems to be disabled."
-      tdiv:
-        sIf "curPage == 'guest' && loaded"
-        say guestPage
-      tdiv:
-        sIf "curPage == 'game' && loaded"
-        say gamePage
+        tstyle:
+          say "#content {display: none}"
+      tdiv "#content":
+        # There is probably a more efficient approach than putting each page in a div
+        tdiv:
+          sIf "curPage == 'guest' && loaded"
+          say guestPage
+        tdiv:
+          sIf "curPage == 'game' && loaded"
+          say gamePage
 
 writeFile "dist/index.html", main
 echo "'index.html' written!"

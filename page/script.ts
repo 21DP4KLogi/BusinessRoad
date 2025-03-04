@@ -155,7 +155,6 @@ async function openGamePage(): Promise<void> {
   state.curPage = "game"
 }
 
-
 let scope = {
   lang: en,
   langen: en,
