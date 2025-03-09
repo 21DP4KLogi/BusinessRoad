@@ -25,8 +25,8 @@ let gamePage = render:
     sText "l('logout')"
     sOn "click", "() => {logoutFunc()}"
   span:
-    sText "l('fullname')"
-  h3: sText: "l('greeting')"
+    sText "l('fullname', [nameid])"
+  h3: sText: "l('greeting', [nameid])"
   p:
     sText: "l('moneyIndicator') + money"
 
@@ -60,6 +60,7 @@ let main = render:
         button:
           sOn "click", "() => {lang = langlv}"
           say "Latviešu"
+      # input: sValue "nameid" # Debug
       hr: discard
       tdiv:
         sIf "!loaded"

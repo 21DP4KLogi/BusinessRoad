@@ -1,19 +1,25 @@
-export function localise(lang: Object, query: string): string {
-  let text = lang[query]
+export function localise(lang: Object, key: string, parameters: Array<number> = []): string {
+  let text = lang[key]
   let gaps: Array<string> | null = text.match(/\[.*?\]/g) // [Matches] [anything] [in] [square brackets]
   if (gaps == null) {return text} 
   for (let gap of gaps) {
-    text = text.replace(gap, lang[gap.slice(1,-1)])
+    let trimmedGap = gap.slice(1,-1)
+    let gapFill = lang
+    for (let section of trimmedGap.split(".")) {
+      let index = section.slice(0, 1) == "$" ? parameters[section.slice(1)] : section
+      gapFill = gapFill[index]
+    }
+    text = text.replace(gap, gapFill)
   }
   return text;
 }
 
 export const en = {
   title: "Business Road",
-  greeting: "Hello, [firstname] [lastname]!",
-  firstname: "Billy",
+  greeting: "Hello, [firstname.$0] [lastname]!",
+  firstname: ["Billy", "Miller"],
   lastname: "Nair",
-  fullname: "[firstname] [lastname]",
+  fullname: "[firstname.$0] [lastname]",
   logout: "Log out",
   register: "Register",
   login: "Log in",
@@ -23,11 +29,11 @@ export const en = {
 
 export const lv = {
   title: "Biznesa Ceļš",
-  firstnameNom: "Bilijs",
+  firstnameNom: ["Bilijs", "Millers"],
   lastnameNom: "Nērs",
-  fullname: "[firstnameNom] [lastnameNom]",
-  greeting: "Sveiki, [firstnameVoc] [lastnameVoc]!",
-  firstnameVoc: "Bilij",
+  fullname: "[firstnameNom.$0] [lastnameNom]",
+  greeting: "Sveiki, [firstnameVoc.$0] [lastnameVoc]!",
+  firstnameVoc: ["Bilij", "Miller"],
   lastnameVoc: "Nēr",
   logout: "Izrakstīties",
   register: "Reģistrēties",

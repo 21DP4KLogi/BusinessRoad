@@ -159,7 +159,7 @@ let scope = {
   lang: en,
   langen: en,
   langlv: lv,
-  l(query: string) {return localise(this.lang, query)},
+  l(query: string, params: Array<number>) {return localise(this.lang, query, params)},
   loaded: false,
   motd: "",
   authed: false,
@@ -172,6 +172,7 @@ let scope = {
   logoutFunc: logout,
   money: -1,
   fullName: "",
+  nameid: 0,
 }
 let ws: WebSocket|null = null
 let wsPingIntervalId = 0
