@@ -21,18 +21,34 @@ async function processedFetch(endpoint: string): Promise<string> {
   return await (await fetch(endpoint)).text();
 }
 
+const defaultGameData = {
+  money: -1,
+  firstname: -1,
+  lastname: -1,
+}
+
+function parseAndApplyGamedata(data: object|null): void {
+  if (data == null) {
+    state.gd = defaultGameData;
+    return;
+  }
+  let parsedData = data;
+  state["gd"] = parsedData
+
+}
+
 async function initPage(): Promise<void> {
   let response = await fetch("/api/init");
   if (response.status == 502) {
     alert("Error: API server is offline (502)");
     return;
   }
-  let content = await response.text();
-  let parsedContent = content.split(":");
-  state.authed = parsedContent[0] == "1";
-  state.motd = parsedContent[1];
-  state.fullName = parsedContent[2] + " " + parsedContent[3];
-  state.money = parsedContent[4];
+  let responseText = await response.text();
+  let content = JSON.parse(responseText);
+  state.authed = content["gameData"] != null;
+  state.motd = content["motd"];
+  state.money = content[4];
+  parseAndApplyGamedata(content["gameData"])
   if (state.authed) {
     openGamePage();
   }
@@ -85,11 +101,11 @@ async function login(): Promise<void> {
       alert("Error: Server cannot find user with that code (404)");
       break;
     case 200:
-      let content = await response.text();
-      let parsedContent = content.split(":");
-      state.fullName = parsedContent[0] + " " + parsedContent[1];
-      state.money = parsedContent[2];
+      let responseText = await response.text();
+      let content = JSON.parse(responseText);
       state.authed = true;
+      parseAndApplyGamedata(content)
+      state.authInput = "";
       break;
     default:
       alert("Error: Unexpected status code - " + response.status);
@@ -170,9 +186,7 @@ let scope = {
   loginFunc: login,
   deleteFunc: deleteAccount,
   logoutFunc: logout,
-  money: -1,
-  fullName: "",
-  nameid: 0,
+  gd: defaultGameData,
 }
 let ws: WebSocket|null = null
 let wsPingIntervalId = 0

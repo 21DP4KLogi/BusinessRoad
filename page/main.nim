@@ -25,10 +25,10 @@ let gamePage = render:
     sText "l('logout')"
     sOn "click", "() => {logoutFunc()}"
   span:
-    sText "l('fullname', [nameid])"
-  h3: sText: "l('greeting', [nameid])"
+    sText "l('fullname', [gd.firstname, gd.lastname])"
+  h3: sText: "l('greeting', [gd.firstname, gd.lastname])"
   p:
-    sText: "l('moneyIndicator') + money"
+    sText: "l('moneyIndicator') + gd.money"
 
 let main = render:
   say: "<!DOCTYPE html>"

@@ -15,15 +15,14 @@ const
   SaltByteCount* = 5
   SaltHexLength* = SaltByteCount * 2
   HashSignatureHexLenght* = 64
-when defined(powNumberAlwaysZero):
-  const MaxSecretNumber = 0
-else:
-  const MaxSecretNumber = 1_000_000
+  MaxSecretNumber =
+    when defined(powNumberAlwaysZero): 0
+    else: 1_000_000
 
 # Concatenates all given strings with ':' as separator
 proc colonSerialize*(data: varargs[string, `$`]): string =
   for str in data:
-    result.addSep ":" # Does add separator around empty strings, i dont know if that is a problem
+    result.addSep ":"
     result.add str
 
 proc hasValidAuthCookie*(headers: HttpHeaders): bool =
@@ -45,7 +44,7 @@ proc authCookieValid*(cookie: string): bool =
   psql:
     return db.exists(Player, "authToken = $1", cookie)
 
-proc containsAnythingBut*(s: string,  sub: set[char]): bool =
+proc containsAnythingBut*(s: string, sub: set[char]): bool =
   return s.contains(AllChars - sub)
 
 # Utilizes std/sysrand, which, while not audited, is supposed to be secure.

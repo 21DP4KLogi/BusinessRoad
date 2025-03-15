@@ -1,26 +1,25 @@
 import "mummy_base.nim"
-import std/[strutils, tables, options]
+import std/[strutils, tables, options, json]
 import "security.nim"
 import "valkey.nim" as _
 import "psql_base.nim"
+import "../lang"/[en as enLang]
 
 let valkey = valkeyPool
 
-proc getUserGameData(player: Player): string =
-  colonSerialize(
-    "Billy", # First name
-    "Nair", # Last name
-    player.money, # Money
-  )
+proc getUserGameData(player: Player): JsonNode =
+  return %* {
+    "firstname": 1,
+    "lastname": 0,
+    "money": player.money,
+  }
 
 get "/init":
-
   let
     userCookie = request.headers.getAuthCookie()
     userAuthenticated = authCookieValid(userCookie)
-    authStatusData = if userAuthenticated: "1" else: "0"
 
-  var gameData = ""
+  var gameData: JsonNode = newJNull()
   if userAuthenticated:
     psql:
       var playerQuery = newPlayer()
@@ -30,7 +29,11 @@ get "/init":
   let motdData = valkey.command("GET", "currentMotd").to(string)
   
   headers["Content-Type"] = "text/plain"
-  resp 200, colonSerialize(authStatusData, motdData, gameData)
+  resp 200, $ %* {
+    "gameData": gameData,
+    "motd": motdData,
+    "lang": enLang.en,
+  }
 
 get "/challenge":
   headers["Content-Type"] = "text/plain"
@@ -97,7 +100,7 @@ post "/login":
       sameSite=Strict
     )
     headers["Content-Type"] = "text/plain"
-    resp 200, getUserGameData(playerQuery)
+    resp 200, $getUserGameData(playerQuery)
 
 post "/delete":
   let body = request.body.split(":")
