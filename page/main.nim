@@ -25,8 +25,8 @@ let gamePage = render:
     sText "l('logout')"
     sOn "click", "() => {logoutFunc()}"
   span:
-    sText "l('fullname', [gd.firstname, gd.lastname])"
-  h3: sText: "l('greeting', [gd.firstname, gd.lastname])"
+    sText "l('fullname', [gd.gender, gd.firstname, gd.lastname])"
+  h3: sText: "l('greeting', [gd.gender, gd.firstname, gd.lastname])"
   p:
     sText: "l('moneyIndicator') + gd.money"
 
@@ -55,10 +55,10 @@ let main = render:
       # TODO: improve language selector
       tdiv "#langSelection":
         button:
-          sOn "click", "() => {lang = langen}"
+          sOn "click", "() => {changelangFunc('en')}"
           say "English"
         button:
-          sOn "click", "() => {lang = langlv}"
+          sOn "click", "() => {changelangFunc('lv')}"
           say "Latviešu"
       # input: sValue "nameid" # Debug
       hr: discard

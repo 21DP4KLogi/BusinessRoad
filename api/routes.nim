@@ -3,15 +3,16 @@ import std/[strutils, tables, options, json]
 import "security.nim"
 import "valkey.nim" as _
 import "psql_base.nim"
-import "../lang"/[en as enLang]
+import "lang_base.nim"
 
 let valkey = valkeyPool
 
 proc getUserGameData(player: Player): JsonNode =
   return %* {
-    "firstname": 1,
-    "lastname": 0,
+    "firstname": player.firstname,
+    "lastname": player.lastname,
     "money": player.money,
+    "gender": player.gender,
   }
 
 get "/init":
@@ -22,18 +23,25 @@ get "/init":
   var gameData: JsonNode = newJNull()
   if userAuthenticated:
     psql:
-      var playerQuery = newPlayer()
+      var playerQuery = Player()
       db.select(playerQuery, "authToken = $1", userCookie)
       gameData = getUserGameData(playerQuery)
   
   let motdData = valkey.command("GET", "currentMotd").to(string)
   
-  headers["Content-Type"] = "text/plain"
+  headers["Content-Type"] = "application/json"
   resp 200, $ %* {
     "gameData": gameData,
     "motd": motdData,
-    "lang": enLang.en,
+    "lang": langs["en"],
   }
+
+get "/setlang/@lang":
+  let sentLang = request.pathParams["lang"]
+  headers["Content-Type"] = "application/json"
+  if not langs.hasKey(sentLang): resp 404
+  #TODO: Make selection persistant, likely via cookie
+  resp 200, langs[sentLang]
 
 get "/challenge":
   headers["Content-Type"] = "text/plain"
@@ -56,7 +64,7 @@ post "/register":
     sentSecretNumber = body[2].parseInt
   if submitPowResponse(sentSalt, sentSignature, sentSecretNumber):
     let newCode: string = secureRandomBase64(6)
-    var playerQuery = newPlayer(newCode)
+    var playerQuery = Player(code: newPaddedStringOfCap[8](newCode))
     psql:
       db.insert(playerQuery)
     headers["Content-Type"] = "text/plain"
@@ -87,7 +95,7 @@ post "/login":
     let codeValid = db.exists(Player, "code = $1", sentCode)
     if not codeValid: resp 404
     let authCookie = secureRandomBase64(9)
-    var playerQuery = newPlayer()
+    var playerQuery = Player()
     db.select(playerQuery, "code = $1", sentCode)
     playerQuery.authToken = some newPaddedStringOfCap[12](authCookie)
     db.update(playerQuery)
@@ -99,7 +107,7 @@ post "/login":
       httpOnly=true,
       sameSite=Strict
     )
-    headers["Content-Type"] = "text/plain"
+    headers["Content-Type"] = "application/json"
     resp 200, $getUserGameData(playerQuery)
 
 post "/delete":
@@ -125,7 +133,7 @@ post "/delete":
     psql:
       codeValid = db.exists(Player, "code = $1", sentCode)
       if codeValid:
-        var playerQuery = newPlayer()
+        var playerQuery = Player()
         db.select(playerQuery, "code = $1", sentCode)
         # Will be more complicated when more features get added
         db.delete(playerQuery)

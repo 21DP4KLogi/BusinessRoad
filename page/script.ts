@@ -1,5 +1,5 @@
 import sprae from "sprae";
-import {localise, en, lv} from "./localisation.ts";
+import {localise} from "./localisation.ts";
 
 declare function hash(input: string): string;
 declare function solve(hash: string, salt: string, maxInt: number): number;
@@ -25,6 +25,7 @@ const defaultGameData = {
   money: -1,
   firstname: -1,
   lastname: -1,
+  gender: "",
 }
 
 function parseAndApplyGamedata(data: object|null): void {
@@ -47,7 +48,7 @@ async function initPage(): Promise<void> {
   let content = JSON.parse(responseText);
   state.authed = content["gameData"] != null;
   state.motd = content["motd"];
-  state.money = content[4];
+  state.lang = JSON.parse(content["lang"])
   parseAndApplyGamedata(content["gameData"])
   if (state.authed) {
     openGamePage();
@@ -161,6 +162,11 @@ async function logout(): Promise<void> {
   ws = null;
 }
 
+async function changeLang(langCode: string): Promise<void> {
+  let response = await processedFetch("/api/setlang/" + langCode);
+  state.lang = JSON.parse(response);
+}
+
 async function openGamePage(): Promise<void> {
   ws = new WebSocket("/api/ws");
   ws.onopen = () => {
@@ -172,9 +178,9 @@ async function openGamePage(): Promise<void> {
 }
 
 let scope = {
-  lang: en,
-  langen: en,
-  langlv: lv,
+  lang: {"_": {}},
+  // langen: en,
+  // langlv: lv,
   l(query: string, params: Array<number>) {return localise(this.lang, query, params)},
   loaded: false,
   motd: "",
@@ -186,6 +192,7 @@ let scope = {
   loginFunc: login,
   deleteFunc: deleteAccount,
   logoutFunc: logout,
+  changelangFunc: (langCode: string) => {changeLang(langCode)},
   gd: defaultGameData,
 }
 let ws: WebSocket|null = null

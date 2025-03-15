@@ -15,7 +15,7 @@ discard valkey.command("SET", "powSignatureKey", secureRandomBase64(18))
 
 # PostgreSQL setup
 let db = psqlSingle
-db.createTables(newPlayer())
+db.createTables(Player())
 
 # Game logic computer setup
 var thread: Thread[void]

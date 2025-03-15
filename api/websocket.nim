@@ -17,7 +17,7 @@ get "/ws":
     reqCookies = parseCookies request.headers["Cookie"]
   if not reqCookies.hasKey("a"): resp 401
   let authCookie = reqCookies["a"]
-  var playerQuery = newPlayer()
+  var playerQuery = Player()
   psql:
     if not db.exists(Player, "authToken = $1", authCookie):
       resp 401
@@ -31,7 +31,7 @@ proc messageHandler(ws: WebSocket, event: WebSocketEvent, message: Message) =
     return
   var playerId = 0
   if message.data == "m?":
-    var playerQuery = newPlayer()
+    var playerQuery = Player()
     withLockedWs:
       playerId = websockets[ws]
     psql:
