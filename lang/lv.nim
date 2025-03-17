@@ -9,34 +9,24 @@ const lang* = $ %* {
   "login": "Pierakstīties",
   "delete": "Dzēst",
   "moneyIndicator": "Nauda: $",
+  "firstname": "[firstnameNom.$0.$1]",
+  "lastname": "[lastnameNom.$0.$1]",
   "_": {
     "firstnameNom": {
-      "M": ["Bilijs", "Millers"],
-      "F": ["Barbara", "Mailija"]
+      "M": ["Bilijs", "Džons", "Millers"],
+      "F": ["Barbara", "Džeina", "Mailija"]
     },
     "lastnameNom": {
-      "M": ["Nērs"],
-      "F": ["Nēra"]
+      "M": ["Dou", "Nērs", "Smits"],
+      "F": ["Dou", "Nēra", "Smita"]
     },
     "firstnameVoc": {
-      "M": ["Bilij", "Miller"],
-      "F": ["Barbar", "Mailij"]
+      "M": ["Bilij", "Džon", "Miller"],
+      "F": ["Barbar", "Džein", "Mailij"]
     },
     "lastnameVoc": {
-      "M": ["Nēr"],
-      "F": ["Nēr"]
+      "M": ["Dou", "Nēr", "Smit"],
+      "F": ["Dou", "Nēr", "Smit"]
     },
-    # "M": {
-    #   "firstnameNom": ["Bilijs", "Millers"],
-    #   "lastnameNom": ["Nērs"],
-    #   "firstnameVoc": ["Bilij", "Miller"],
-    #   "lastnameVoc": ["Nēr"],
-    # },
-    # "F": {
-    #   "firstnameNom": ["Barbara", "Mailija"],
-    #   "lastnameNom": ["Nēra"],
-    #   "firstnameVoc": ["Barbar", "Mailij"],
-    #   "lastnameVoc": ["Nēr"],
-    # }
   }
 }

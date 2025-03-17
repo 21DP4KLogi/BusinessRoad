@@ -1,5 +1,5 @@
 const
-  MaleFirstNameCount* = 2
-  MaleLastNameCount* = 1
-  FemaleFirstNameCount* = 2
-  FemaleLastNameCount* = 1
+  MaleFirstNameCount* = 3
+  MaleLastNameCount* = 3
+  FemaleFirstNameCount* = 3
+  FemaleLastNameCount* = 3

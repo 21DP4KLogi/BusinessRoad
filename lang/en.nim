@@ -1,10 +1,10 @@
 import "data.nim"
 import std/[json]
 
-const MaleFirstNames = ["Billy", "Miller"]
-const MaleLastNames = ["Nair"]
-const FemaleFirstNames = ["Barbara", "Miley"]
-const FemaleLastNames = ["Nair"]
+const MaleFirstNames = ["Billy", "John", "Miller"]
+const MaleLastNames = ["Doe", "Nair", "Smith"]
+const FemaleFirstNames = ["Barbara", "Jane", "Miley"]
+const FemaleLastNames = ["Doe", "Nair", "Smith"]
 
 const lang* = $ %* {
   "title": "Business Road",
@@ -15,6 +15,8 @@ const lang* = $ %* {
   "login": "Log in",
   "delete": "Delete",
   "moneyIndicator": "Money: $",
+  "firstname": "[firstname.$0.$1]",
+  "lastname": "[lastname.$0.$1]",
   "_": {
     "firstname": {
       "M": MaleFirstNames,

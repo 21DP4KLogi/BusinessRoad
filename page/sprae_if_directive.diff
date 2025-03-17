@@ -1,0 +1,4 @@
+28c28
+<       if (curEl) curEl.remove(), curEl[Symbol.dispose]?.();
+---
+>       if (curEl) curEl.remove()//, curEl[Symbol.dispose]?.();

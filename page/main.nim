@@ -1,24 +1,94 @@
 import dekao
 import "sprae.nim"
 
+# For testing a bug with sprae's :each
+let sEachBugTestArea = render:
+    # Test
+    tdiv:
+      sWith "{show: true, list: []}"
+      hr: discard
+      h1: say "Test area"
+      pre: sText "list"
+      button:
+        say "-"
+        sOn "click", "() => {list.pop()}"
+      button:
+        say "+"
+        sOn "click", "() => {list.push(list.length)}"
+      button:
+        say "123"
+        sOn "click", "() => {list = [1, 2, 3]}"
+      input:
+        ttype "checkbox"
+        sValue "show"
+      br: discard
+      select:
+        sIf "show"
+        size "10"
+        option:
+          sEach "i in list"
+          sText "i"
+
 let guestPage = render:
-  input "#authInput":
-    placeholder "••••••••"
-    sValue "authInput"
-    style "font-family: monospace; width: 8ch; display: block;"
-    maxlength "8"
-  button:
-    sText: "l('register')"
-    sOn "click", "() => {registerFunc()}"
-    sProp "disabled", "authOngoing"
-  button:
-    sText: "l('login')"
-    sOn "click", "() => {loginFunc()}"
-    sProp "disabled", "authOngoing || authInput.length != 8"
-  button:
-    sText: "l('delete')"
-    sOn "click", "() => {deleteFunc()}"
-    sProp "disabled", "authOngoing || authInput.length != 8"
+  tdiv "#authcodeAndButton":
+    input "#authInput":
+      placeholder "••••••••"
+      sValue "authPage.codeInput"
+      maxlength "8"
+    button:
+      sText "l(authPage.action)"
+      sOn "click", "() => {authPage.buttonAction()}"
+  # Sprae.js does not seem to directly support radio menus, so onclick used as a workaround
+  span ".authModeSelection":
+    input "#authRadioLogin":
+      name "authCategory"
+      ttype "radio"
+      value "login"
+      sOn "click", "() => {authPage.action = 'login'; authPage.buttonAction = loginFunc}"
+    label:
+      tfor "authRadioLogin"
+      sText "l('login')"
+  span ".authModeSelection":
+    input "#authRadioRegister":
+      name "authCategory"
+      ttype "radio"
+      value "register"
+      sOn "click", "() => {authPage.action = 'register'; authPage.buttonAction = registerFunc}"
+    label:
+      tfor "authRadioRegister"
+      sText "l('register')"
+  span ".authModeSelection":
+    input "#authRadioDelete":
+      name "authCategory"
+      ttype "radio"
+      value "delete"
+      sOn "click", "() => {authPage.action = 'delete'; authPage.buttonAction = deleteFunc}"
+    label:
+      tfor "authRadioDelete"
+      sText "l('delete')"
+  tdiv:
+    sIf "authPage.action == 'register'"
+    # pre: sText "authPage.selGender + ' ' + authPage.selFname + ' ' + authPage.selLname"
+    # pre: sText "authPage.namelist('firstname')"
+    br: discard # temporary spacing
+    button:
+      say "<->"
+      sOn "click", "() => {authPage.selGender = authPage.selGender == 'M' ? 'F' : 'M'}"
+    select:
+      sValue "authPage.selFname"
+      # sWith "{list: authPage.namelist('firstname')}"
+      option:
+        sEach "fname in authPage.namelist('firstname')"
+        sValue "fname[0]"
+        sText "fname[1]"
+    select:
+      sValue "authPage.selLname"
+      # sWith "{list: authPage.namelist('lastname')}"
+      option:
+        sEach "lname in authPage.namelist('lastname')"
+        sValue "lname[0]"
+        sText "lname[1]"
+    # say sEachBugTestArea
 
 let gamePage = render:
   button:

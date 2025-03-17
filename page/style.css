@@ -1,5 +1,5 @@
 body {
-  background-color: #EEE;
+  background-color: #eee;
   font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS", sans-serif;
 }
 button {
@@ -9,12 +9,29 @@ button {
   display: inline;
   margin: 1rem;
 }
-#langSelection {
-	right: 1rem;
-	position: absolute;
-	display: inline;
+#authcodeAndButton {
+  display: flex;
+  align-items: center;
+  > #authInput {
+    font-size: 2rem;
+    margin: 0.5rem;
+    font-family: monospace;
+    width: 8ch;
+  }
+  > button {
+    height: 2rem;
+  }
 }
-#authInput {
-  font-size: 2rem;
-  margin: 0.5rem;
+#langSelection {
+  right: 1rem;
+  position: absolute;
+  display: inline;
+}
+.authModeSelection {
+  border: 1px solid gray;
+  padding: 0.25rem;
+  > input {
+    display: none;
+    margin-right: 0.25rem;
+  }
 }

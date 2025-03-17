@@ -49,6 +49,7 @@ async function initPage(): Promise<void> {
   state.authed = content["gameData"] != null;
   state.motd = content["motd"];
   state.lang = JSON.parse(content["lang"])
+  global.lengths = content["lengths"]
   parseAndApplyGamedata(content["gameData"])
   if (state.authed) {
     openGamePage();
@@ -73,7 +74,7 @@ async function register(): Promise<void> {
     case 401:
       alert("Error: Server considers solution incorrect (401)");
     case 200:
-      state.authInput = await response.text();
+      state.authPage.codeInput = await response.text();
   }
   state.authOngoing = false
 }
@@ -86,7 +87,7 @@ async function login(): Promise<void> {
     state.authOngoing = false
     return;
   }
-  let code = state.authInput;
+  let code = state.authPage.codeInput;
   let response = await fetch("/api/login", {
     method: "POST",
     body: code + ":" + powSolution
@@ -106,7 +107,7 @@ async function login(): Promise<void> {
       let content = JSON.parse(responseText);
       state.authed = true;
       parseAndApplyGamedata(content)
-      state.authInput = "";
+      state.authPage.codeInput = "";
       break;
     default:
       alert("Error: Unexpected status code - " + response.status);
@@ -126,7 +127,7 @@ async function deleteAccount(): Promise<void> {
     state.authOngoing = false
     return;
   }
-  let code = state.authInput;
+  let code = state.authPage.codeInput;
   let response = await fetch("/api/delete", {
     method: "POST",
     body: code + ":" + powSolution
@@ -177,16 +178,39 @@ async function openGamePage(): Promise<void> {
   state.curPage = "game"
 }
 
+type numberStringPair = [number, string]
+
+function namelist(gender: "M"|"F", namepart: "firstname"|"lastname"): Array<numberStringPair> {
+  let result: Array<numberStringPair> = []
+  let length: number = global.lengths[gender][namepart]
+  for (let i = 0; i < length; i++) {
+    result.push([i, state.l(namepart, [gender, i])]);
+  }
+  return result.sort( // Sorted alphabetically
+    (a, b) => {return a[1].localeCompare(b[1])}
+  );
+}
+
+let global = { // Variables that are not intended to be changed after initialisation
+  lengths: {}
+}
+
 let scope = {
-  lang: {"_": {}},
-  // langen: en,
-  // langlv: lv,
+  lang: {},
   l(query: string, params: Array<number>) {return localise(this.lang, query, params)},
   loaded: false,
   motd: "",
   authed: false,
   curPage: "guest",
-  authInput: "",
+  authPage: {
+    selGender: "M",
+    selFname: -1,
+    selLname: -1,
+    action: "login",
+    codeInput: "",
+    namelist(namepart: "firstname"|"lastname") {return namelist(this.selGender, namepart)},
+    buttonAction: () => {},
+  },
   authOngoing: false,
   registerFunc: register,
   loginFunc: login,
