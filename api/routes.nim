@@ -60,21 +60,41 @@ get "/challenge":
 post "/register":
   let body = request.body.split(":")
   if
-    body.len != 3 or
+    body.len != 6 or
     "" in body or
     body[0].containsAnythingBut(UppercaseHexDigits) or
     body[0].len != SaltHexLength or
     body[1].containsAnythingBut(UppercaseHexDigits) or
     body[1].len != HashSignatureHexLenght or
-    body[2].containsAnythingBut(Digits)
+    body[2].containsAnythingBut(Digits) or
+    body[3].containsAnythingBut({'M', 'F'}) or
+    body[4].containsAnythingBut(Digits) or
+    body[5].containsAnythingBut(Digits)
     : resp 400
   let
     sentSalt = body[0]
     sentSignature = body[1]
     sentSecretNumber = body[2].parseInt
+    sentGender = body[3]
+    # BUG: no check for numbers being within valid range and that can cause a 500 error
+    sentFName = int16(body[4].parseInt)
+    sentLName = int16(body[5].parseInt)
+
+  if sentGender == "M":
+    if sentFName >= MaleFirstNameCount or sentLName >= MaleLastNameCount:
+      resp 400
+  else:
+    if sentFName >= FemaleFirstNameCount or sentLName >= FemaleLastNameCount:
+      resp 400
+
   if submitPowResponse(sentSalt, sentSignature, sentSecretNumber):
     let newCode: string = secureRandomBase64(6)
-    var playerQuery = Player(code: newPaddedStringOfCap[8](newCode))
+    var playerQuery = Player(
+      code: newPaddedStringOfCap[8](newCode),
+      gender: newPaddedStringOfCap[1](sentGender),
+      firstname: sentFName,
+      lastname: sentLName
+    )
     psql:
       db.insert(playerQuery)
     headers["Content-Type"] = "text/plain"

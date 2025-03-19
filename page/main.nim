@@ -1,34 +1,6 @@
 import dekao
 import "sprae.nim"
 
-# For testing a bug with sprae's :each
-let sEachBugTestArea = render:
-    # Test
-    tdiv:
-      sWith "{show: true, list: []}"
-      hr: discard
-      h1: say "Test area"
-      pre: sText "list"
-      button:
-        say "-"
-        sOn "click", "() => {list.pop()}"
-      button:
-        say "+"
-        sOn "click", "() => {list.push(list.length)}"
-      button:
-        say "123"
-        sOn "click", "() => {list = [1, 2, 3]}"
-      input:
-        ttype "checkbox"
-        sValue "show"
-      br: discard
-      select:
-        sIf "show"
-        size "10"
-        option:
-          sEach "i in list"
-          sText "i"
-
 let guestPage = render:
   tdiv "#authcodeAndButton":
     input "#authInput":
@@ -68,8 +40,6 @@ let guestPage = render:
       sText "l('delete')"
   tdiv:
     sIf "authPage.action == 'register'"
-    # pre: sText "authPage.selGender + ' ' + authPage.selFname + ' ' + authPage.selLname"
-    # pre: sText "authPage.namelist('firstname')"
     br: discard # temporary spacing
     button:
       say "<->"
@@ -88,7 +58,6 @@ let guestPage = render:
         sEach "lname in authPage.namelist('lastname')"
         sValue "lname[0]"
         sText "lname[1]"
-    # say sEachBugTestArea
 
 let gamePage = render:
   button:

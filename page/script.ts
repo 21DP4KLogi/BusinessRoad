@@ -66,7 +66,11 @@ async function register(): Promise<void> {
   }
   let response = await fetch("/api/register", {
     method: "POST",
-    body: powSolution
+    body:
+      powSolution + ":"
+      + state.authPage.selGender + ":"
+      + state.authPage.selFname + ":"
+      + state.authPage.selLname
   })
   switch (response.status) {
     case 400:
@@ -209,7 +213,7 @@ let scope = {
     action: "login",
     codeInput: "",
     namelist(namepart: "firstname"|"lastname") {return namelist(this.selGender, namepart)},
-    buttonAction: () => {},
+    buttonAction: () => {state.loginFunc()},
   },
   authOngoing: false,
   registerFunc: register,

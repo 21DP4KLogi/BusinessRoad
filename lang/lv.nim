@@ -46,7 +46,7 @@ const FemaleFirstNames = [
   "Olga", "Olha",
   "Reičela",
   "Samanta", "Svetlana",
-  "Vendija"
+  "Vendija",
 ]
 
 const LastNames = [ # Combined since they will be equivalents
@@ -91,7 +91,7 @@ const lang* = $ %* {
     },
     "firstnameVoc": {
       "M": column(MaleFirstNames, 2, 2),
-      "F": column(FemaleFirstNames, 2, 2)
+      "F": FemaleFirstNames
     },
     "lastnameVoc": {
       "M": column(LastNames, 2, 3),
