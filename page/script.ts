@@ -49,6 +49,7 @@ async function initPage(): Promise<void> {
   state.authed = content["gameData"] != null;
   state.motd = content["motd"];
   state.lang = JSON.parse(content["lang"])
+  document.documentElement.setAttribute("lang", "en")
   global.lengths = content["lengths"]
   parseAndApplyGamedata(content["gameData"])
   if (state.authed) {
@@ -170,6 +171,7 @@ async function logout(): Promise<void> {
 async function changeLang(langCode: string): Promise<void> {
   let response = await processedFetch("/api/setlang/" + langCode);
   state.lang = JSON.parse(response);
+  document.documentElement.setAttribute("lang", langCode)
 }
 
 async function openGamePage(): Promise<void> {
@@ -208,8 +210,8 @@ let scope = {
   curPage: "guest",
   authPage: {
     selGender: "M",
-    selFname: -1,
-    selLname: -1,
+    selFname: 0,
+    selLname: 0,
     action: "login",
     codeInput: "",
     namelist(namepart: "firstname"|"lastname") {return namelist(this.selGender, namepart)},

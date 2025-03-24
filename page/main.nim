@@ -11,36 +11,20 @@ let guestPage = render:
       sText "l(authPage.action)"
       sOn "click", "() => {authPage.buttonAction()}"
   # Sprae.js does not seem to directly support radio menus, so onclick used as a workaround
-  span ".authModeSelection":
-    input "#authRadioLogin":
-      name "authCategory"
-      ttype "radio"
-      value "login"
+  p "#authModeSelectionMenu":
+    span ".authModeSelection":
+      sText "authPage.action == 'login' ? l('login').toUpperCase() : l('login')"
       sOn "click", "() => {authPage.action = 'login'; authPage.buttonAction = loginFunc}"
-    label:
-      tfor "authRadioLogin"
-      sText "l('login')"
-  span ".authModeSelection":
-    input "#authRadioRegister":
-      name "authCategory"
-      ttype "radio"
-      value "register"
+    span: say " - "
+    span ".authModeSelection":
+      sText "authPage.action == 'register' ? l('register').toUpperCase() : l('register')"
       sOn "click", "() => {authPage.action = 'register'; authPage.buttonAction = registerFunc}"
-    label:
-      tfor "authRadioRegister"
-      sText "l('register')"
-  span ".authModeSelection":
-    input "#authRadioDelete":
-      name "authCategory"
-      ttype "radio"
-      value "delete"
+    span: say " - "
+    span ".authModeSelection":
+      sText "authPage.action == 'delete' ? l('delete').toUpperCase() : l('delete')"
       sOn "click", "() => {authPage.action = 'delete'; authPage.buttonAction = deleteFunc}"
-    label:
-      tfor "authRadioDelete"
-      sText "l('delete')"
   tdiv:
     sIf "authPage.action == 'register'"
-    br: discard # temporary spacing
     button:
       say "<->"
       sOn "click", "() => {authPage.selGender = authPage.selGender == 'M' ? 'F' : 'M'}"

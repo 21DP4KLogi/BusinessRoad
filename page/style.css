@@ -27,11 +27,11 @@ button {
   position: absolute;
   display: inline;
 }
-.authModeSelection {
-  border: 1px solid gray;
-  padding: 0.25rem;
-  > input {
-    display: none;
-    margin-right: 0.25rem;
+#authModeSelectionMenu {
+  border: dashed gray 1px;
+  width: max-content;
+  padding: 0.5rem 0.75rem;
+  > .authModeSelection {
+    padding: 0 1rem;
   }
 }
