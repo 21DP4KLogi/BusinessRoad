@@ -1,13 +1,10 @@
 import nimcrypto
 import std/[sysrand, strutils, base64, tables]
-import "valkey.nim" as _
+import "databases.nim"
 import "cookies.nim"
 import "mummy_base.nim"
-import "psql_base.nim"
 
 export cookies
-
-let valkey = valkeyPool
 
 const
   Base64digits* = {'a'..'z', 'A'..'Z', '0'..'9', '+', '/'}
@@ -62,7 +59,7 @@ proc secureRandomNumber*(): uint =
     random32bitNumber = random32bitNumber shl 8
   return random32bitNumber mod MaxSecretNumber
 
-proc generatePowChallenge*(): string =
+proc generatePowChallenge*(valkey: RedisConn): string =
   let
     serverKey = valkey.command("GET", "powSignatureKey").to(string)
     salt = secureRandomHexadecimal(SaltByteCount)
@@ -71,7 +68,7 @@ proc generatePowChallenge*(): string =
     hashSignature = $sha256.hmac(serverKey, hash)
   return colonSerialize(salt, hash, hashSignature)
 
-proc submitPowResponse*(salt, signature: string, secretNumber: int): bool =
+proc submitPowResponse*(valkey: RedisConn, salt, signature: string, secretNumber: int): bool =
   if valkey.command("SISMEMBER", "usedPowSignatures", signature).to(int) == 1:
     return false
   let serverKey = valkey.command("GET", "powSignatureKey").to(string)

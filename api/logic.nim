@@ -1,6 +1,5 @@
 import std/[os]
-import "psql_base.nim"
-import "valkey.nim" as _
+import "databases.nim"
 
 let
   db = psqlSingle

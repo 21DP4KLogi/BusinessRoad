@@ -1,8 +1,7 @@
 import "mummy_base.nim"
 import std/[strutils, tables, options, json]
 import "security.nim"
-import "valkey.nim" as _
-import "psql_base.nim"
+import "databases.nim"
 import "lang_base.nim"
 
 let valkey = valkeyPool
@@ -55,7 +54,8 @@ get "/setlang/@lang":
 
 get "/challenge":
   headers["Content-Type"] = "text/plain"
-  resp 200, generatePowChallenge()
+  valkey.withConnection vk:
+    resp 200, generatePowChallenge(vk)
 
 post "/register":
   let body = request.body.split(":")
@@ -87,20 +87,21 @@ post "/register":
     if sentFName >= FemaleFirstNameCount or sentLName >= FemaleLastNameCount:
       resp 400
 
-  if submitPowResponse(sentSalt, sentSignature, sentSecretNumber):
-    let newCode: string = secureRandomBase64(6)
-    var playerQuery = Player(
-      code: newPaddedStringOfCap[8](newCode),
-      gender: newPaddedStringOfCap[1](sentGender),
-      firstname: sentFName,
-      lastname: sentLName
-    )
-    psql:
-      db.insert(playerQuery)
-    headers["Content-Type"] = "text/plain"
-    resp 200, newCode
-  else:
-    resp 401
+  valkey.withConnection vk:
+    if vk.submitPowResponse(sentSalt, sentSignature, sentSecretNumber):
+      let newCode: string = secureRandomBase64(6)
+      var playerQuery = Player(
+        code: newPaddedStringOfCap[8](newCode),
+        gender: newPaddedStringOfCap[1](sentGender),
+        firstname: sentFName,
+        lastname: sentLName
+      )
+      psql:
+        db.insert(playerQuery)
+      headers["Content-Type"] = "text/plain"
+      resp 200, newCode
+    else:
+      resp 401
 
 post "/login":
   let body = request.body.split(":")
@@ -120,7 +121,8 @@ post "/login":
     sentSalt = body[1]
     sentSignature = body[2]
     sentSecretNumber = body[3].parseInt
-  if not submitPowResponse(sentSalt, sentSignature, sentSecretNumber): resp 401
+  valkey.withConnection vk:
+    if not vk.submitPowResponse(sentSalt, sentSignature, sentSecretNumber): resp 401
   psql:
     let codeValid = db.exists(Player, "code = $1", sentCode)
     if not codeValid: resp 404
@@ -158,20 +160,21 @@ post "/delete":
     sentSalt = body[1]
     sentSignature = body[2]
     sentSecretNumber = body[3].parseInt
-  if submitPowResponse(sentSalt, sentSignature, sentSecretNumber):
-    var codeValid = false
-    psql:
-      codeValid = db.exists(Player, "code = $1", sentCode)
-      if codeValid:
-        var playerQuery = Player()
-        db.select(playerQuery, "code = $1", sentCode)
-        # Will be more complicated when more features get added
-        db.delete(playerQuery)
-        resp 204
-      else:
-        resp 404
-  else:
-    resp 401
+  valkey.withConnection vk:
+    if vk.submitPowResponse(sentSalt, sentSignature, sentSecretNumber):
+      var codeValid = false
+      psql:
+        codeValid = db.exists(Player, "code = $1", sentCode)
+        if codeValid:
+          var playerQuery = Player()
+          db.select(playerQuery, "code = $1", sentCode)
+          # Will be more complicated when more features get added
+          db.delete(playerQuery)
+          resp 204
+        else:
+          resp 404
+    else:
+      resp 401
 
 post "/logout":
   # I'm not sure if I have to check whether the key "Cookie" exists

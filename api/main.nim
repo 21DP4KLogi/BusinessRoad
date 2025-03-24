@@ -1,5 +1,4 @@
-import "valkey.nim" as _
-import "psql_base.nim"
+import "databases.nim"
 import "motd.nim"
 import "logic.nim"
 import "security.nim"

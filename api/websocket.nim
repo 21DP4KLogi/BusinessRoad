@@ -1,7 +1,7 @@
 import "mummy_base.nim"
 import std/[locks, tables]
 import "security.nim"
-import "psql_base.nim"
+import "databases.nim"
 
 var
   wsLock: Lock
