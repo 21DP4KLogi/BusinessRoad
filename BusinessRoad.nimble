@@ -7,7 +7,7 @@ license       = "AGPL-3.0-or-later"
 namedBin = {
   "page/main": "brPage",
   "api/main": "brApi",
-  "pow/main": "dist/brPow",
+  "pow/main": "brPow", # Path is determined by ./pow/main.nim.cfg
 }.toTable()
 
 # Tasks

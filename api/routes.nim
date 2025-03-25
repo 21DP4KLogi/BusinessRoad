@@ -30,16 +30,6 @@ get "/init":
   
   headers["Content-Type"] = "application/json"
   resp 200, $ %* {
-    "lengths": {
-      "F": {
-        "firstname": FemaleFirstNameCount,
-        "lastname": FemaleLastNameCount,
-      },
-      "M": {
-        "firstname": MaleFirstNameCount,
-        "lastname": MaleLastNameCount,
-      }
-    },
     "gameData": gameData,
     "motd": motdData,
     "lang": langs["en"],

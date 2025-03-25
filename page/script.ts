@@ -1,5 +1,6 @@
 import sprae from "sprae";
 import {localise} from "./localisation.ts";
+import langLengths from "../dist/lang/langdata.json"
 
 declare function hash(input: string): string;
 declare function solve(hash: string, salt: string, maxInt: number): number;
@@ -50,7 +51,6 @@ async function initPage(): Promise<void> {
   state.motd = content["motd"];
   state.lang = JSON.parse(content["lang"])
   document.documentElement.setAttribute("lang", "en")
-  global.lengths = content["lengths"]
   parseAndApplyGamedata(content["gameData"])
   if (state.authed) {
     openGamePage();
@@ -198,7 +198,7 @@ function namelist(gender: "M"|"F", namepart: "firstname"|"lastname"): Array<numb
 }
 
 let global = { // Variables that are not intended to be changed after initialisation
-  lengths: {}
+  lengths: langLengths
 }
 
 let scope = {

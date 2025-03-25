@@ -1,7 +1,7 @@
 import nimcrypto/sha2
 
-proc hash(input: cstring): cstring {.exportc.} =
-  return cstring($sha256.digest($input))
+# proc hash(input: cstring): cstring {.exportc.} =
+#   return cstring($sha256.digest($input))
 
 proc solve(hash, salt: cstring, maxInt: int): int {.exportc.} =
   let strHash = $hash

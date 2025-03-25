@@ -1,10 +1,10 @@
 {
   "dependencies": {
     "esbuild": "^0.24.2",
-    "sprae": "^11.0.4"
+    "sprae": "^11.0.6"
   },
   "scripts": {
-    "dev": "esbuild script.ts style.css --watch --bundle --outdir=../dist --sourcemap",
-    "preview": "esbuild script.ts style.css --watch --bundle --outdir=../dist --minify"
+    "dev": "esbuild script.ts style.css --watch --bundle --outdir=../dist/public --sourcemap",
+    "preview": "esbuild script.ts style.css --watch --bundle --outdir=../dist/public --minify"
   }
 }

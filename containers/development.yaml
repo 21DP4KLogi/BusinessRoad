@@ -9,7 +9,7 @@ services:
     network_mode: "host"
     ports: "5000:5000" # Unused with the 'host' network_mode # Update: had an error without this so maybe not
     volumes:
-      - ../dist/:/var/www/html/:ro
+      - ../dist/public:/var/www/html/:ro
 
   postgres:
     image: postgres:alpine
