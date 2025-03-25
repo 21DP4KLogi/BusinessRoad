@@ -1,9 +1,9 @@
 import std/json
 
 const
-  MaleFirstNameCount* = 23
+  MaleFirstNameCount* = 27
   MaleLastNameCount* = 16
-  FemaleFirstNameCount* = 16
+  FemaleFirstNameCount* = 19
   FemaleLastNameCount* = MaleLastNameCount # Not sure if there would be a reason to differ
 
 const LangDataJson* = $ %* {

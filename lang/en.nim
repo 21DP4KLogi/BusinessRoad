@@ -26,6 +26,6 @@ const lang* = $ %* {
   }
 }
 
-assert namesCsv["en-m-fn"].len == MaleFirstNameCount
-assert namesCsv["en-f-fn"].len == FemaleFirstNameCount
-assert namesCsv["en-ln"].len == MaleLastNameCount
+assert namesCsv["en-m-fn"].len == MaleFirstNameCount, "Lenght: " & $namesCsv["en-m-fn"].len
+assert namesCsv["en-f-fn"].len == FemaleFirstNameCount, "Lenght: " & $namesCsv["en-f-fn"].len
+assert namesCsv["en-ln"].len == MaleLastNameCount, "Lenght: " & $namesCsv["en-ln"].len
