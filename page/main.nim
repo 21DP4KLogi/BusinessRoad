@@ -1,6 +1,6 @@
 import dekao
 import "sprae.nim"
-import "../lang"/[data, en, lv]
+import "../lang"/[data]
 
 let guestPage = render:
   tdiv "#authcodeAndButton":
@@ -101,8 +101,7 @@ let main = render:
           sIf "curPage == 'game' && loaded"
           say gamePage
 
-writeFile "dist/lang/en.json", en.lang
-writeFile "dist/lang/lv.json", lv.lang
 writeFile "dist/lang/langdata.json", data.LangDataJson
+echo "'langdata.json' written!"
 writeFile "dist/public/index.html", main
 echo "'index.html' written!"
