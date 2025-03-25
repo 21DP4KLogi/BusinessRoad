@@ -11,4 +11,6 @@ tmux send-keys -t 1 '(cd page && npm run dev)' C-m
 tmux send-keys -t 2 'nimble run -d:powNumberAlwaysZero brApi' C-m
 tmux send-keys -t 3 'nimble run brPage'
 
+tmux select-pane -t 3
+
 tmux attach -t brDev

@@ -1,9 +1,26 @@
 import sprae from "sprae";
 import {localise} from "./localisation.ts";
-import langLengths from "../dist/lang/langdata.json"
+import langLengthsJson from "../dist/langdata.json"
 
-declare function hash(input: string): string;
 declare function solve(hash: string, salt: string, maxInt: number): number;
+
+type numberStringPair = [number, string]
+
+
+const defaultGameData = {
+  money: -1,
+  firstname: -1,
+  lastname: -1,
+  gender: "",
+}
+const langLengths = langLengthsJson
+let ws: WebSocket|null = null
+let wsPingIntervalId = 0
+
+
+async function processedFetch(endpoint: string): Promise<string> {
+  return await (await fetch(endpoint)).text();
+}
 
 async function solveChallenge(): Promise<string> {
   let responseData = (await processedFetch("/api/challenge")).split(":");
@@ -18,25 +35,13 @@ async function solveChallenge(): Promise<string> {
   return salt + ":" + signature + ":" + secretNumber.toString();
 }
 
-async function processedFetch(endpoint: string): Promise<string> {
-  return await (await fetch(endpoint)).text();
-}
-
-const defaultGameData = {
-  money: -1,
-  firstname: -1,
-  lastname: -1,
-  gender: "",
-}
-
 function parseAndApplyGamedata(data: object|null): void {
-  if (data == null) {
+  if (data === null) {
     state.gd = defaultGameData;
     return;
   }
   let parsedData = data;
   state["gd"] = parsedData
-
 }
 
 async function initPage(): Promise<void> {
@@ -110,8 +115,8 @@ async function login(): Promise<void> {
     case 200:
       let responseText = await response.text();
       let content = JSON.parse(responseText);
-      state.authed = true;
       parseAndApplyGamedata(content)
+      state.authed = true;
       state.authPage.codeInput = "";
       break;
     default:
@@ -184,11 +189,9 @@ async function openGamePage(): Promise<void> {
   state.curPage = "game"
 }
 
-type numberStringPair = [number, string]
-
 function namelist(gender: "M"|"F", namepart: "firstname"|"lastname"): Array<numberStringPair> {
   let result: Array<numberStringPair> = []
-  let length: number = global.lengths[gender][namepart]
+  let length: number = langLengths[gender][namepart]
   for (let i = 0; i < length; i++) {
     result.push([i, state.l(namepart, [gender, i])]);
   }
@@ -197,9 +200,6 @@ function namelist(gender: "M"|"F", namepart: "firstname"|"lastname"): Array<numb
   );
 }
 
-let global = { // Variables that are not intended to be changed after initialisation
-  lengths: langLengths
-}
 
 let scope = {
   lang: {},
@@ -225,8 +225,6 @@ let scope = {
   changelangFunc: (langCode: string) => {changeLang(langCode)},
   gd: defaultGameData,
 }
-let ws: WebSocket|null = null
-let wsPingIntervalId = 0
 
 let state = sprae(document.body, scope);
 initPage();

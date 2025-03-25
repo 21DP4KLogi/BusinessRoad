@@ -2,7 +2,7 @@ import dekao
 import "sprae.nim"
 import "../lang"/[data]
 
-let guestPage = render:
+let authPage = render:
   tdiv "#authcodeAndButton":
     input "#authInput":
       placeholder "••••••••"
@@ -96,12 +96,12 @@ let main = render:
         # There is probably a more efficient approach than putting each page in a div
         tdiv:
           sIf "curPage == 'guest' && loaded"
-          say guestPage
+          say authPage
         tdiv:
           sIf "curPage == 'game' && loaded"
           say gamePage
 
-writeFile "dist/lang/langdata.json", data.LangDataJson
+writeFile "dist/langdata.json", data.LangDataJson
 echo "'langdata.json' written!"
 writeFile "dist/public/index.html", main
 echo "'index.html' written!"

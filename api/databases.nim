@@ -19,6 +19,7 @@ for i in 1..Dbtimeout:
   try:
     # Opens to test if connection possible, and if so, also closes.
     newRedisConn("localhost", Port(5003)).close()
+    echo "Connected!"
     break
   except:
     sleep(1000)
