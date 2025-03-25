@@ -1,47 +1,7 @@
 import "data.nim"
-import std/[json]
+import std/[json, tables]
+import "parsedcsv.nim"
 
-const MaleFirstNames = [
-  "Alan", "Andreas",
-  "Billy",
-  "Christer",
-  "Greg",
-  "James", "Jeff", "John", "Juris",
-  "Linus",
-  "Miller", "Michael", "Mikhail",
-  "Peter",
-  "Richard",
-  "Sergey", "Serhiy", "Steve",
-  "Tim", "Tom",
-  "Vasily",
-  "Will",
-  "Yuriy",
-]
-const FemaleFirstNames = [
-  "Ada",
-  "Barbara", "Bella",
-  "Carol",
-  "Grace",
-  "Jane",
-  "Kim",
-  "Maria", "Miley",
-  "Natasha",
-  "Olga", "Olha",
-  "Rachel",
-  "Samantha", "Svetlana",
-  "Wendy",
-]
-
-const LastNames = [
-  "Balodis", "Bean",
-  "Doe",
-  "Griffin",
-  "Klein",
-  "Mamatov", "MacDonald",
-  "Nair", "Nemchuk",
-  "Roizman", "Rossmann", "Rowland",
-  "Scott", "Sheridan", "Simpson", "Smith",
-]
 # There might be cases with foreign names where the last names would be split up,
 # e.g. transliterating a feminine lastname from another language, but I currently
 # don't have those, and implementing them as such would be optional.
@@ -59,13 +19,13 @@ const lang* = $ %* {
   "lastname": "[lastname.$1]",
   "_": {
     "firstname": {
-      "M": MaleFirstNames,
-      "F": FemaleFirstNames
+      "M": namesCsv["en-m-fn"],
+      "F": namesCsv["en-f-fn"]
     },
-    "lastname": LastNames
+    "lastname": namesCsv["en-ln"]
   }
 }
 
-assert MaleFirstNames.len == MaleFirstNameCount
-assert FemaleFirstNames.len == FemaleFirstNameCount
-assert LastNames.len == MaleLastNameCount
+assert namesCsv["en-m-fn"].len == MaleFirstNameCount
+assert namesCsv["en-f-fn"].len == FemaleFirstNameCount
+assert namesCsv["en-ln"].len == MaleLastNameCount
