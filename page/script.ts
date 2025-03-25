@@ -31,7 +31,7 @@ async function solveChallenge(): Promise<string> {
   if (secretNumber == -1) {
     return "err";
   }
-  console.log(secretNumber)
+  // console.log(secretNumber)
   return salt + ":" + signature + ":" + secretNumber.toString();
 }
 

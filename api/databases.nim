@@ -15,11 +15,11 @@ putEnv("DB_NAME", "BusinessRoadDev")
 const Dbtimeout = 5
 echo "Connecting to Valkey:"
 for i in 1..Dbtimeout:
-  echo "Attempt: " & $i
+  echo "  Attempt: " & $i
   try:
     # Opens to test if connection possible, and if so, also closes.
     newRedisConn("localhost", Port(5003)).close()
-    echo "Connected!"
+    echo "  Connected!"
     break
   except:
     sleep(1000)

@@ -11,3 +11,5 @@ proc sWith*(value: string) = attr ":with", value
 proc sFx*(value: string) = attr ":fx", value
 proc sRef*(value: string) = attr ":ref", value
 proc sOn*(event, value: string) = attr ":on" & event, value
+
+# template ttemplate*(inner) = tag "", "template", inner
