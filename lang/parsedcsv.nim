@@ -15,7 +15,7 @@ proc tableize(file: string): Table[string, seq[string]] =
       continue
     let row = line.split(",")
     for index, element in pairs(row):
-      if element == "": break
+      if element == "": continue
       result[headers[index]].add element
 
-const namesCsv* = static(tableize("./lang/names.csv"))
+const namesCsv* = tableize("./lang/names.csv")
