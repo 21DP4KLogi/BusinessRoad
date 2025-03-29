@@ -25,6 +25,7 @@ var debugTicker = 0
 
 proc computeGameLogic* =
   while true:
+    sleep(TickRateInMs)
     let
       currentTime = epochTime()
       secondPassed = true # Since it sleeps for a second, this will be true every loop
@@ -66,5 +67,3 @@ proc computeGameLogic* =
           proficiency: proficiency
         )
       db.insert(newEmployees)
-    
-    sleep(TickRateInMs)
