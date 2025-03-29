@@ -1,11 +1,11 @@
 import sprae from "sprae";
 import {localise} from "./localisation.ts";
 import langLengthsJson from "../dist/langdata.json"
+import modelDataJson from "../dist/modeldata.json"
 
 declare function solve(hash: string, salt: string, maxInt: number): number;
 
 type numberStringPair = [number, string]
-
 
 const defaultGameData = {
   money: -1,
@@ -13,6 +13,7 @@ const defaultGameData = {
   lastname: -1,
   gender: "",
 }
+const modeldata = modelDataJson
 const langLengths = langLengthsJson
 let ws: WebSocket|null = null
 let wsPingIntervalId = 0
@@ -216,6 +217,11 @@ let scope = {
     codeInput: "",
     namelist(namepart: "firstname"|"lastname") {return namelist(this.selGender, namepart)},
     buttonAction: () => {state.loginFunc()},
+  },
+  gamePage: {
+    get businessFields() {return modeldata["BusinessField"]},
+    get businessProjects() {return modeldata["BusinessProject"]},
+    get employeeProficiencies() {return modeldata["EmployeeProficiency"]},
   },
   authOngoing: false,
   registerFunc: register,

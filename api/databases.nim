@@ -27,6 +27,20 @@ for i in 1..Dbtimeout:
       raise newException(OSError, "Could not connect to database")
     continue
 
+echo "Connecting to PostgreSQL:"
+for i in 1..Dbtimeout:
+  echo "  Attempt: " & $i
+  try:
+    # Opens to test if connection possible, and if so, also closes.
+    getDb().close()
+    echo "  Connected!"
+    break
+  except:
+    sleep(1000)
+    if i == Dbtimeout:
+      raise newException(OSError, "Could not connect to database")
+    continue
+
 let valkeyPool*: RedisPool = newRedisPool(4, "localhost", Port(5003))
 let valkeySingle*: RedisConn = newRedisConn("localhost", Port(5003))
 

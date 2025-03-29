@@ -17,6 +17,7 @@ const lang* = $ %* {
   "moneyIndicator": "Nauda: $",
   "firstname": "[firstnameNom.$0.$1]",
   "lastname": "[lastnameNom.$0.$1]",
+  "businessField": "[businessField.$0]",
   "_": {
     "firstnameNom": {
       "M": namesCsv["lv-m-fn-nom"],
@@ -34,6 +35,10 @@ const lang* = $ %* {
       "M": namesCsv["lv-m-ln-voc"],
       "F": namesCsv["lv-f-ln-nomvoc"]
     },
+    "businessField": {
+      "eikt": "EIKT",
+      "baking": "Cepšana",
+    }
   }
 }
 

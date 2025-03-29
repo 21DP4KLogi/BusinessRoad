@@ -17,12 +17,17 @@ const lang* = $ %* {
   "moneyIndicator": "Money: $",
   "firstname": "[firstname.$0.$1]",
   "lastname": "[lastname.$1]",
+  "businessField": "[businessField.$0]",
   "_": {
     "firstname": {
       "M": namesCsv["en-m-fn"],
       "F": namesCsv["en-f-fn"]
     },
-    "lastname": namesCsv["en-ln"]
+    "lastname": namesCsv["en-ln"],
+    "businessField": {
+      "eikt": "EICT",
+      "baking": "Baking",
+    }
   }
 }
 

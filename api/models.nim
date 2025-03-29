@@ -1,5 +1,5 @@
 import norm/[types, model, postgres]
-import std/[options, json]
+import std/[options, json, sequtils]
 
 proc `%`*(psoc: PaddedStringOfCap): JsonNode = %($psoc)
 proc `%`*(soc: StringOfCap): JsonNode = %($soc)
@@ -28,6 +28,12 @@ type
 dbProcsForEnum EmployeeProficiency
 dbProcsForEnum BusinessField
 dbProcsForEnum BusinessProject
+
+const enumJson* = $ %* {
+  "EmployeeProficiency": EmployeeProficiency.mapIt($it),
+  "BusinessField": BusinessField.mapIt($it),
+  "BusinessProject": BusinessProject.mapIt($it)
+}
 
 type
   Player* = ref object of Model
