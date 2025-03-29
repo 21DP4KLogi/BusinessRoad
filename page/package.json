@@ -1,7 +1,7 @@
 {
   "dependencies": {
     "esbuild": "^0.25.1",
-    "sprae": "^11.0.6"
+    "sprae": "^11.0.8"
   },
   "scripts": {
     "dev": "esbuild script.ts style.css --watch --bundle --outdir=../dist/public --sourcemap",
