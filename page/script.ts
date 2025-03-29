@@ -222,6 +222,7 @@ let scope = {
     get businessFields() {return modeldata["BusinessField"]},
     get businessProjects() {return modeldata["BusinessProject"]},
     get employeeProficiencies() {return modeldata["EmployeeProficiency"]},
+    businessInfoPaneAction: "",
   },
   authOngoing: false,
   registerFunc: register,

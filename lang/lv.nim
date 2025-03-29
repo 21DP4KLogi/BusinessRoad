@@ -18,6 +18,7 @@ const lang* = $ %* {
   "firstname": "[firstnameNom.$0.$1]",
   "lastname": "[lastnameNom.$0.$1]",
   "businessField": "[businessField.$0]",
+  "startBusiness": "Dibināt jaunu biznesu",
   "_": {
     "firstnameNom": {
       "M": namesCsv["lv-m-fn-nom"],

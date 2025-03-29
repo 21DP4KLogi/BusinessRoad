@@ -1,5 +1,5 @@
 import "mummy_base.nim"
-import std/[strutils, tables, options, json]
+import std/[strutils, tables, options, json, tables]
 import "security.nim"
 import "databases.nim"
 import "lang_base.nim"
@@ -7,11 +7,29 @@ import "lang_base.nim"
 let valkey = valkeyPool
 
 proc getUserGameData(player: Player): JsonNode =
+
+  type businessFrontendInfo = object
+    field: BusinessField
+    id: int64
+
+  var businessList: seq[businessFrontendInfo]
+
+  psql:
+    if db.exists(Business, "owner = $1", player.id):
+      var businessQuery = @[Business()]
+      db.select(businessQuery, "owner = $1", player.id)
+      for business in businessQuery:
+        businessList.add businessFrontendInfo(
+          id: business.id,
+          field: business.field,
+        )
+
   return %* {
     "firstname": player.firstname,
     "lastname": player.lastname,
     "money": player.money,
     "gender": player.gender,
+    "businesses": businessList,
   }
 
 get "/init":

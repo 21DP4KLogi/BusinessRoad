@@ -1,4 +1,4 @@
-import norm/[types, model, postgres]
+import norm/[types, model, postgres, pragmas]
 import std/[options, json, sequtils]
 
 proc `%`*(psoc: PaddedStringOfCap): JsonNode = %($psoc)
@@ -45,7 +45,7 @@ type
     lastname*: int16 = 0
 
   Business* = ref object of Model
-    owner*: Player = Player()
+    owner* {.fk: Player.}: int64 = 0
     field*: BusinessField = BusinessField.eikt
 
   Employee* = ref object of Model

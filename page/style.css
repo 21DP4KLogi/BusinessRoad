@@ -35,3 +35,37 @@ button {
     padding: 0 1rem;
   }
 }
+#TEMPinfoPanes {
+  display: flex;
+  column-gap: 1rem;
+  padding-top: 1rem;
+  height: 50vh;
+  #businessPane {
+    display: flex;
+    flex-direction: column;
+    row-gap: 1rem;
+    width: 20%;
+    #buyBusinessButton {
+      width: 100%;
+      height: 2rem;
+      border: dashed 1px black;
+      align-content: center;
+      text-align: center;
+    }
+    #businessList {
+      border: dashed 1px black;
+      width: 100%;
+      height: 100%;
+      > .businessListCard {
+        width: 100%;
+        height: 15vh;
+        border-bottom: solid 1px black;
+      }
+    }
+  }
+  #businessInfoPane {
+    display: flex;
+    width: 50%;
+    border: dashed 1px black;
+  }
+}

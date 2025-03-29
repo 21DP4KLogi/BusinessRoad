@@ -49,13 +49,27 @@ let gamePage = render:
     sOn "click", "() => {logoutFunc()}"
   span:
     sText "l('fullname', [gd.gender, gd.firstname, gd.lastname])"
-  h3: sText: "l('greeting', [gd.gender, gd.firstname, gd.lastname])"
+  h3: sText "l('greeting', [gd.gender, gd.firstname, gd.lastname])"
   p:
-    sText: "l('moneyIndicator') + gd.money"
-  select:
-    option:
-      sEach "field in gamePage.businessFields"
-      sText "l('businessField', [field])"
+    sText "l('moneyIndicator') + gd.money"
+  tdiv "#TEMPinfoPanes":
+    tdiv "#businessPane":
+      tdiv "#buyBusinessButton":
+        sText "l('startBusiness')"
+        sOn "click", "() => {gamePage.businessInfoPaneAction = 'new'}"
+      tdiv "#businessList":
+        tdiv ".businessListCard":
+          sEach "business in gd.businesses"
+          sText "business.field"
+
+    tdiv "#businessInfoPane":
+      tdiv:
+        sIf "gamePage.businessInfoPaneAction == 'new'"
+        h3: sText "l('startBusiness')"
+    # select:
+    #   option:
+    #     sEach "field in gamePage.businessFields"
+    #     sText "l('businessField', [field])"
 
 let main* = render:
   say: "<!DOCTYPE html>"
@@ -87,7 +101,6 @@ let main* = render:
         button:
           sOn "click", "() => {changelangFunc('lv')}"
           say "Latviešu"
-      # input: sValue "nameid" # Debug
       hr: discard
       tdiv:
         sIf "!loaded"
@@ -96,10 +109,11 @@ let main* = render:
         tstyle:
           say "#content {display: none}"
       tdiv "#content":
-        # There is probably a more efficient approach than putting each page in a div
+        # There is probably a more efficient approach than putting each page in a div.
+        # Correction: div per page is probably fine, what I probably meant was avoid nesting
         tdiv:
           sIf "curPage == 'guest' && loaded"
           say authPage
-        tdiv:
+        tdiv "#gamePage":
           sIf "curPage == 'game' && loaded"
           say gamePage
