@@ -121,7 +121,7 @@ post "/register":
     sentSignature = body[1]
     sentSecretNumber = body[2].parseInt
     sentGender = body[3]
-    # BUG: no check for numbers being within valid range and that can cause a 500 error
+    # TODO: fix bug - no check for numbers being within valid range and that can cause a 500 error
     sentFName = int16(body[4].parseInt)
     sentLName = int16(body[5].parseInt)
 
