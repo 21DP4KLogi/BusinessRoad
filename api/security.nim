@@ -1,8 +1,7 @@
 import nimcrypto
-import std/[sysrand, strutils, base64, tables]
+import std/[sysrand, strutils, base64, math]
 import "databases.nim"
 import "cookies.nim"
-import "mummy_base.nim"
 
 export cookies
 
@@ -15,6 +14,8 @@ const
   MaxSecretNumber =
     when defined(powNumberAlwaysZero): 0
     else: 1_000_000
+  AuthTokenByteCount* = 9
+  AuthTokenBase64Length* = int(ceil(AuthTokenByteCount + (AuthTokenByteCount / 3)))
 
 # Concatenates all given strings with ':' as separator
 proc colonSerialize*(data: varargs[string, `$`]): string =
@@ -22,24 +23,24 @@ proc colonSerialize*(data: varargs[string, `$`]): string =
     result.addSep ":"
     result.add str
 
-proc hasValidAuthCookie*(headers: HttpHeaders): bool =
-  let reqCookies = parseCookies headers["Cookie"]
-  if reqCookies.hasKey("a"):
-    let authCookie = reqCookies["a"]
-    psql:
-      return db.exists(Player, "authToken = $1", authCookie)
+# proc hasValidAuthCookie*(headers: HttpHeaders): bool =
+#   let reqCookies = parseCookies headers["Cookie"]
+#   if reqCookies.hasKey("a"):
+#     let authCookie = reqCookies["a"]
+#     psql:
+#       return db.exists(Player, "authToken = $1", authCookie)
 
-proc getAuthCookie*(headers: HttpHeaders): string =
-  let reqCookies = parseCookies headers["Cookie"]
-  if reqCookies.hasKey("a"):
-    return reqCookies["a"]
-  else:
-    return ""
+# proc getAuthCookie*(headers: HttpHeaders): string =
+#   let reqCookies = parseCookies headers["Cookie"]
+#   if reqCookies.hasKey("a"):
+#     return reqCookies["a"]
+#   else:
+#     return ""
 
-proc authCookieValid*(cookie: string): bool =
-  if cookie == "": return false
-  psql:
-    return db.exists(Player, "authToken = $1", cookie)
+# proc authCookieValid*(cookie: string): bool =
+#   if cookie == "": return false
+#   psql:
+#     return db.exists(Player, "authToken = $1", cookie)
 
 proc containsAnythingBut*(s: string, sub: set[char]): bool =
   return s.contains(AllChars - sub)

@@ -36,8 +36,8 @@ proc computeGameLogic* =
     stdout.write "\rDebug ticker: " & $debugTicker
     stdout.flushFile
 
-    if minutePassed:
-      lastMinuteTick = currentTime
+    if dayPassed:
+      lastDayTick = currentTime
 
       let newMotd = getRandomMotd()
       discard valkey.command("SET", "currentMotd", newMotd)

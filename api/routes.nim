@@ -1,5 +1,5 @@
 import "mummy_base.nim"
-import std/[strutils, tables, options, json, tables]
+import std/[strutils, tables, options, json]
 import "security.nim"
 import "databases.nim"
 import "lang_base.nim"
@@ -33,16 +33,36 @@ proc getUserGameData(player: Player): JsonNode =
   }
 
 get "/init":
-  let
-    userCookie = request.headers.getAuthCookie()
-    userAuthenticated = authCookieValid(userCookie)
+  let reqCookies = parseCookies request.headers["Cookie"]
 
   var gameData: JsonNode = newJNull()
-  if userAuthenticated:
+  if reqCookies.hasKey "a":
     psql:
-      var playerQuery = Player()
-      db.select(playerQuery, "authToken = $1", userCookie)
-      gameData = getUserGameData(playerQuery)
+      let authCookie = reqCookies["a"]
+      # I tried to do the token length and char validation before opening the database,
+      # but i couldn't do it in a neat way and is probably pointless anyways.
+      if
+        not authCookie.containsAnythingBut(Base64digits) and
+        authCookie.len == AuthTokenBase64Length and
+        db.exists(Player, "authToken = $1", authCookie):
+          var playerQuery = Player()
+          db.select(playerQuery, "authToken = $1", authCookie)
+          gameData = getUserGameData(playerQuery)
+      else:
+        headers["Set-Cookie"] = makeCookie(
+          "a", "",
+          expires=daysForward(-1),
+          path="/",
+          secure=true,
+          httpOnly=true,
+          sameSite=Strict
+        )
+  
+  var userLang: string
+  if reqCookies.hasKey("l") and langs.hasKey(reqCookies["l"]):
+    userLang = langs[reqCookies["l"]]
+  else:
+    userLang = langs[DefaultLang]
   
   let motdData = valkey.command("GET", "currentMotd").to(string)
   
@@ -50,14 +70,31 @@ get "/init":
   resp 200, $ %* {
     "gameData": gameData,
     "motd": motdData,
-    "lang": langs["en"],
+    "lang": userLang,
   }
 
 get "/setlang/@lang":
   let sentLang = request.pathParams["lang"]
-  headers["Content-Type"] = "application/json"
   if not langs.hasKey(sentLang): resp 404
-  #TODO: Make selection persistant, likely via cookie
+  if sentLang == DefaultLang:
+    headers["Set-Cookie"] = makeCookie(
+        "l", "",
+        expires=daysForward(-1),
+        path="/",
+        secure=true,
+        httpOnly=true,
+        sameSite=Strict
+    )
+  else:
+    headers["Set-Cookie"] = makeCookie(
+        "l", sentLang,
+        expires=daysForward(7),
+        path="/",
+        secure=true,
+        httpOnly=true,
+        sameSite=Strict
+    )
+  headers["Content-Type"] = "application/json"
   resp 200, langs[sentLang]
 
 get "/challenge":
@@ -134,7 +171,7 @@ post "/login":
   psql:
     let codeValid = db.exists(Player, "code = $1", sentCode)
     if not codeValid: resp 404
-    let authCookie = secureRandomBase64(9)
+    let authCookie = secureRandomBase64(AuthTokenByteCount)
     var playerQuery = Player()
     db.select(playerQuery, "code = $1", sentCode)
     playerQuery.authToken = some newPaddedStringOfCap[12](authCookie)
@@ -189,10 +226,13 @@ post "/logout":
   let reqCookies = parseCookies request.headers["Cookie"]
   if not reqCookies.hasKey("a"): resp 401
   let authCookie = reqCookies["a"]
-  psql:
-    # This check might be a bit useless, will keep it for now incase of debugging
-    if not db.exists(Player, "authToken = $1", authCookie): resp 404
-    db.exec(sql "UPDATE \"Player\" SET authToken = NULL WHERE authToken = $1", authCookie)
+  if
+    not authCookie.containsAnythingBut(Base64digits) and
+    authCookie.len == AuthTokenBase64Length:
+    psql:
+      # This check might be a bit useless, will keep it for now incase of debugging
+      if not db.exists(Player, "authToken = $1", authCookie): resp 404
+      db.exec(sql "UPDATE \"Players\" SET authToken = NULL WHERE authToken = $1", authCookie)
   headers["Set-Cookie"] = makeCookie(
     "a", "",
     expires=daysForward(-1),

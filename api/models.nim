@@ -36,7 +36,7 @@ const enumJson* = $ %* {
 }
 
 type
-  Player* = ref object of Model
+  Player* {.tableName: "Players".} = ref object of Model
     code*: PaddedStringOfCap[8] = newPaddedStringOfCap[8]("")
     authToken*: Option[PaddedStringOfCap[12]] = none PaddedStringOfCap[12]
     money*: int32 = 0
@@ -44,23 +44,23 @@ type
     firstname*: int16 = 0
     lastname*: int16 = 0
 
-  Business* = ref object of Model
+  Business* {.tableName: "Businesses".} = ref object of Model
     owner* {.fk: Player.}: int64 = 0
     field*: BusinessField = BusinessField.eikt
 
-  Employee* = ref object of Model
-    workplace*: Option[Business] = none Business
+  Employee* {.tableName: "Employees".} = ref object of Model
+    workplace* {.fk: Business.}: Option[int64] = none int64
     salary*: int32 = 0
     proficiency*: EmployeeProficiency = EmployeeProficiency.taxpayer
     gender*: PaddedStringOfCap[1] = newPaddedStringOfCap[1]("M")
     firstname*: int16 = 0
     lastname*: int16 = 0
 
-  Project* = ref object of Model
-    business*: Business = Business()
+  Project* {.tableName: "Projects".} = ref object of Model
+    business* {.fk: Business.}: int64 = 0
     Project*: BusinessProject = BusinessProject.serverHosting
 
-  Contract* = ref object of Model
-    initiator*: Business = Business()
-    project*: Project = Project()
-    recipient*: Option[Business] = none Business
+  Contract* {.tableName: "Contract".} = ref object of Model
+    initiator* {.fk: Business.}: int64 = 0
+    project* {.fk: Project.}: int64 = 0
+    recipient* {.fk: Business.}: Option[int64] = none int64
