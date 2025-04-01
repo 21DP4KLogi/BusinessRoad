@@ -219,10 +219,12 @@ let scope = {
     buttonAction: () => {state.loginFunc()},
   },
   gamePage: {
-    get businessFields() {return modeldata["BusinessField"]},
-    get businessProjects() {return modeldata["BusinessProject"]},
-    get employeeProficiencies() {return modeldata["EmployeeProficiency"]},
-    businessInfoPaneAction: "",
+    businessFields: modeldata["BusinessField"],
+    businessProjects: modeldata["BusinessProject"],
+    employeeProficiencies: modeldata["EmployeeProficiency"],
+    businessInfoPane: {
+      action: "",
+    }
   },
   authOngoing: false,
   registerFunc: register,

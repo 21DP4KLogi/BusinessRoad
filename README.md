@@ -33,7 +33,7 @@ Requires:
 - Node/NPM
 - Tmux (Optional)
 
-Aqcuire required containers:
+Acquire required containers from docker.io:
 - nginx:stable-alpine-slim
 - postgres:alpine
 - valkey:alpine
@@ -41,6 +41,7 @@ Aqcuire required containers:
 Build the following atleast once to get started:
 - `nimble build brPow`
 - `nimble run brPage` - This writes files at runtime and then closes
+
 And install the npm packages:
 `npm i` while in the `./page` directory
 
@@ -54,7 +55,7 @@ Without Tmux, you need to launch the following:
 Whenever you need to build the frontend: `nimble run brPage`
 
 ### For hosting
-Uhh, once there is something to host, I will make the Container composing files.
+Uhh, once there is something to host, I will make the container composing files.
 
 ---
 
