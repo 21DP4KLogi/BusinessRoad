@@ -12,6 +12,7 @@ const defaultGameData = {
   firstname: -1,
   lastname: -1,
   gender: "",
+  businesses: [],
 }
 const modeldata = modelDataJson
 const langLengths = langLengthsJson
@@ -184,6 +185,7 @@ async function openGamePage(): Promise<void> {
   ws = new WebSocket("/api/ws");
   ws.onopen = () => {
     // if (ws == null) return
+    ws.addEventListener("message", (event) => wsHandler(event));
     ws.send("i")
     wsPingIntervalId = setInterval(function () {ws.send("i")}, 30000); 
   }
@@ -201,6 +203,9 @@ function namelist(gender: "M"|"F", namepart: "firstname"|"lastname"): Array<numb
   );
 }
 
+function foundBusiness(businessId: number): void {
+  ws.send("fb@" + businessId)
+}
 
 let scope = {
   lang: {},
@@ -224,7 +229,10 @@ let scope = {
     employeeProficiencies: modeldata["EmployeeProficiency"],
     businessInfoPane: {
       action: "",
-    }
+      title: "",
+      selectedNewBusiness: -1,
+      foundBusiness: (businessId: number) => {foundBusiness(businessId)}
+    },
   },
   authOngoing: false,
   registerFunc: register,
@@ -233,6 +241,28 @@ let scope = {
   logoutFunc: logout,
   changelangFunc: (langCode: string) => {changeLang(langCode)},
   gd: defaultGameData,
+}
+
+function wsHandler(event: MessageEvent) {
+  let message = event.data;
+  if (message === 'o') return
+  console.log(message);
+  let splitMessage = message.split('=');
+  let command = splitMessage[0]
+  let data = splitMessage?.[1].split(':') ?? []
+  switch (command) {
+    case "m":
+      state.gd.money = data[0];
+      break;
+    case "newbusiness":
+      state.gd.businesses.push({
+        field: data[0],
+        id: data[1]
+      });
+      break;
+    default:
+      alert("Server sent some incoherent gobbledegook via websocket")
+  }
 }
 
 let state = sprae(document.body, scope);

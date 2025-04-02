@@ -7,11 +7,6 @@ import "lang_base.nim"
 let valkey = valkeyPool
 
 proc getUserGameData(player: Player): JsonNode =
-
-  type businessFrontendInfo = object
-    field: BusinessField
-    id: int64
-
   var businessList: seq[businessFrontendInfo]
 
   psql:
@@ -139,7 +134,8 @@ post "/register":
         code: newPaddedStringOfCap[8](newCode),
         gender: newPaddedStringOfCap[1](sentGender),
         firstname: sentFName,
-        lastname: sentLName
+        lastname: sentLName,
+        money: 10000,
       )
       psql:
         db.insert(playerQuery)

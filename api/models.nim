@@ -64,3 +64,7 @@ type
     initiator* {.fk: Business.}: int64 = 0
     project* {.fk: Project.}: int64 = 0
     recipient* {.fk: Business.}: Option[int64] = none int64
+
+type businessFrontendInfo* = object
+  field*: BusinessField
+  id*: int64

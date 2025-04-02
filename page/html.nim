@@ -65,17 +65,24 @@ let gamePage = render:
     tdiv "#businessInfoPane":
       tdiv:
         sIf "gamePage.businessInfoPane.action == 'new'"
-        tdiv:
+        tdiv ".title":
           h3: sText "l('startBusiness')"
           button:
             say "X"
             sOn "click", "() => {gamePage.businessInfoPane.action = ''}"
-        select:
-          # sWith "{l: l, gamePage: {businessFields: gamePage.businessFields}}"
-          option:
-            sEach "field, index in gamePage.businessFields"
-            sValue "index"
-            sText "l('businessField', [field])"
+        tdiv ".content":
+          select:
+            sValue "gamePage.businessInfoPane.selectedNewBusiness"
+            # sWith "{l: l, gamePage: {businessFields: gamePage.businessFields}}"
+            option:
+              sEach "field, index in gamePage.businessFields"
+              sValue "index"
+              sText "l('businessField', [field])"
+          button:
+            sProp "disabled", "gd.money < 5000"
+            sOn "click", "() => {gamePage.businessInfoPane.foundBusiness(gamePage.businessInfoPane.selectedNewBusiness)}"
+            sText "'Found business for $5000'"
+
 
 let main* = render:
   say: "<!DOCTYPE html>"
