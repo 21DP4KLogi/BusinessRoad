@@ -230,6 +230,7 @@ let scope = {
     businessInfoPane: {
       action: "",
       title: "",
+      selectedExistingBusiness: -1,
       selectedNewBusiness: -1,
       foundBusiness: (businessId: number) => {foundBusiness(businessId)}
     },

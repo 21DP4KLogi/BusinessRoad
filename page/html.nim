@@ -59,10 +59,13 @@ let gamePage = render:
         sOn "click", "() => {gamePage.businessInfoPane.action = 'new'}"
       tdiv "#businessList":
         tdiv ".businessListCard":
-          sEach "business in gd.businesses"
-          sText "business.field"
+          sEach "business, index in gd.businesses"
+          sOn "click", "() => {gamePage.businessInfoPane.selectedExistingBusiness = index;gamePage.businessInfoPane.action = 'info'}"
+          h3:
+            sText "l('businessField', [business.field])"
 
     tdiv "#businessInfoPane":
+      # New business menu
       tdiv:
         sIf "gamePage.businessInfoPane.action == 'new'"
         tdiv ".title":
@@ -82,6 +85,15 @@ let gamePage = render:
             sProp "disabled", "gd.money < 5000"
             sOn "click", "() => {gamePage.businessInfoPane.foundBusiness(gamePage.businessInfoPane.selectedNewBusiness)}"
             sText "'Found business for $5000'"
+      # Business info
+      tdiv:
+        sIf "gamePage.businessInfoPane.action == 'info'"
+        tdiv ".title":
+          h3: sText "l('businessField', [gd.businesses[gamePage.businessInfoPane.selectedExistingBusiness].field])"
+          button:
+            say "X"
+            sOn "click", "() => {gamePage.businessInfoPane.action = ''}"
+        # tdiv ".content":
 
 
 let main* = render:

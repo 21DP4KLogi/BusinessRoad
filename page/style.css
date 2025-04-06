@@ -60,6 +60,10 @@ button {
         width: 100%;
         height: 15vh;
         border-bottom: solid 1px black;
+        > h3 {
+          margin: 0;
+          padding: 0.5rem;
+        }
       }
     }
   }
