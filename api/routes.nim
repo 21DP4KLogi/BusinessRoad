@@ -7,16 +7,32 @@ import "lang_base.nim"
 let valkey = valkeyPool
 
 proc getUserGameData(player: Player): JsonNode =
-  var businessList: seq[businessFrontendInfo]
+  var businessList: seq[frontendBusiness]
 
   psql:
     if db.exists(Business, "owner = $1", player.id):
       var businessQuery = @[Business()]
+      var employeeQuery = @[Employee()]
       db.select(businessQuery, "owner = $1", player.id)
       for business in businessQuery:
-        businessList.add businessFrontendInfo(
+        var employeeList: seq[frontendEmployee] = @[]
+        if db.exists(Employee, "workplace = $1", business.id):
+          db.select(employeeQuery, "workplace = $1", business.id)
+          for employee in employeeQuery:
+            # Currently 'frontendEmployee' and 'Employee' line up exactly, but that could change
+            employeeList.add frontendEmployee(
+              # There is probably some syntactic sugar for this
+              id: employee.id,
+              salary: employee.salary,
+              proficiency: employee.proficiency,
+              gender: employee.gender,
+              firstname: employee.firstname,
+              lastname: employee.lastname
+            )
+        businessList.add frontendBusiness(
           id: business.id,
           field: business.field,
+          employees: employeeList
         )
 
   return %* {

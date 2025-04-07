@@ -19,6 +19,22 @@ const langLengths = langLengthsJson
 let ws: WebSocket|null = null
 let wsPingIntervalId = 0
 
+function localise(lang: Object, key: string, parameters: Array<number> = []): string {
+  let text: string|undefined = lang[key]
+  if (text === undefined) {return ""}
+  let gaps: Array<string> | null = text.match(/\[.*?\]/g) // [Matches] [anything] [in] [square brackets]
+  if (gaps == null) {return text} 
+  for (let gap of gaps) {
+    let trimmedGap = gap.slice(1,-1)
+    let gapFill = lang["_"]
+    for (let section of trimmedGap.split(".")) {
+      let index = section.slice(0, 1) == "$" ? parameters[section.slice(1)] : section
+      gapFill = gapFill[index]
+    }
+    text = text.replace(gap, gapFill)
+  }
+  return text;
+}
 
 async function processedFetch(endpoint: string): Promise<string> {
   return await (await fetch(endpoint)).text();
@@ -203,8 +219,23 @@ function namelist(gender: "M"|"F", namepart: "firstname"|"lastname"): Array<numb
   );
 }
 
-function foundBusiness(businessId: number): void {
-  ws.send("fb@" + businessId)
+// function foundBusiness(businessId: number): void {
+//   ws.send("fb@" + businessId)
+// }
+
+function sendWsCommand(command: string, params: Array<string>): void {
+  if (ws === null) return
+  if (params.length < 1) {
+    ws.send(command)
+  } else if (params.length == 1) {
+    ws.send(command + '@' + params[0])
+  } else {
+    let serializedParams = params[0]
+    for (let i = 1; i < params.length; i++) {
+      serializedParams += ":" + params[i]
+    }
+    ws.send(command + '@' + serializedParams)
+  }
 }
 
 let scope = {
@@ -213,6 +244,7 @@ let scope = {
   loaded: false,
   motd: "",
   authed: false,
+  wssend: sendWsCommand,
   curPage: "guest",
   authPage: {
     selGender: "M",
@@ -232,7 +264,6 @@ let scope = {
       title: "",
       selectedExistingBusiness: -1,
       selectedNewBusiness: -1,
-      foundBusiness: (businessId: number) => {foundBusiness(businessId)}
     },
   },
   authOngoing: false,
@@ -250,15 +281,16 @@ function wsHandler(event: MessageEvent) {
   console.log(message);
   let splitMessage = message.split('=');
   let command = splitMessage[0]
-  let data = splitMessage?.[1].split(':') ?? []
+  let data = splitMessage?.[1] ?? ""
   switch (command) {
     case "m":
-      state.gd.money = data[0];
+      state.gd.money = data;
       break;
     case "newbusiness":
+      let parsedData = JSON.parse(data)
       state.gd.businesses.push({
-        field: data[0],
-        id: data[1]
+        field: parsedData["field"],
+        id: parsedData["id"]
       });
       break;
     default:

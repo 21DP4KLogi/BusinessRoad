@@ -1,5 +1,5 @@
 import "mummy_base.nim"
-import std/[locks, tables, strutils]
+import std/[locks, tables, strutils, random, json]
 import "security.nim"
 import "databases.nim"
 
@@ -47,7 +47,8 @@ proc messageHandler(ws: WebSocket, event: WebSocketEvent, message: Message) =
       command = parsedMessage[0]
       parameters = parsedMessage[1].split ':'
     case command
-    of "fb":
+
+    of "foundBusiness":
       if
         playerQuery.money < 5000 or
         parameters.len > 1 or
@@ -64,8 +65,45 @@ proc messageHandler(ws: WebSocket, event: WebSocketEvent, message: Message) =
       psql:
         db.update(playerQuery)
         db.insert(businessQuery)
-      ws.send("newbusiness=" & colonSerialize(businessQuery.field, businessQuery.id))
+      ws.send("newbusiness=" & $ %*{
+        "field": businessQuery.field,
+        "id": businessQuery.id
+      })
       ws.send("m=" & $playerQuery.money)
+
+    of "findEmployees":
+      if parameters[0].containsAnythingBut(Digits): return
+      let sentBusinessId = parameters[0].parseInt()
+      psql:
+        if not db.exists(Business, "id = $1 and owner = $2", sentBusinessId, playerId):
+          return
+        let unemployedWorkerCount = db.count(Employee, "workplace IS NULL")
+        if unemployedWorkerCount == 0:
+          ws.send("o") # TODO: make this informative
+          return
+        var range = {1..unemployedWorkerCount}
+        var chosenEmployeeIds: seq[int] = @[]
+        for _ in 1..3:
+          # TODO: check if less than 3 workers available
+          let chosenNumber = sample(range)
+          chosenEmployeeIds.add chosenNumber
+          range.excl chosenNumber
+        var employeeQuery = Employee()
+        var employeeList: seq[frontendEmployee] = @[]
+        for i in chosenEmployeeIds:
+          db.select(employeeQuery, "id = $1", i)
+          employeeList.add frontendEmployee(
+            # There is probably some syntactic sugar for this
+            id: employeeQuery.id,
+            salary: employeeQuery.salary,
+            proficiency: employeeQuery.proficiency,
+            gender: employeeQuery.gender,
+            firstname: employeeQuery.firstname,
+            lastname: employeeQuery.lastname
+          )
+        ws.send("interviewees=" & $ %* {"business": sentBusinessId, "interviewees": employeeList})
+
+
     else:
       return
 

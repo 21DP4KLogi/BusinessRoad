@@ -65,6 +65,16 @@ type
     project* {.fk: Project.}: int64 = 0
     recipient* {.fk: Business.}: Option[int64] = none int64
 
-type businessFrontendInfo* = object
-  field*: BusinessField
-  id*: int64
+type
+  frontendEmployee* = object
+    id*: int64
+    salary*: int32
+    proficiency*: EmployeeProficiency
+    gender*: PaddedStringOfCap[1]
+    firstname*: int16 = 0
+    lastname*: int16 = 0
+  
+  frontendBusiness* = object
+    id*: int64
+    field*: BusinessField
+    employees*: seq[frontendEmployee]

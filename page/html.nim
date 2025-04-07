@@ -10,7 +10,6 @@ let authPage = render:
     button:
       sText "l(authPage.action)"
       sOn "click", "() => {authPage.buttonAction()}"
-  # Sprae.js does not seem to directly support radio menus, so onclick used as a workaround
   p "#authModeSelectionMenu":
     span ".authModeSelection":
       sText "authPage.action == 'login' ? l('login').toUpperCase() : l('login')"
@@ -83,7 +82,7 @@ let gamePage = render:
               sText "l('businessField', [field])"
           button:
             sProp "disabled", "gd.money < 5000"
-            sOn "click", "() => {gamePage.businessInfoPane.foundBusiness(gamePage.businessInfoPane.selectedNewBusiness)}"
+            sOn "click", "() => {wssend('foundBusiness', [gamePage.businessInfoPane.selectedNewBusiness])}"
             sText "'Found business for $5000'"
       # Business info
       tdiv:
@@ -93,7 +92,10 @@ let gamePage = render:
           button:
             say "X"
             sOn "click", "() => {gamePage.businessInfoPane.action = ''}"
-        # tdiv ".content":
+        tdiv ".content":
+          button:
+            say "Find employees"
+            sOn "click", "() => {wssend('findEmployees', [gd.businesses[gamePage.businessInfoPane.selectedExistingBusiness].id])}"
 
 
 let main* = render:
