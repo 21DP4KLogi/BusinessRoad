@@ -56,9 +56,9 @@ proc computeGameLogic* =
         let
           gender = sample(["M", "F"])
           firstname =
-            if gender == "M": rand(0..MaleFirstNameCount)
-            else: rand(0..FemaleFirstNameCount)
-          lastname = rand(0..MaleLastNameCount)
+            if gender == "M": rand(0..MaleFirstNameCount - 1)
+            else: rand(0..FemaleFirstNameCount - 1)
+          lastname = rand(0..MaleLastNameCount - 1)
           proficiency = rand(EmployeeProficiency)
         newEmployees.add Employee(
           gender: newPaddedStringOfCap[1](gender),

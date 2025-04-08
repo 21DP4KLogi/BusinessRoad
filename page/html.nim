@@ -59,7 +59,7 @@ let gamePage = render:
       tdiv "#businessList":
         tdiv ".businessListCard":
           sEach "business, index in gd.businesses"
-          sOn "click", "() => {gamePage.businessInfoPane.selectedExistingBusiness = index;gamePage.businessInfoPane.action = 'info'}"
+          sOn "click", "() => {gamePage.selBusinessIndex = index; gamePage.businessInfoPane.action = 'info'}"
           h3:
             sText "l('businessField', [business.field])"
 
@@ -74,7 +74,7 @@ let gamePage = render:
             sOn "click", "() => {gamePage.businessInfoPane.action = ''}"
         tdiv ".content":
           select:
-            sValue "gamePage.businessInfoPane.selectedNewBusiness"
+            sValue "gamePage.businessInfoPane.newBusinessType"
             # sWith "{l: l, gamePage: {businessFields: gamePage.businessFields}}"
             option:
               sEach "field, index in gamePage.businessFields"
@@ -82,20 +82,25 @@ let gamePage = render:
               sText "l('businessField', [field])"
           button:
             sProp "disabled", "gd.money < 5000"
-            sOn "click", "() => {wssend('foundBusiness', [gamePage.businessInfoPane.selectedNewBusiness])}"
+            sOn "click", "() => {wssend('foundBusiness', [gamePage.businessInfoPane.newBusinessType])}"
             sText "'Found business for $5000'"
       # Business info
       tdiv:
         sIf "gamePage.businessInfoPane.action == 'info'"
         tdiv ".title":
-          h3: sText "l('businessField', [gd.businesses[gamePage.businessInfoPane.selectedExistingBusiness].field])"
+          h3: sText "l('businessField', [selBusiness.field])"
           button:
             say "X"
             sOn "click", "() => {gamePage.businessInfoPane.action = ''}"
         tdiv ".content":
           button:
             say "Find employees"
-            sOn "click", "() => {wssend('findEmployees', [gd.businesses[gamePage.businessInfoPane.selectedExistingBusiness].id])}"
+            sOn "click", "() => {wssend('findEmployees', [selBusiness.id])}"
+          ul:
+            li:
+              # Without deepcopying, it does some wack crap
+              sEach "ntrvw in selBusiness.interviewees.map(el => el)"
+              sText "l('fullname', [ntrvw.gender, ntrvw.firstname, ntrvw.lastname])"
 
 
 let main* = render:
@@ -115,6 +120,9 @@ let main* = render:
         rel "stylesheet"
       title: say "Business Road"
     body:
+      button:
+        say "DEBUG"
+        sOn "click", "() => {debug()}"
       h1 "#title": sText "l('title')"
       i:
         sIf "loaded"

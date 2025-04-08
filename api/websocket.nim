@@ -1,5 +1,5 @@
 import "mummy_base.nim"
-import std/[locks, tables, strutils, random, json]
+import std/[locks, tables, strutils, random, json, options]
 import "security.nim"
 import "databases.nim"
 
@@ -67,15 +67,17 @@ proc messageHandler(ws: WebSocket, event: WebSocketEvent, message: Message) =
         db.insert(businessQuery)
       ws.send("newbusiness=" & $ %*{
         "field": businessQuery.field,
-        "id": businessQuery.id
+        "id": businessQuery.id,
+        "employees": [],
+        "interviewees": [],
       })
       ws.send("m=" & $playerQuery.money)
 
     of "findEmployees":
       if parameters[0].containsAnythingBut(Digits): return
-      let sentBusinessId = parameters[0].parseInt()
+      let sentBusinessId = int64(parameters[0].parseInt())
       psql:
-        if not db.exists(Business, "id = $1 and owner = $2", sentBusinessId, playerId):
+        if not db.exists(Business, "id = $1 AND owner = $2", sentBusinessId, playerId):
           return
         let unemployedWorkerCount = db.count(Employee, "workplace IS NULL")
         if unemployedWorkerCount == 0:
@@ -92,6 +94,8 @@ proc messageHandler(ws: WebSocket, event: WebSocketEvent, message: Message) =
         var employeeList: seq[frontendEmployee] = @[]
         for i in chosenEmployeeIds:
           db.select(employeeQuery, "id = $1", i)
+          employeeQuery.interview = some sentBusinessId
+          db.update(employeeQuery)
           employeeList.add frontendEmployee(
             # There is probably some syntactic sugar for this
             id: employeeQuery.id,

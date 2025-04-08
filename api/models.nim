@@ -50,6 +50,7 @@ type
 
   Employee* {.tableName: "Employees".} = ref object of Model
     workplace* {.fk: Business.}: Option[int64] = none int64
+    interview* {.fk: Business.}: Option[int64] = none int64
     salary*: int32 = 0
     proficiency*: EmployeeProficiency = EmployeeProficiency.taxpayer
     gender*: PaddedStringOfCap[1] = newPaddedStringOfCap[1]("M")
@@ -58,7 +59,7 @@ type
 
   Project* {.tableName: "Projects".} = ref object of Model
     business* {.fk: Business.}: int64 = 0
-    Project*: BusinessProject = BusinessProject.serverHosting
+    project*: BusinessProject = BusinessProject.serverHosting
 
   Contract* {.tableName: "Contract".} = ref object of Model
     initiator* {.fk: Business.}: int64 = 0
@@ -78,3 +79,4 @@ type
     id*: int64
     field*: BusinessField
     employees*: seq[frontendEmployee]
+    interviewees*: seq[frontendEmployee]

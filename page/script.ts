@@ -7,11 +7,35 @@ declare function solve(hash: string, salt: string, maxInt: number): number;
 
 type numberStringPair = [number, string]
 
-const defaultGameData = {
+type FrontendEmployee = {
+  id: number,
+  salary: number,
+  proficiency: string,
+  gender: "M"|"F",
+  firstname: number,
+  lastname: number
+}
+
+type FrontendBusiness = {
+  id: number,
+  field: string,
+  employee: FrontendEmployee[],
+  interviewees: FrontendEmployee[]
+}
+
+type GameData = {
+  money: number,
+  firstname: number,
+  lastname: number,
+  gender: "M"|"F",
+  businesses: FrontendBusiness[]
+}
+
+const defaultGameData: GameData = {
   money: -1,
   firstname: -1,
   lastname: -1,
-  gender: "",
+  gender: "M",
   businesses: [],
 }
 const modeldata = modelDataJson
@@ -53,7 +77,7 @@ async function solveChallenge(): Promise<string> {
   return salt + ":" + signature + ":" + secretNumber.toString();
 }
 
-function parseAndApplyGamedata(data: object|null): void {
+function parseAndApplyGamedata(data: GameData|null): void {
   if (data === null) {
     state.gd = defaultGameData;
     return;
@@ -238,7 +262,12 @@ function sendWsCommand(command: string, params: Array<string>): void {
   }
 }
 
+function dumpState() {
+  console.log(state)
+}
+
 let scope = {
+  debug: dumpState,
   lang: {},
   l(query: string, params: Array<number>) {return localise(this.lang, query, params)},
   loaded: false,
@@ -259,11 +288,11 @@ let scope = {
     businessFields: modeldata["BusinessField"],
     businessProjects: modeldata["BusinessProject"],
     employeeProficiencies: modeldata["EmployeeProficiency"],
+    selBusinessIndex: -1,
     businessInfoPane: {
       action: "",
       title: "",
-      selectedExistingBusiness: -1,
-      selectedNewBusiness: -1,
+      newBusinessType: -1,
     },
   },
   authOngoing: false,
@@ -272,6 +301,10 @@ let scope = {
   deleteFunc: deleteAccount,
   logoutFunc: logout,
   changelangFunc: (langCode: string) => {changeLang(langCode)},
+  // This would make more sense next to `selBusinessIndex`, but I can't access `gd` from that scope
+  get selBusiness() {
+    return this.gd.businesses[this.gamePage.selBusinessIndex]
+  },
   gd: defaultGameData,
 }
 
@@ -288,10 +321,15 @@ function wsHandler(event: MessageEvent) {
       break;
     case "newbusiness":
       let parsedData = JSON.parse(data)
-      state.gd.businesses.push({
-        field: parsedData["field"],
-        id: parsedData["id"]
-      });
+      state.gd.businesses.push(parsedData);
+      break;
+    case "interviewees":
+      // Named like that because apparently JS thinks that name conflicts should be possible here.
+      let parsedDataInterviewees = JSON.parse(data)
+      let businessIndex = state.gd.businesses.findIndex((biz) => {
+        return biz.id === parsedDataInterviewees["business"]
+      })
+      state.gd.businesses[businessIndex].interviewees = parsedDataInterviewees["interviewees"]
       break;
     default:
       alert("Server sent some incoherent gobbledegook via websocket")
