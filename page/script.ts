@@ -19,7 +19,7 @@ type FrontendEmployee = {
 type FrontendBusiness = {
   id: number,
   field: string,
-  employee: FrontendEmployee[],
+  employees: FrontendEmployee[],
   interviewees: FrontendEmployee[]
 }
 
@@ -331,6 +331,20 @@ function wsHandler(event: MessageEvent) {
       })
       state.gd.businesses[businessIndex].interviewees = parsedDataInterviewees["interviewees"]
       break;
+    case "newemployee":
+      let splitData = data.split(':')
+      let businessId = Number(splitData[0])
+      let employeeId = Number(splitData[1])
+      let business: FrontendBusiness = state.gd.businesses[state.gd.businesses.findIndex((biz) => {
+        return biz.id === businessId
+      })]
+      let intervieweeIndex = business.interviewees.findIndex((ntrvw) => {
+        return ntrvw.id === employeeId
+      })
+      business.employees.push(business.interviewees[intervieweeIndex])
+      business.interviewees.splice(intervieweeIndex, 1)
+      break;
+
     default:
       alert("Server sent some incoherent gobbledegook via websocket")
   }

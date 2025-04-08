@@ -62,6 +62,8 @@ let gamePage = render:
           sOn "click", "() => {gamePage.selBusinessIndex = index; gamePage.businessInfoPane.action = 'info'}"
           h3:
             sText "l('businessField', [business.field])"
+          p:
+            sText "'Emp.: ' + business.employees.length"
 
     tdiv "#businessInfoPane":
       # New business menu
@@ -100,7 +102,20 @@ let gamePage = render:
             li:
               # Without deepcopying, it does some wack crap
               sEach "ntrvw in selBusiness.interviewees.map(el => el)"
-              sText "l('fullname', [ntrvw.gender, ntrvw.firstname, ntrvw.lastname])"
+              span:
+                sText "l('fullname', [ntrvw.gender, ntrvw.firstname, ntrvw.lastname]) + ' - ' + l('proficiency', [ntrvw.proficiency, ntrvw.gender])"
+              button:
+                say "Hire"
+                sOn "click", "() => {wssend('hireEmployee', [selBusiness.id, ntrvw.id])}"
+          ul:
+            li:
+              sEach "emply in selBusiness.employees.map(e => e)"
+              span:
+                sText "l('fullname', [emply.gender, emply.firstname, emply.lastname]) + ' - ' + l('proficiency', [emply.proficiency, emply.gender])"
+              button:
+                say "Fire"
+                # sOn "click", "() => {wssend('hireEmployee', [selBusiness.id, ntrvw.id])}"
+              
 
 
 let main* = render:

@@ -19,6 +19,7 @@ const lang* = $ %* {
   "lastname": "[lastname.$1]",
   "businessField": "[businessField.$0]",
   "startBusiness": "Start a new Business",
+  "proficiency": "[employeeProficiency.$0]",
   "_": {
     "firstname": {
       "M": namesCsv["en-m-fn"],
@@ -28,7 +29,12 @@ const lang* = $ %* {
     "businessField": {
       "eikt": "EICT",
       "baking": "Baking",
-    }
+    },
+    "employeeProficiency": {
+        "taxpayer": "Taxpayer",
+        "hungry": "Hungry",
+        "vimuser": "Vim user",
+    },
   }
 }
 

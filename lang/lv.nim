@@ -19,6 +19,7 @@ const lang* = $ %* {
   "lastname": "[lastnameNom.$0.$1]",
   "businessField": "[businessField.$0]",
   "startBusiness": "Dibināt jaunu biznesu",
+  "proficiency": "[employeeProficiency.$1.$0]",
   "_": {
     "firstnameNom": {
       "M": namesCsv["lv-m-fn-nom"],
@@ -39,6 +40,18 @@ const lang* = $ %* {
     "businessField": {
       "eikt": "EIKT",
       "baking": "Cepšana",
+    },
+    "employeeProficiency": {
+      "M": {
+        "taxpayer": "Nodokļu maksātājs",
+        "hungry": "Izsalcis",
+        "vimuser": "Vim lietotājs",
+      },
+      "F": {
+        "taxpayer": "Nodokļu maksātāja",
+        "hungry": "Izsalkusi",
+        "vimuser": "Vim lietotāja",
+      }
     }
   }
 }

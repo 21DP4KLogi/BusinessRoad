@@ -41,7 +41,7 @@ proc messageHandler(ws: WebSocket, event: WebSocketEvent, message: Message) =
   if message.data.contains '@': # Has parameter/s
     let parsedMessage = message.data.split '@'
     if parsedMessage.len != 2:
-      # ws.send "ERR"
+      ws.send "ERR"
       return
     let
       command = parsedMessage[0]
@@ -107,8 +107,28 @@ proc messageHandler(ws: WebSocket, event: WebSocketEvent, message: Message) =
           )
         ws.send("interviewees=" & $ %* {"business": sentBusinessId, "interviewees": employeeList})
 
+    of "hireEmployee":
+      if
+        parameters.len != 2 or
+        parameters[0].containsAnythingBut(Digits) or
+        parameters[1].containsAnythingBut(Digits)
+        : return
+      let sentBusinessId = int64(parameters[0].parseInt())
+      let sentEmployeeId = int64(parameters[1].parseInt())
+      psql:
+        if not db.exists(Employee, "id = $1 AND interview = $2", sentEmployeeId, sentBusinessId):
+          ws.send "ERR"
+          return
+        var employeeQuery = Employee()
+        db.select(employeeQuery, "id = $1 AND interview = $2", sentEmployeeId, sentBusinessId)
+        employeeQuery.workplace = some sentBusinessId
+        employeeQuery.interview = none int64
+        db.update(employeeQuery)
+      ws.send("newemployee=" & colonSerialize(sentBusinessId, sentEmployeeId))
+      return
 
     else:
+      ws.send "ERR"
       return
 
   else: # No parameters
@@ -116,7 +136,8 @@ proc messageHandler(ws: WebSocket, event: WebSocketEvent, message: Message) =
     of "m?":
       ws.send $playerQuery.money
     else:
-      ws.send('"' & message.data & "\", to you too")
+      ws.send "ERR"
+      # ws.send('"' & message.data & "\", to you too")
 
 proc websocketHandler*(
   websocket: WebSocket,
