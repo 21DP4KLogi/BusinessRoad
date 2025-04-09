@@ -5,9 +5,10 @@ import "databases.nim"
 
 var
   wsLock: Lock
-  websockets: Table[WebSocket, int64]
+  websocketsByWs: Table[WebSocket, int64]
+  websocketsById*: Table[int64, WebSocket]
 
-template withLockedWs(body: untyped) =
+template withLockedWs*(body: untyped) =
   {.gcsafe.}:
     withLock(wsLock):
       body
@@ -22,8 +23,10 @@ get "/ws":
     if not db.exists(Player, "authToken = $1", authCookie):
       resp 401
     db.select(playerQuery, "authToken = $1", authCookie)
+  let ws = request.upgradeToWebSocket()
   withLockedWs:
-    websockets[request.upgradeToWebSocket()] = playerQuery.id
+    websocketsByWs[ws] = playerQuery.id
+    websocketsById[playerQuery.id] = ws
 
 proc messageHandler(ws: WebSocket, event: WebSocketEvent, message: Message) =
   if message.data == "i":
@@ -34,7 +37,7 @@ proc messageHandler(ws: WebSocket, event: WebSocketEvent, message: Message) =
   var playerId = 0
   var playerQuery = Player()
   withLockedWs:
-    playerId = websockets[ws]
+    playerId = websocketsByWs[ws]
   psql:
     db.select(playerQuery, "id = $1", playerId)
 
@@ -85,8 +88,7 @@ proc messageHandler(ws: WebSocket, event: WebSocketEvent, message: Message) =
           return
         var range = {1..unemployedWorkerCount}
         var chosenEmployeeIds: seq[int] = @[]
-        for _ in 1..3:
-          # TODO: check if less than 3 workers available
+        for _ in 1..min(3, unemployedWorkerCount):
           let chosenNumber = sample(range)
           chosenEmployeeIds.add chosenNumber
           range.excl chosenNumber
@@ -153,5 +155,6 @@ proc websocketHandler*(
     discard
   of CloseEvent:
     withLockedWs:
-      websockets.del(websocket)
+      websocketsById.del(websocketsByWs[websocket])
+      websocketsByWs.del(websocket)
 
