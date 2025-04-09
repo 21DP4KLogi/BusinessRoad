@@ -29,4 +29,5 @@ let apiServer = newServer(router, websocketHandler)
 
 # API server launch
 echo "Serving on http://localhost:5001"
+echo "- - - - - - - - - -"
 apiServer.serve(Port(5001))

@@ -321,7 +321,9 @@ function wsHandler(event: MessageEvent) {
       break;
     case "newbusiness":
       let parsedData = JSON.parse(data)
-      state.gd.businesses.push(parsedData);
+      let newIndex = state.gd.businesses.push(parsedData)
+      state.gamePage.selBusinessIndex = newIndex - 1
+      state.gamePage.businessInfoPane.action = "info"
       break;
     case "interviewees":
       // Named like that because apparently JS thinks that name conflicts should be possible here.
