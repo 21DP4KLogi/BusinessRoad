@@ -82,30 +82,28 @@ proc messageHandler(ws: WebSocket, event: WebSocketEvent, message: Message) =
       psql:
         if not db.exists(Business, "id = $1 AND owner = $2", sentBusinessId, playerId):
           return
+        db.exec(sql"""
+          UPDATE "Employees" SET interview = NULL WHERE interview = $1;
+        """, sentBusinessId)
         let unemployedWorkerCount = db.count(Employee, "workplace IS NULL")
         if unemployedWorkerCount == 0:
           ws.send("o") # TODO: make this informative
           return
-        var range = {1..unemployedWorkerCount}
-        var chosenEmployeeIds: seq[int] = @[]
-        for _ in 1..min(3, unemployedWorkerCount):
-          let chosenNumber = sample(range)
-          chosenEmployeeIds.add chosenNumber
-          range.excl chosenNumber
-        var employeeQuery = Employee()
+        var employeeQuery = @[Employee()]
         var employeeList: seq[frontendEmployee] = @[]
-        for i in chosenEmployeeIds:
-          db.select(employeeQuery, "id = $1", i)
-          employeeQuery.interview = some sentBusinessId
-          db.update(employeeQuery)
+        db.select(employeeQuery, "workplace IS NULL ORDER BY RANDOM() LIMIT 3")
+        for emp in employeeQuery:
+          var employee = emp
+          employee.interview = some sentBusinessId
+          db.update(employee)
           employeeList.add frontendEmployee(
             # There is probably some syntactic sugar for this
-            id: employeeQuery.id,
-            salary: employeeQuery.salary,
-            proficiency: employeeQuery.proficiency,
-            gender: employeeQuery.gender,
-            firstname: employeeQuery.firstname,
-            lastname: employeeQuery.lastname
+            id: emp.id,
+            salary: emp.salary,
+            proficiency: emp.proficiency,
+            gender: emp.gender,
+            firstname: emp.firstname,
+            lastname: emp.lastname
           )
         ws.send("interviewees=" & $ %* {"business": sentBusinessId, "interviewees": employeeList})
 

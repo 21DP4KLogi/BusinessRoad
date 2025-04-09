@@ -20,6 +20,10 @@ const lang* = $ %* {
   "businessField": "[businessField.$0]",
   "startBusiness": "Dibināt jaunu biznesu",
   "proficiency": "[employeeProficiency.$1.$0]",
+  "hireEmp": "Pieņemt",
+  "fireEmp": "Atlaist",
+  "findEmployees": "Atrast darbiniekus",
+  "startBusinessCost": "Dibināt biznesu par 5000$",
   "_": {
     "firstnameNom": {
       "M": namesCsv["lv-m-fn-nom"],

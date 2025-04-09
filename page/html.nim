@@ -85,7 +85,7 @@ let gamePage = render:
           button:
             sProp "disabled", "gd.money < 5000"
             sOn "click", "() => {wssend('foundBusiness', [gamePage.businessInfoPane.newBusinessType])}"
-            sText "'Found business for $5000'"
+            sText "l('startBusinessCost')"
       # Business info
       tdiv:
         sIf "gamePage.businessInfoPane.action == 'info'"
@@ -96,7 +96,7 @@ let gamePage = render:
             sOn "click", "() => {gamePage.businessInfoPane.action = ''}"
         tdiv ".content":
           button:
-            say "Find employees"
+            sText "l('findEmployees')"
             sOn "click", "() => {wssend('findEmployees', [selBusiness.id])}"
           ul:
             li:
@@ -105,7 +105,7 @@ let gamePage = render:
               span:
                 sText "l('fullname', [ntrvw.gender, ntrvw.firstname, ntrvw.lastname]) + ' - ' + l('proficiency', [ntrvw.proficiency, ntrvw.gender])"
               button:
-                say "Hire"
+                sText "l('hireEmp')"
                 sOn "click", "() => {wssend('hireEmployee', [selBusiness.id, ntrvw.id])}"
           ul:
             li:
@@ -113,7 +113,7 @@ let gamePage = render:
               span:
                 sText "l('fullname', [emply.gender, emply.firstname, emply.lastname]) + ' - ' + l('proficiency', [emply.proficiency, emply.gender])"
               button:
-                say "Fire"
+                sText "l('fireEmp')"
                 # sOn "click", "() => {wssend('hireEmployee', [selBusiness.id, ntrvw.id])}"
               
 
