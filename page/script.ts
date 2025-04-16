@@ -2,8 +2,7 @@ import sprae from "sprae";
 import {localise} from "./localisation.ts";
 import langLengthsJson from "../dist/langdata.json"
 import modelDataJson from "../dist/modeldata.json"
-
-declare function solve(hash: string, salt: string, maxInt: number): number;
+import {solve} from "../dist/public/pow.js"
 
 type numberStringPair = [number, string]
 

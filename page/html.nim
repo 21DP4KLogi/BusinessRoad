@@ -125,9 +125,6 @@ let main* = render:
       meta:
         charset "utf-8"
       script:
-        src "pow.js"
-        tdefer "uhuh"
-      script:
         src "script.js"
         tdefer "yep"
       link:
