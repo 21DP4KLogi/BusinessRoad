@@ -1,5 +1,5 @@
 import "mummy_base.nim"
-import std/[locks, tables, strutils, random, json, options]
+import std/[locks, tables, strutils, json, options]
 import "security.nim"
 import "databases.nim"
 

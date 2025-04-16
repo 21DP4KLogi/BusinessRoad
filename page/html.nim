@@ -90,26 +90,26 @@ let gamePage = render:
       tdiv:
         sIf "gamePage.businessInfoPane.action == 'info'"
         tdiv ".title":
-          h3: sText "l('businessField', [selBusiness.field])"
+          h3: sText "l('businessField', [selBusiness?.field])"
           button:
             say "X"
             sOn "click", "() => {gamePage.businessInfoPane.action = ''}"
         tdiv ".content":
           button:
             sText "l('findEmployees')"
-            sOn "click", "() => {wssend('findEmployees', [selBusiness.id])}"
+            sOn "click", "() => {wssend('findEmployees', [selBusiness?.id])}"
           ul:
             li:
               # Without deepcopying, it does some wack crap
-              sEach "ntrvw in selBusiness.interviewees.map(el => el)"
+              sEach "ntrvw in selBusiness?.interviewees.map(el => el)"
               span:
                 sText "l('fullname', [ntrvw.gender, ntrvw.firstname, ntrvw.lastname]) + ' - ' + l('proficiency', [ntrvw.proficiency, ntrvw.gender])"
               button:
                 sText "l('hireEmp')"
-                sOn "click", "() => {wssend('hireEmployee', [selBusiness.id, ntrvw.id])}"
+                sOn "click", "() => {wssend('hireEmployee', [selBusiness?.id, ntrvw.id])}"
           ul:
             li:
-              sEach "emply in selBusiness.employees.map(e => e)"
+              sEach "emply in selBusiness?.employees.map(e => e)"
               span:
                 sText "l('fullname', [emply.gender, emply.firstname, emply.lastname]) + ' - ' + l('proficiency', [emply.proficiency, emply.gender])"
               button:

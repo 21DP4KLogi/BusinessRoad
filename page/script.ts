@@ -53,6 +53,7 @@ function localise(lang: Object, key: string, parameters: Array<number> = []): st
     let gapFill = lang["_"]
     for (let section of trimmedGap.split(".")) {
       let index = section.slice(0, 1) == "$" ? parameters[section.slice(1)] : section
+      // if (gapFill === undefined) {return ""}
       gapFill = gapFill[index]
     }
     text = text.replace(gap, gapFill)
@@ -206,13 +207,16 @@ async function deleteAccount(): Promise<void> {
 
 async function logout(): Promise<void> {
   await fetch("/api/logout", {"method": "POST"});
-  state.authed = false;
-  state.curPage = "guest";
-  state.fullName = "";
-  state.money = -1;
-  clearInterval(wsPingIntervalId)
   ws.close();
   ws = null;
+  state.authed = false;
+  state.curPage = "guest";
+  // state.fullName = "";
+  // state.money = -1;
+  state.gamePage.businessInfoPane.action = ""
+  state.gamePage.selBusinessIndex = -1
+  state.gd = defaultGameData
+  clearInterval(wsPingIntervalId)
 }
 
 async function changeLang(langCode: string): Promise<void> {
@@ -309,7 +313,7 @@ let scope = {
 }
 
 function wsHandler(event: MessageEvent) {
-  let message = event.data;
+  let message: string = event.data;
   if (message === 'o') return
   console.log(message);
   let splitMessage = message.split('=');
