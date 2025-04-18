@@ -349,6 +349,18 @@ function wsHandler(event: MessageEvent) {
       business.employees.push(business.interviewees[intervieweeIndex])
       business.interviewees.splice(intervieweeIndex, 1)
       break;
+    case "loseemployee":
+      let splitDataLE = data.split(':')
+      let businessIdLE = Number(splitDataLE[0])
+      let employeeIdLE = Number(splitDataLE[1])
+      let businessLE: FrontendBusiness = state.gd.businesses[state.gd.businesses.findIndex((biz) => {
+        return biz.id === businessIdLE
+      })]
+      let employeeIndex = businessLE.interviewees.findIndex((ntrvw) => {
+        return ntrvw.id === employeeIdLE
+      })
+      businessLE.employees.splice(employeeIndex, 1)
+      break;
 
     default:
       alert("Server sent some incoherent gobbledegook via websocket")

@@ -114,9 +114,7 @@ let gamePage = render:
                 sText "l('fullname', [emply.gender, emply.firstname, emply.lastname]) + ' - ' + l('proficiency', [emply.proficiency, emply.gender])"
               button:
                 sText "l('fireEmp')"
-                # sOn "click", "() => {wssend('hireEmployee', [selBusiness.id, ntrvw.id])}"
-              
-
+                sOn "click", "() => {wssend('fireEmployee', [selBusiness.id, emply.id])}"
 
 let main* = render:
   say: "<!DOCTYPE html>"

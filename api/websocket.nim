@@ -127,6 +127,27 @@ proc messageHandler(ws: WebSocket, event: WebSocketEvent, message: Message) =
       ws.send("newemployee=" & colonSerialize(sentBusinessId, sentEmployeeId))
       return
 
+    of "fireEmployee":
+      if
+        parameters.len != 2 or
+        parameters[0].containsAnythingBut(Digits) or
+        parameters[1].containsAnythingBut(Digits)
+        : return
+      let sentBusinessId = int64(parameters[0].parseInt())
+      let sentEmployeeId = int64(parameters[1].parseInt())
+      psql:
+        if not db.exists(Employee, "id = $1 AND workplace = $2", sentEmployeeId, sentBusinessId):
+          ws.send "ERR"
+          return
+        var employeeQuery = Employee()
+        db.select(employeeQuery, "id = $1 AND workplace = $2", sentEmployeeId, sentBusinessId)
+        employeeQuery.workplace = none int64
+        employeeQuery.interview = none int64
+        db.update(employeeQuery)
+      ws.send("loseemployee=" & colonSerialize(sentBusinessId, sentEmployeeId))
+      return
+        
+
     else:
       ws.send "ERR"
       return
