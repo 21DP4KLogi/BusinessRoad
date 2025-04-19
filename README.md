@@ -14,7 +14,7 @@ This is a pile of code that is expected to conglomerate into a browser-based mul
 
 - [ ] Game
 	- [ ] Multiplayer
-	- [ ] Moneymaking
+	- [x] Moneymaking
 	- [ ] Mischief
 - [ ] Nice GUI
 	- [ ] Color themes (Light, Dark, Gruvbox)
@@ -40,7 +40,7 @@ Acquire required containers from docker.io:
 
 Build the following atleast once to get started:
 - `nimble build brPow`
-- `nimble run brPage` - This writes files at runtime and then closes
+- `nimble run brPage` - This writes the required files at runtime and then closes
 
 And install the npm packages:
 `npm i` while in the `./page` directory

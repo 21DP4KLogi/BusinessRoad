@@ -319,24 +319,27 @@ function wsHandler(event: MessageEvent) {
   let command = splitMessage[0]
   let data = splitMessage?.[1] ?? ""
   switch (command) {
-    case "m":
+    case "m": {
       state.gd.money = data;
-      break;
-    case "newbusiness":
+      break; 
+    }
+    case "newbusiness": {
       let parsedData = JSON.parse(data)
       let newIndex = state.gd.businesses.push(parsedData)
       state.gamePage.selBusinessIndex = newIndex - 1
       state.gamePage.businessInfoPane.action = "info"
-      break;
-    case "interviewees":
+      break; 
+    }
+    case "interviewees": {
       // Named like that because apparently JS thinks that name conflicts should be possible here.
-      let parsedDataInterviewees = JSON.parse(data)
+      let parsedData = JSON.parse(data)
       let businessIndex = state.gd.businesses.findIndex((biz) => {
-        return biz.id === parsedDataInterviewees["business"]
+        return biz.id === parsedData["business"]
       })
-      state.gd.businesses[businessIndex].interviewees = parsedDataInterviewees["interviewees"]
-      break;
-    case "newemployee":
+      state.gd.businesses[businessIndex].interviewees = parsedData["interviewees"]
+      break; 
+    }
+    case "newemployee": {
       let splitData = data.split(':')
       let businessId = Number(splitData[0])
       let employeeId = Number(splitData[1])
@@ -348,22 +351,22 @@ function wsHandler(event: MessageEvent) {
       })
       business.employees.push(business.interviewees[intervieweeIndex])
       business.interviewees.splice(intervieweeIndex, 1)
-      break;
-    case "loseemployee":
-      let splitDataLE = data.split(':')
-      let businessIdLE = Number(splitDataLE[0])
-      let employeeIdLE = Number(splitDataLE[1])
-      let businessLE: FrontendBusiness = state.gd.businesses[state.gd.businesses.findIndex((biz) => {
-        return biz.id === businessIdLE
+      break; 
+    }
+    case "loseemployee": {
+      let splitData = data.split(':')
+      let businessId = Number(splitData[0])
+      let employeeId = Number(splitData[1])
+      let business: FrontendBusiness = state.gd.businesses[state.gd.businesses.findIndex((biz) => {
+        return biz.id === businessId
       })]
-      let employeeIndex = businessLE.interviewees.findIndex((ntrvw) => {
-        return ntrvw.id === employeeIdLE
+      let employeeIndex = business.interviewees.findIndex((ntrvw) => {
+        return ntrvw.id === employeeId
       })
-      businessLE.employees.splice(employeeIndex, 1)
-      break;
-
-    default:
-      alert("Server sent some incoherent gobbledegook via websocket")
+      business.employees.splice(employeeIndex, 1)
+      break; 
+    }
+    default: alert("Server sent some incoherent gobbledegook via websocket")
   }
 }
 
