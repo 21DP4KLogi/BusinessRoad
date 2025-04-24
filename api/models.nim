@@ -9,6 +9,9 @@ template dbProcsForEnum(enumtype: typedesc) =
   func dbValue*(val: enumtype): DbValue = dbValue(int16(val))
   proc to*(dbVal: DbValue, T: typedesc[enumtype]): enumtype = dbVal.i.enumtype
 
+func contains*(e: typedesc[enum], i: int): bool =
+  int(low(e)) <= i and i <= int(high(e))
+
 type
   EmployeeProficiency* = enum
     taxpayer,
@@ -53,6 +56,8 @@ type
     interview* {.fk: Business.}: Option[int64] = none int64
     salary*: int32 = 0
     proficiency*: EmployeeProficiency = EmployeeProficiency.taxpayer
+    experience*: int16 = 0
+    loyalty*: int16 = 0
     gender*: PaddedStringOfCap[1] = newPaddedStringOfCap[1]("M")
     firstname*: int16 = 0
     lastname*: int16 = 0

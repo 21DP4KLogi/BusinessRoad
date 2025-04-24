@@ -57,8 +57,8 @@ proc messageHandler(ws: WebSocket, event: WebSocketEvent, message: Message) =
         parameters.len > 1 or
         parameters[0].containsAnythingBut(Digits)
         : return
-      let sentField = int16(parameters[0].parseInt)
-      if sentField > int16(BusinessField.high): return # Not a fan of this
+      let sentField = parameters[0].parseInt
+      if sentField notin BusinessField: return
 
       playerQuery.money -= 5000
       var businessQuery = Business(
