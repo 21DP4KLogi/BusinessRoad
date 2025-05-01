@@ -55,7 +55,8 @@ proc messageHandler(ws: WebSocket, event: WebSocketEvent, message: Message) =
       if
         playerQuery.money < 5000 or
         parameters.len > 1 or
-        parameters[0].containsAnythingBut(Digits)
+        parameters[0].containsAnythingBut(Digits) or
+        parameters[0].len > SafeInt16Len
         : return
       let sentField = parameters[0].parseInt
       if sentField notin BusinessField: return
@@ -77,17 +78,20 @@ proc messageHandler(ws: WebSocket, event: WebSocketEvent, message: Message) =
       ws.send("m=" & $playerQuery.money)
 
     of "findEmployees":
-      if parameters[0].containsAnythingBut(Digits): return
-      let sentBusinessId = int64(parameters[0].parseInt())
+      if
+        parameters[0].containsAnythingBut(Digits) or
+        parameters[0].len > SafeInt64Len
+      : return
+      let sentBusinessId = int64(parameters[0].parseInt)
       psql:
         if not db.exists(Business, "id = $1 AND owner = $2", sentBusinessId, playerId):
           return
         db.exec(sql"""
           UPDATE "Employees" SET interview = NULL WHERE interview = $1;
         """, sentBusinessId)
-        let unemployedWorkerCount = db.count(Employee, "workplace IS NULL")
+        let unemployedWorkerCount = db.count(Employee, cond = "workplace IS NULL")
         if unemployedWorkerCount == 0:
-          ws.send("o") # TODO: make this informative
+          ws.send("interviewees=" & $ %* {"business": sentBusinessId, "interviewees": []})
           return
         var employeeQuery = @[Employee()]
         var employeeList: seq[frontendEmployee] = @[]
@@ -111,10 +115,12 @@ proc messageHandler(ws: WebSocket, event: WebSocketEvent, message: Message) =
       if
         parameters.len != 2 or
         parameters[0].containsAnythingBut(Digits) or
-        parameters[1].containsAnythingBut(Digits)
+        parameters[0].len > SafeInt64Len or
+        parameters[1].containsAnythingBut(Digits) or
+        parameters[1].len > SafeInt64Len
         : return
-      let sentBusinessId = int64(parameters[0].parseInt())
-      let sentEmployeeId = int64(parameters[1].parseInt())
+      let sentBusinessId = int64(parameters[0].parseInt)
+      let sentEmployeeId = int64(parameters[1].parseInt)
       psql:
         if not db.exists(Employee, "id = $1 AND interview = $2", sentEmployeeId, sentBusinessId):
           ws.send "ERR"
@@ -131,10 +137,12 @@ proc messageHandler(ws: WebSocket, event: WebSocketEvent, message: Message) =
       if
         parameters.len != 2 or
         parameters[0].containsAnythingBut(Digits) or
-        parameters[1].containsAnythingBut(Digits)
+        parameters[0].len > SafeInt64Len or
+        parameters[1].containsAnythingBut(Digits) or
+        parameters[1].len > SafeInt64Len
         : return
-      let sentBusinessId = int64(parameters[0].parseInt())
-      let sentEmployeeId = int64(parameters[1].parseInt())
+      let sentBusinessId = int64(parameters[0].parseInt)
+      let sentEmployeeId = int64(parameters[1].parseInt)
       psql:
         if not db.exists(Employee, "id = $1 AND workplace = $2", sentEmployeeId, sentBusinessId):
           ws.send "ERR"

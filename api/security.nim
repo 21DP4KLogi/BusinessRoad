@@ -14,8 +14,13 @@ const
   MaxSecretNumber =
     when defined(powNumberAlwaysZero): 0
     else: 1_000_000
+  MaxSecretNumberDigitCount* = 7
   AuthTokenByteCount* = 9
   AuthTokenBase64Length* = int(ceil(AuthTokenByteCount + (AuthTokenByteCount / 3)))
+  # These have 1 less digit than the int limit
+  SafeInt16Len* = 4
+  SafeInt32Len* = 9
+  SafeInt64Len* = 18
 
 # Concatenates all given strings with ':' as separator
 proc colonSerialize*(data: varargs[string, `$`]): string =

@@ -138,16 +138,18 @@ post "/register":
     body[1].containsAnythingBut(UppercaseHexDigits) or
     body[1].len != HashSignatureHexLenght or
     body[2].containsAnythingBut(Digits) or
-    body[3].containsAnythingBut({'M', 'F'}) or
+    body[2].len > MaxSecretNumberDigitCount or
+    body[3] notin ["M", "F"] or
     body[4].containsAnythingBut(Digits) or
-    body[5].containsAnythingBut(Digits)
+    body[4].len > SafeInt16Len or
+    body[5].containsAnythingBut(Digits) or
+    body[5].len > SafeInt32Len
     : resp 400
   let
     sentSalt = body[0]
     sentSignature = body[1]
     sentSecretNumber = body[2].parseInt
     sentGender = body[3]
-    # TODO: fix bug - no check for numbers being within valid range and that can cause a 500 error
     sentFName = int16(body[4].parseInt)
     sentLName = int16(body[5].parseInt)
 
@@ -186,7 +188,8 @@ post "/login":
     body[1].len != SaltHexLength or
     body[2].containsAnythingBut(UppercaseHexDigits) or
     body[2].len != HashSignatureHexLenght or
-    body[3].containsAnythingBut(Digits)
+    body[3].containsAnythingBut(Digits) or
+    body[3].len > MaxSecretNumberDigitCount
     : resp 400
   let
     sentCode = body[0]
@@ -225,7 +228,8 @@ post "/delete":
     body[1].len != SaltHexLength or
     body[2].containsAnythingBut(UppercaseHexDigits) or
     body[2].len != HashSignatureHexLenght or
-    body[3].containsAnythingBut(Digits)
+    body[3].containsAnythingBut(Digits) or
+    body[3].len > MaxSecretNumberDigitCount
     : resp 400
   let
     sentCode = body[0]
