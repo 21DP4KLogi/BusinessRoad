@@ -74,12 +74,14 @@ proc generatePowChallenge*(valkey: RedisConn): string =
     hashSignature = $sha256.hmac(serverKey, hash)
   return colonSerialize(salt, hash, hashSignature)
 
-proc submitPowResponse*(valkey: RedisConn, salt, signature: string, secretNumber: int): bool =
+proc verifyPowResponse*(valkey: RedisPool, salt, signature: string, secretNumber: int): bool =
   if valkey.command("SISMEMBER", "usedPowSignatures", signature).to(int) == 1:
     return false
   let serverKey = valkey.command("GET", "powSignatureKey").to(string)
   let solved = signature == $sha256.hmac(serverKey, $sha256.digest(salt & $secretNumber))
   if not solved:
     return false
-  discard valkey.command("SADD", "usedPowSignatures", signature)
   return true
+
+template submitPowResponse*(valkey: RedisPool, signature: string) =
+  discard valkey.command("SADD", "usedPowSignatures", signature)

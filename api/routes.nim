@@ -160,22 +160,22 @@ post "/register":
     if sentFName >= FemaleFirstNameCount or sentLName >= FemaleLastNameCount:
       resp 400
 
-  valkey.withConnection vk:
-    if vk.submitPowResponse(sentSalt, sentSignature, sentSecretNumber):
-      let newCode: string = secureRandomBase64(6)
-      var playerQuery = Player(
-        code: newPaddedStringOfCap[8](newCode),
-        gender: newPaddedStringOfCap[1](sentGender),
-        firstname: sentFName,
-        lastname: sentLName,
-        money: 10000,
-      )
-      psql:
-        db.insert(playerQuery)
-      headers["Content-Type"] = "text/plain"
-      resp 200, newCode
-    else:
-      resp 401
+  if valkey.verifyPowResponse(sentSalt, sentSignature, sentSecretNumber):
+    valkey.submitPowResponse(sentSignature)
+    let newCode: string = secureRandomBase64(6)
+    var playerQuery = Player(
+      code: newPaddedStringOfCap[8](newCode),
+      gender: newPaddedStringOfCap[1](sentGender),
+      firstname: sentFName,
+      lastname: sentLName,
+      money: 10000,
+    )
+    psql:
+      db.insert(playerQuery)
+    headers["Content-Type"] = "text/plain"
+    resp 200, newCode
+  else:
+    resp 401
 
 post "/login":
   let body = request.body.split(":")
@@ -196,8 +196,8 @@ post "/login":
     sentSalt = body[1]
     sentSignature = body[2]
     sentSecretNumber = body[3].parseInt
-  valkey.withConnection vk:
-    if not vk.submitPowResponse(sentSalt, sentSignature, sentSecretNumber): resp 401
+  if not valkey.verifyPowResponse(sentSalt, sentSignature, sentSecretNumber): resp 401
+  valkey.submitPowResponse(sentSignature)
   psql:
     let codeValid = db.exists(Player, "code = $1", sentCode)
     if not codeValid: resp 404
@@ -236,21 +236,21 @@ post "/delete":
     sentSalt = body[1]
     sentSignature = body[2]
     sentSecretNumber = body[3].parseInt
-  valkey.withConnection vk:
-    if vk.submitPowResponse(sentSalt, sentSignature, sentSecretNumber):
-      var codeValid = false
-      psql:
-        codeValid = db.exists(Player, "code = $1", sentCode)
-        if codeValid:
-          var playerQuery = Player()
-          db.select(playerQuery, "code = $1", sentCode)
-          # Will be more complicated when more features get added
-          db.delete(playerQuery)
-          resp 204
-        else:
-          resp 404
-    else:
-      resp 401
+  if valkey.verifyPowResponse(sentSalt, sentSignature, sentSecretNumber):
+    valkey.submitPowResponse(sentSignature)
+    var codeValid = false
+    psql:
+      codeValid = db.exists(Player, "code = $1", sentCode)
+      if codeValid:
+        var playerQuery = Player()
+        db.select(playerQuery, "code = $1", sentCode)
+        # Will be more complicated when more features get added
+        db.delete(playerQuery)
+        resp 204
+      else:
+        resp 404
+  else:
+    resp 401
 
 post "/logout":
   # I'm not sure if I have to check whether the key "Cookie" exists
