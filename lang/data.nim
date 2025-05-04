@@ -1,9 +1,10 @@
-import std/json
+import std/[json, tables]
+import "./parsedcsv.nim"
 
 const
-  MaleFirstNameCount* = 40
-  MaleLastNameCount* = 25
-  FemaleFirstNameCount* = 22
+  MaleFirstNameCount* = namesCsv["en-m-fn"].len
+  MaleLastNameCount* = static namesCsv["en-ln"].len
+  FemaleFirstNameCount* = namesCsv["en-f-fn"].len
   FemaleLastNameCount* = MaleLastNameCount # Not sure if there would be a reason to differ
 
 const LangDataJson* = $ %* {
