@@ -104,6 +104,8 @@ let gamePage = render:
               sEach "ntrvw in selBusiness?.interviewees.map(el => el)"
               span:
                 sText "l('fullname', [ntrvw.gender, ntrvw.firstname, ntrvw.lastname]) + ' - ' + l('proficiency', [ntrvw.proficiency, ntrvw.gender])"
+              span:
+                sText "' - ' + ntrvw.salary + '$/5s'"
               button:
                 sText "l('hireEmp')"
                 sOn "click", "() => {wssend('hireEmployee', [selBusiness?.id, ntrvw.id])}"
@@ -112,6 +114,8 @@ let gamePage = render:
               sEach "emply in selBusiness?.employees.map(e => e)"
               span:
                 sText "l('fullname', [emply.gender, emply.firstname, emply.lastname]) + ' - ' + l('proficiency', [emply.proficiency, emply.gender])"
+              span:
+                sText "' - ' + emply.salary + '$/5s'"
               button:
                 sText "l('fireEmp')"
                 sOn "click", "() => {wssend('fireEmployee', [selBusiness.id, emply.id])}"

@@ -297,6 +297,7 @@ let scope = {
       title: "",
       newBusinessType: -1,
     },
+    selIntervieweeIndex: -1,
   },
   authOngoing: false,
   registerFunc: register,
@@ -364,6 +365,33 @@ function wsHandler(event: MessageEvent) {
         return ntrvw.id === employeeId
       })
       business.employees.splice(employeeIndex, 1)
+      break;
+    }
+    case "loseinterviewee": {
+      let splitData = data.split(':')
+      let businessId = Number(splitData[0])
+      let intervieweeId = Number(splitData[1])
+      let business: FrontendBusiness = state.gd.businesses[state.gd.businesses.findIndex((biz) => {
+        return biz.id === businessId
+      })]
+      let intervieweeIndex = business.interviewees.findIndex((ntrvw) => {
+        return ntrvw.id === intervieweeId
+      })
+      business.interviewees.splice(intervieweeIndex, 1)
+      break;
+    }
+    case "updateinterviewee": {
+      let splitData = data.split(':')
+      let businessId = Number(splitData[0])
+      let intervieweeId = Number(splitData[1])
+      let newSalary = Number(splitData[2])
+      let business: FrontendBusiness = state.gd.businesses[state.gd.businesses.findIndex((biz) => {
+        return biz.id === businessId
+      })]
+      let intervieweeIndex = business.interviewees.findIndex((ntrvw) => {
+        return ntrvw.id === intervieweeId
+      })
+      business.interviewees[intervieweeIndex].salary = newSalary
       break;
     }
     default: alert("Server sent some incoherent gobbledegook via websocket")

@@ -39,6 +39,7 @@ var
   currentTime = epochTime()
   lastTime = currentTime
   secondTicker = newTickInterval(1, currentTime, 0)
+  fiveSecondTicker = newTickInterval(5, currentTime, 0.5)
   dayTicker = newTickInterval(Day, currentTime, 0)
   playerCount = 0
   businessCount = 0
@@ -76,6 +77,29 @@ proc computeGameLogic* =
       let newMotd = getRandomMotd()
       discard valkey.command("SET", "currentMotd", newMotd)
       # echo "\nNew MOTD: " & newMotd
+
+    if fiveSecondTicker.elapsed(currentTime):
+      fiveSecondTicker.tick(currentTime)
+      var
+        playerQuery = Player()
+        businessQuery = @[Business()]
+        employeeQuery = @[Employee()]
+      # TODO/idea: Instead of loading all of it at once, utilise LIMIT and OFFSET
+      # to manage queries in chunks.
+      db.selectAll(businessQuery)
+      for business in businessQuery:
+        if not db.exists(Employee, "workplace = $1", business.id): continue
+        # Businesses always have an owner, that could change though
+        db.select(playerQuery, "id = $1", business.owner)
+        db.select(employeeQuery, "workplace = $1", business.id)
+        for emp in employeeQuery:
+          playerQuery.money -= emp.salary
+          emp.loyalty = min(emp.loyalty + 1, 10000)
+          emp.experience = min(emp.experience + 1, 30000)
+          var empvar = emp # Mutable version
+          db.update(empvar)
+        # db.update(employeeQuery) # Psql raises error, I believe this might be a bug with Norm
+        db.update(playerQuery)
 
     if secondTicker.elapsed(currentTime):
       secondTicker.tick(currentTime)
