@@ -65,11 +65,20 @@ type
   Project* {.tableName: "Projects".} = ref object of Model
     business* {.fk: Business.}: int64 = 0
     project*: BusinessProject = BusinessProject.serverHosting
+    quality*: int32 = 0
 
   Contract* {.tableName: "Contract".} = ref object of Model
+    active*: bool = false
+    # Initiator
     initiator* {.fk: Business.}: int64 = 0
-    project* {.fk: Project.}: int64 = 0
+    initiatorProject* {.fk: Project.}: int64 = 0
+    initiatorAgrees*: bool = false
+    initiatorPayment*: int32 = 0
+    # Recipient
     recipient* {.fk: Business.}: Option[int64] = none int64
+    recipientProject* {.fk: Project.}: Option[int64] = none int64
+    recipientAgrees*: bool = false
+    recipientPayment*: int32 = 0
 
 type
   frontendEmployee* = object

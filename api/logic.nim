@@ -113,12 +113,12 @@ proc computeGameLogic* =
               if gender == "M": rand(0..MaleFirstNameCount - 1)
               else: rand(0..FemaleFirstNameCount - 1)
             lastname = rand(0..MaleLastNameCount - 1)
-            proficiency = rand(EmployeeProficiency)
           newEmployees.add Employee(
             gender: newPaddedStringOfCap[1](gender),
             firstname: int16(firstname),
             lastname: int16(lastname),
-            proficiency: proficiency
+            proficiency: rand(EmployeeProficiency),
+            experience: int16(rand(5..15))
           )
         db.insert(newEmployees)
 

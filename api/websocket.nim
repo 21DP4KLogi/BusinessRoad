@@ -1,7 +1,8 @@
 import "mummy_base.nim"
-import std/[locks, tables, strutils, json, options]
+import std/[locks, tables, strutils, json, options, random, macros, math]
 import "security.nim"
 import "databases.nim"
+import norm/pragmas
 
 var
   wsLock: Lock
@@ -99,6 +100,8 @@ proc messageHandler(ws: WebSocket, event: WebSocketEvent, message: Message) =
         for emp in employeeQuery:
           var employee = emp
           employee.interview = some sentBusinessId
+          employee.salary = int32(float64(employee.experience) * rand(0.8..1.2))
+          employee.loyalty = int16(rand(4000..6000))
           db.update(employee)
           employeeList.add frontendEmployee(
             # There is probably some syntactic sugar for this
@@ -111,7 +114,58 @@ proc messageHandler(ws: WebSocket, event: WebSocketEvent, message: Message) =
           )
         ws.send("interviewees=" & $ %* {"business": sentBusinessId, "interviewees": employeeList})
 
+    of "haggleWithInterviewee":
+      if
+        parameters.len != 3 or
+        parameters[0].containsAnythingBut(Digits) or
+        parameters[0].len > SafeInt64Len or
+        parameters[1].containsAnythingBut(Digits) or
+        parameters[1].len > SafeInt64Len or
+        parameters[2].containsAnythingBut(Digits) or
+        parameters[2].len > SafeInt32Len
+        : return
+      let
+        sentEmployeeId = parameters[0].parseInt
+        sentBusinessId = parameters[1].parseInt
+        sentProposedSalary = int32(parameters[2].parseInt)
+      var employeeQuery = Employee()
+      psql:
+        if not db.exists(
+          Employee,
+          "id = $1 AND interview IN (SELECT * FROM " & modelTableName(Business) & " WHERE owner = $2)",
+          sentEmployeeId, playerId
+        ):
+          return
+        db.select(employeeQuery, "id = $1", sentEmployeeId)
+      let hagglingDiff = sentProposedSalary / employeeQuery.salary
+      if hagglingDiff < 1.0: # Salary decrease
+        let
+          chanceToAccept = pow(1 - hagglingDiff, 3)
+        if rand(0.01..1.0) <= chanceToAccept: # Accepts haggle
+          employeeQuery.salary = sentProposedSalary
+          employeeQuery.loyalty = int16(float(employeeQuery.loyalty) * hagglingDiff/2)
+          ws.send("updateinterviewee=" & colonSerialize(sentBusinessId, sentEmployeeId, sentProposedSalary))
+          return
+        else: # Refuses haggle
+          employeeQuery.loyalty = int16(float(employeeQuery.loyalty) * hagglingDiff)
+          if employeeQuery.loyalty <= 500:
+            employeeQuery.interview = none int64
+            ws.send("loseinterviewee=" & colonSerialize(sentBusinessId, sentEmployeeId))
+            return
+          elif employeeQuery.loyalty < 5000 and rand(0.0001..1.0) < (5000 - employeeQuery.loyalty) / 5000:
+            employeeQuery.interview = none int64
+            ws.send("loseinterviewee=" & colonSerialize(sentBusinessId, sentEmployeeId))
+            return
+      elif hagglingDiff > 1.0: # Salary increase
+          employeeQuery.salary = sentProposedSalary
+          employeeQuery.loyalty = int16(float(employeeQuery.loyalty) * ((hagglingDiff - 1)/2 + 1))
+          ws.send("updateinterviewee=" & colonSerialize(sentBusinessId, sentEmployeeId, sentProposedSalary))
+          return
+      else: # Salary equal for some reason
+        discard
+
     of "hireEmployee":
+    # IMPORTANT TODO: Validate user's authorisation
       if
         parameters.len != 2 or
         parameters[0].containsAnythingBut(Digits) or
@@ -134,6 +188,7 @@ proc messageHandler(ws: WebSocket, event: WebSocketEvent, message: Message) =
       return
 
     of "fireEmployee":
+    # IMPORTANT TODO: Validate user's authorisation
       if
         parameters.len != 2 or
         parameters[0].containsAnythingBut(Digits) or

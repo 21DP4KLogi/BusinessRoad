@@ -1,6 +1,6 @@
 import ready
-import norm/[postgres, types, pool]
-import std/[os]
+import norm/[postgres, types, pool, pragmas, model]
+import std/[os, macros]
 import "models.nim"
 
 export ready
@@ -51,3 +51,6 @@ template psql*(body: untyped) =
   {.gcsafe.}:
     withDb(psqlPool):
       body
+
+template modelTableName*(model: typedesc[Model]): string =
+  '"' & model.getCustomPragmaVal(tableName) & '"'

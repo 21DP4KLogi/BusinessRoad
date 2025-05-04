@@ -263,7 +263,7 @@ post "/logout":
     psql:
       # This check might be a bit useless, will keep it for now incase of debugging
       if not db.exists(Player, "authToken = $1", authCookie): resp 404
-      db.exec(sql "UPDATE \"Players\" SET authToken = NULL WHERE authToken = $1", authCookie)
+      db.exec(sql "UPDATE " & modelTableName(Player) & " SET authToken = NULL WHERE authToken = $1", authCookie)
   headers["Set-Cookie"] = makeCookie(
     "a", "",
     expires=daysForward(-1),
