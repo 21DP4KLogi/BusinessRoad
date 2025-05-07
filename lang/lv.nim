@@ -22,6 +22,7 @@ const lang* = $ %* {
   "proficiency": "[employeeProficiency.$1.$0]",
   "hireEmp": "Pieņemt",
   "fireEmp": "Atlaist",
+  "suggestSalary": "Ieteikt algu",
   "findEmployees": "Atrast darbiniekus",
   "startBusinessCost": "Dibināt biznesu par 5000$",
   "_": {

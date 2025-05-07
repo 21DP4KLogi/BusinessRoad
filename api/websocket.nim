@@ -123,7 +123,9 @@ proc messageHandler(ws: WebSocket, event: WebSocketEvent, message: Message) =
         parameters[1].len > SafeInt64Len or
         parameters[2].containsAnythingBut(Digits) or
         parameters[2].len > SafeInt32Len
-        : return
+        : 
+        ws.send("ERR invalid")
+        return
       let
         sentEmployeeId = parameters[0].parseInt
         sentBusinessId = parameters[1].parseInt
@@ -132,36 +134,49 @@ proc messageHandler(ws: WebSocket, event: WebSocketEvent, message: Message) =
       psql:
         if not db.exists(
           Employee,
-          "id = $1 AND interview IN (SELECT * FROM " & modelTableName(Business) & " WHERE owner = $2)",
+          "id = $1 AND interview IN (SELECT id FROM " & modelTableName(Business) & " WHERE owner = $2)",
           sentEmployeeId, playerId
         ):
+          ws.send("ERR not real owner")
           return
         db.select(employeeQuery, "id = $1", sentEmployeeId)
       let hagglingDiff = sentProposedSalary / employeeQuery.salary
       if hagglingDiff < 1.0: # Salary decrease
         let
-          chanceToAccept = pow(1 - hagglingDiff, 3)
+          chanceToAccept = pow(hagglingDiff, 3)
         if rand(0.01..1.0) <= chanceToAccept: # Accepts haggle
           employeeQuery.salary = sentProposedSalary
           employeeQuery.loyalty = int16(float(employeeQuery.loyalty) * hagglingDiff/2)
+          psql:
+            db.update(employeeQuery)
           ws.send("updateinterviewee=" & colonSerialize(sentBusinessId, sentEmployeeId, sentProposedSalary))
           return
         else: # Refuses haggle
           employeeQuery.loyalty = int16(float(employeeQuery.loyalty) * hagglingDiff)
           if employeeQuery.loyalty <= 500:
             employeeQuery.interview = none int64
+            psql:
+              db.update(employeeQuery)
             ws.send("loseinterviewee=" & colonSerialize(sentBusinessId, sentEmployeeId))
             return
           elif employeeQuery.loyalty < 5000 and rand(0.0001..1.0) < (5000 - employeeQuery.loyalty) / 5000:
             employeeQuery.interview = none int64
+            psql:
+              db.update(employeeQuery)
             ws.send("loseinterviewee=" & colonSerialize(sentBusinessId, sentEmployeeId))
+            return
+          else:
+            ws.send("updateinterviewee=" & colonSerialize(sentBusinessId, sentEmployeeId, employeeQuery.salary))
             return
       elif hagglingDiff > 1.0: # Salary increase
           employeeQuery.salary = sentProposedSalary
           employeeQuery.loyalty = int16(float(employeeQuery.loyalty) * ((hagglingDiff - 1)/2 + 1))
+          psql:
+            db.update(employeeQuery)
           ws.send("updateinterviewee=" & colonSerialize(sentBusinessId, sentEmployeeId, sentProposedSalary))
           return
       else: # Salary equal for some reason
+        ws.send("updateinterviewee=" & colonSerialize(sentBusinessId, sentEmployeeId, sentProposedSalary))
         discard
 
     of "hireEmployee":

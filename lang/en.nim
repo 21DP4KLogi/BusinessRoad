@@ -22,6 +22,7 @@ const lang* = $ %* {
   "proficiency": "[employeeProficiency.$0]",
   "hireEmp": "Hire",
   "fireEmp": "Fire",
+  "suggestSalary": "Suggest salary",
   "findEmployees": "Find Employees",
   "startBusinessCost": "Found business for $5000",
   "_": {

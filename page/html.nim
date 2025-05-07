@@ -98,17 +98,30 @@ let gamePage = render:
           button:
             sText "l('findEmployees')"
             sOn "click", "() => {wssend('findEmployees', [selBusiness?.id])}"
+          # Interviewees
           ul:
             li:
               # Without deepcopying, it does some wack crap
               sEach "ntrvw in selBusiness?.interviewees.map(el => el)"
-              span:
+              button:
                 sText "l('fullname', [ntrvw.gender, ntrvw.firstname, ntrvw.lastname]) + ' - ' + l('proficiency', [ntrvw.proficiency, ntrvw.gender])"
+                sOn "click", "() => {gamePage.selInterviewee = ntrvw; gamePage.suggestedSalary = ntrvw.salary}"
               span:
                 sText "' - ' + ntrvw.salary + '$/5s'"
-              button:
-                sText "l('hireEmp')"
-                sOn "click", "() => {wssend('hireEmployee', [selBusiness?.id, ntrvw.id])}"
+          # Selected Interviewee
+          span:
+            sIf "gamePage.selInterviewee != null"
+            span:
+              sText "l('fullname', [gamePage.selInterviewee.gender, gamePage.selInterviewee.firstname, gamePage.selInterviewee.lastname])"
+            input:
+              sValue "gamePage.suggestedSalary"
+            button:
+              sText "l('suggestSalary')"
+              sOn "click", "() => {wssend('haggleWithInterviewee', [gamePage.selInterviewee.id, selBusiness.id, gamePage.suggestedSalary])}"
+            button:
+              sText "l('hireEmp')"
+              sOn "click", "() => {wssend('hireEmployee', [selBusiness.id, gamePage.selInterviewee.id])}"
+          # Employees
           ul:
             li:
               sEach "emply in selBusiness?.employees.map(e => e)"

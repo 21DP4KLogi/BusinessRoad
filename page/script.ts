@@ -297,7 +297,8 @@ let scope = {
       title: "",
       newBusinessType: -1,
     },
-    selIntervieweeIndex: -1,
+    selInterviewee: null,
+    suggestedSalary: -1,
   },
   authOngoing: false,
   registerFunc: register,
@@ -352,6 +353,9 @@ function wsHandler(event: MessageEvent) {
       })
       business.employees.push(business.interviewees[intervieweeIndex])
       business.interviewees.splice(intervieweeIndex, 1)
+      if (state.gamePage.selInterviewee.id === employeeId) {
+        state.gamePage.selInterviewee = null
+      }
       break;
     }
     case "loseemployee": {
@@ -378,6 +382,9 @@ function wsHandler(event: MessageEvent) {
         return ntrvw.id === intervieweeId
       })
       business.interviewees.splice(intervieweeIndex, 1)
+      if (state.gamePage.selInterviewee.id === intervieweeId) {
+        state.gamePage.selInterviewee = null
+      }
       break;
     }
     case "updateinterviewee": {
