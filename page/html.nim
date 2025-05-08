@@ -132,6 +132,14 @@ let gamePage = render:
               button:
                 sText "l('fireEmp')"
                 sOn "click", "() => {wssend('fireEmployee', [selBusiness.id, emply.id])}"
+          # Projects
+          br: discard
+          button:
+            say "New project"
+            sOn "click", "() => {wssend('createProject', [selBusiness.id, 1])}"
+          tdiv:
+            sEach "proj, id in selBusiness.projects"
+            sText "'Project: ' + id + ' ' + proj.project + ' ' + proj.quality"
 
 let main* = render:
   say: "<!DOCTYPE html>"

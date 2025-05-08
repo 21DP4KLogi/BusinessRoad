@@ -13,10 +13,12 @@ proc getUserGameData(player: Player): JsonNode =
     if db.exists(Business, "owner = $1", player.id):
       var businessQuery = @[Business()]
       var employeeQuery = @[Employee()]
+      var projectQuery = @[Project()]
       db.select(businessQuery, "owner = $1", player.id)
       for business in businessQuery:
         var employeeList: seq[frontendEmployee] = @[]
         var intervieweeList: seq[frontendEmployee] = @[]
+        var projectList: Table[string, frontendProject]
         # Employees
         if db.exists(Employee, "workplace = $1", business.id):
           db.select(employeeQuery, "workplace = $1", business.id)
@@ -43,11 +45,21 @@ proc getUserGameData(player: Player): JsonNode =
               firstname: employee.firstname,
               lastname: employee.lastname
             )
+        if db.exists(Project, "business = $1", business.id):
+          db.select(projectQuery, "business = $1", business.id)
+          for proj in projectQuery:
+            projectList[$proj.id] = frontendProject(
+              id: proj.id,
+              business: proj.business,
+              project: proj.project,
+              quality: proj.quality
+            )
         businessList.add frontendBusiness(
           id: business.id,
           field: business.field,
           employees: employeeList,
           interviewees: intervieweeList,
+          projects: projectList,
         )
 
   return %* {

@@ -6,7 +6,7 @@ import "mummy_base"
 import "websocket.nim"
 
 const
-  TickRateInMs = 1000
+  TickRateInMs = 500
   EmployeeToPlayerRatio = 5
 
 const

@@ -45,7 +45,7 @@ proc messageHandler(ws: WebSocket, event: WebSocketEvent, message: Message) =
   if message.data.contains '@': # Has parameter/s
     let parsedMessage = message.data.split '@'
     if parsedMessage.len != 2:
-      ws.send "ERR"
+      ws.send "ERR=Invalid"
       return
     let
       command = parsedMessage[0]
@@ -54,6 +54,7 @@ proc messageHandler(ws: WebSocket, event: WebSocketEvent, message: Message) =
 
     of "foundBusiness":
       if
+        "" in parameters or
         playerQuery.money < 5000 or
         parameters.len > 1 or
         parameters[0].containsAnythingBut(Digits) or
@@ -80,6 +81,7 @@ proc messageHandler(ws: WebSocket, event: WebSocketEvent, message: Message) =
 
     of "findEmployees":
       if
+        "" in parameters or
         parameters[0].containsAnythingBut(Digits) or
         parameters[0].len > SafeInt64Len
       : return
@@ -116,6 +118,7 @@ proc messageHandler(ws: WebSocket, event: WebSocketEvent, message: Message) =
 
     of "haggleWithInterviewee":
       if
+        "" in parameters or
         parameters.len != 3 or
         parameters[0].containsAnythingBut(Digits) or
         parameters[0].len > SafeInt64Len or
@@ -124,7 +127,7 @@ proc messageHandler(ws: WebSocket, event: WebSocketEvent, message: Message) =
         parameters[2].containsAnythingBut(Digits) or
         parameters[2].len > SafeInt32Len
         : 
-        ws.send("ERR invalid")
+        ws.send("ERR=Invalid")
         return
       let
         sentEmployeeId = parameters[0].parseInt
@@ -137,7 +140,7 @@ proc messageHandler(ws: WebSocket, event: WebSocketEvent, message: Message) =
           "id = $1 AND interview IN (SELECT id FROM " & modelTableName(Business) & " WHERE owner = $2)",
           sentEmployeeId, playerId
         ):
-          ws.send("ERR not real owner")
+          ws.send("ERR=Not authorised")
           return
         db.select(employeeQuery, "id = $1", sentEmployeeId)
       let hagglingDiff = sentProposedSalary / employeeQuery.salary
@@ -182,6 +185,7 @@ proc messageHandler(ws: WebSocket, event: WebSocketEvent, message: Message) =
     of "hireEmployee":
     # IMPORTANT TODO: Validate user's authorisation
       if
+        "" in parameters or
         parameters.len != 2 or
         parameters[0].containsAnythingBut(Digits) or
         parameters[0].len > SafeInt64Len or
@@ -192,7 +196,7 @@ proc messageHandler(ws: WebSocket, event: WebSocketEvent, message: Message) =
       let sentEmployeeId = int64(parameters[1].parseInt)
       psql:
         if not db.exists(Employee, "id = $1 AND interview = $2", sentEmployeeId, sentBusinessId):
-          ws.send "ERR"
+          ws.send "ERR=No applicable interviewee"
           return
         var employeeQuery = Employee()
         db.select(employeeQuery, "id = $1 AND interview = $2", sentEmployeeId, sentBusinessId)
@@ -205,6 +209,7 @@ proc messageHandler(ws: WebSocket, event: WebSocketEvent, message: Message) =
     of "fireEmployee":
     # IMPORTANT TODO: Validate user's authorisation
       if
+        "" in parameters or
         parameters.len != 2 or
         parameters[0].containsAnythingBut(Digits) or
         parameters[0].len > SafeInt64Len or
@@ -215,7 +220,7 @@ proc messageHandler(ws: WebSocket, event: WebSocketEvent, message: Message) =
       let sentEmployeeId = int64(parameters[1].parseInt)
       psql:
         if not db.exists(Employee, "id = $1 AND workplace = $2", sentEmployeeId, sentBusinessId):
-          ws.send "ERR"
+          ws.send "ERR=No applicable interviewee"
           return
         var employeeQuery = Employee()
         db.select(employeeQuery, "id = $1 AND workplace = $2", sentEmployeeId, sentBusinessId)
@@ -224,10 +229,50 @@ proc messageHandler(ws: WebSocket, event: WebSocketEvent, message: Message) =
         db.update(employeeQuery)
       ws.send("loseemployee=" & colonSerialize(sentBusinessId, sentEmployeeId))
       return
-        
+
+    of "createProject":
+      if
+        "" in parameters or
+        parameters.len != 2 or
+        parameters[0].containsAnythingBut(Digits) or
+        parameters[0].len > SafeInt64Len or
+        parameters[1].containsAnythingBut(Digits) or
+        parameters[1].len > SafeInt16Len
+        :
+        ws.send("ERR=Invalid")
+        return
+      let sentProjectType = parameters[1].parseInt
+      if sentProjectType notin BusinessProject:
+        ws.send("ERR=Invalid business project")
+        return
+      let sentBusinessId = parameters[0].parseInt
+      var businessQuery = Business()
+      psql:
+        if not db.exists(Business, "id = $1 AND owner = $2", sentBusinessId, playerId):
+          ws.send("ERR=Not authorised")
+          return
+        db.select(businessQuery, "id = $1", sentBusinessId)
+      if BusinessProject(sentProjectType) notin availableProjects[businessQuery.field]:
+        ws.send("ERR=Project type not available for given business")
+        return
+      var projectQuery = Project(
+        business: sentBusinessId,
+        project: BusinessProject(sentProjectType)
+      )
+      psql:
+        db.insert(projectQuery)
+      ws.send("newproject=" & $ %*{
+        "id": projectQuery.id,
+        "business": projectQuery.business,
+        "project": projectQuery.project,
+        "quality": projectQuery.quality,
+      })
+
+    of "deleteProject":
+      discard
 
     else:
-      ws.send "ERR"
+      ws.send "ERR=Unknown command (with parameter)"
       return
 
   else: # No parameters
@@ -235,7 +280,7 @@ proc messageHandler(ws: WebSocket, event: WebSocketEvent, message: Message) =
     of "m?":
       ws.send $playerQuery.money
     else:
-      ws.send "ERR"
+      ws.send "ERR=Unknown command (without parameter)"
       # ws.send('"' & message.data & "\", to you too")
 
 proc websocketHandler*(

@@ -1,5 +1,5 @@
 import norm/[types, model, postgres, pragmas]
-import std/[options, json, sequtils]
+import std/[options, json, sequtils, tables]
 
 proc `%`*(psoc: PaddedStringOfCap): JsonNode = %($psoc)
 proc `%`*(soc: StringOfCap): JsonNode = %($soc)
@@ -27,6 +27,12 @@ type
     iotHardware,
     jsFramework,
     cupcakes,
+
+const availableProjects*: Table[BusinessField, set[BusinessProject]] =
+  {
+    eikt: {iotHardware},
+    baking: {cupcakes}
+  }.toTable()
 
 dbProcsForEnum EmployeeProficiency
 dbProcsForEnum BusinessField
@@ -71,7 +77,7 @@ type
     active*: bool = false
     # Initiator
     initiator* {.fk: Business.}: int64 = 0
-    initiatorProject* {.fk: Project.}: int64 = 0
+    initiatorProject* {.fk: Project.}: Option[int64] = none int64
     initiatorAgrees*: bool = false
     initiatorPayment*: int32 = 0
     # Recipient
@@ -94,3 +100,25 @@ type
     field*: BusinessField
     employees*: seq[frontendEmployee]
     interviewees*: seq[frontendEmployee]
+    projects*: Table[string, frontendProject]
+
+  frontendProject* = object
+    id*: int64
+    business*: int64
+    project*: BusinessProject = BusinessProject.serverHosting
+    quality*: int32 = 0
+  #   beneficiary*: int64
+
+  # frontendContract* = object
+  #   id*: int64
+  #   active*: bool = false
+  #   # Initiator
+  #   initiator*: int64 = 0
+  #   initiatorProject*: Option[int64] = none int64
+  #   initiatorAgrees*: bool = false
+  #   initiatorPayment*: int32 = 0
+  #   # Recipient
+  #   recipient*: Option[int64] = none int64
+  #   recipientProject*: Option[int64] = none int64
+  #   recipientAgrees*: bool = false
+  #   recipientPayment*: int32 = 0   

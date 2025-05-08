@@ -19,7 +19,15 @@ type FrontendBusiness = {
   id: number,
   field: string,
   employees: FrontendEmployee[],
-  interviewees: FrontendEmployee[]
+  interviewees: FrontendEmployee[],
+  projects: Object
+}
+
+type FrontendProject = {
+  id: number,
+  business: number,
+  project: string,
+  quality: number
 }
 
 type GameData = {
@@ -27,7 +35,7 @@ type GameData = {
   firstname: number,
   lastname: number,
   gender: "M"|"F",
-  businesses: FrontendBusiness[]
+  businesses: FrontendBusiness[],
 }
 
 const defaultGameData: GameData = {
@@ -320,6 +328,10 @@ function wsHandler(event: MessageEvent) {
   let splitMessage = message.split('=');
   let command = splitMessage[0]
   let data = splitMessage?.[1] ?? ""
+  if (command === "ERR") {
+    alert("Received error from WebSocket: " + data);
+    return;
+  }
   switch (command) {
     case "m": {
       state.gd.money = data;
@@ -399,6 +411,18 @@ function wsHandler(event: MessageEvent) {
         return ntrvw.id === intervieweeId
       })
       business.interviewees[intervieweeIndex].salary = newSalary
+      break;
+    }
+    case "newproject": {
+      let parsedData = JSON.parse(data)
+      let businessIndex = state.gd.businesses.findIndex((biz) => {
+        return biz.id === parsedData.business
+      })
+      state.gd.businesses[businessIndex].projects[parsedData.id] = {
+        business: parsedData.business,
+        project: parsedData.project,
+        quality: parsedData.quality
+      }
       break;
     }
     default: alert("Server sent some incoherent gobbledegook via websocket")
