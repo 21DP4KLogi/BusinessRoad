@@ -322,15 +322,13 @@ let scope = {
     },
   },
   gamePage: {
-    businessFields: modeldata["BusinessField"],
-    businessProjects: modeldata["BusinessProject"],
-    employeeProficiencies: modeldata["EmployeeProficiency"],
     selBusinessIndex: -1,
     businessInfoPane: {
       action: "",
       title: "",
       newBusinessType: -1,
     },
+    newProjectType: -1,
     selInterviewee: null,
     suggestedSalary: -1,
   },
@@ -347,6 +345,7 @@ let scope = {
     return this.gd.businesses[this.gamePage.selBusinessIndex];
   },
   gd: defaultGameData,
+  get data() {return modeldata}
 };
 
 function wsHandler(event: MessageEvent) {

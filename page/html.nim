@@ -79,7 +79,7 @@ let gamePage = render:
             sValue "gamePage.businessInfoPane.newBusinessType"
             # sWith "{l: l, gamePage: {businessFields: gamePage.businessFields}}"
             option:
-              sEach "field, index in gamePage.businessFields"
+              sEach "field, index in data.BusinessField"
               sValue "index"
               sText "l('businessField', [field])"
           button:
@@ -134,9 +134,15 @@ let gamePage = render:
                 sOn "click", "() => {wssend('fireEmployee', [selBusiness.id, emply.id])}"
           # Projects
           br: discard
+          select:
+            sValue "gamePage.newProjectType"
+            option:
+              sEach "proj in data.AvailableProjects[selBusiness.field].map(e => e)"
+              sText "l('businessProject', [proj])"
+              sValue "data.BusinessProject.findIndex(e => e == proj)"
           button:
-            say "New project"
-            sOn "click", "() => {wssend('createProject', [selBusiness.id, 1])}"
+            sText "l('startNewProject')"
+            sOn "click", "() => {wssend('createProject', [selBusiness.id, gamePage.newProjectType])}"
           tdiv:
             sEach "proj, id in selBusiness.projects"
             sText "'Project: ' + id + ' ' + proj.project + ' ' + proj.quality"

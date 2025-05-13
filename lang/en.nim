@@ -25,6 +25,8 @@ const lang* = $ %* {
   "suggestSalary": "Suggest salary",
   "findEmployees": "Find Employees",
   "startBusinessCost": "Found business for $5000",
+  "startNewProject": "Start new project",
+  "businessProject": "[businessProject.$0]",
   "_": {
     "firstname": {
       "M": namesCsv["en-m-fn"],
@@ -39,6 +41,12 @@ const lang* = $ %* {
       "taxpayer": "Taxpayer",
       "hungry": "Hungry",
       "vimuser": "Vim user",
+    },
+    "businessProject": {
+      "serverHosting": "Server hosting",
+      "iotHardware": "IoT hardware",
+      "jsFramework": "JS framework",
+      "cupcakes": "Cupcakes",
     },
   }
 }

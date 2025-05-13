@@ -25,6 +25,8 @@ const lang* = $ %* {
   "suggestSalary": "Ieteikt algu",
   "findEmployees": "Atrast darbiniekus",
   "startBusinessCost": "Dibināt biznesu par 5000$",
+  "startNewProject": "Sākt jaunu projektu",
+  "businessProject": "[businessProject.$0]",
   "_": {
     "firstnameNom": {
       "M": namesCsv["lv-m-fn-nom"],
@@ -45,6 +47,12 @@ const lang* = $ %* {
     "businessField": {
       "eikt": "EIKT",
       "baking": "Cepšana",
+    },
+    "businessProject": {
+      "serverHosting": "Serveru hostings",
+      "iotHardware": "IoT aparatūra",
+      "jsFramework": "JS ietvars",
+      "cupcakes": "Kūciņas",
     },
     "employeeProficiency": {
       "M": {

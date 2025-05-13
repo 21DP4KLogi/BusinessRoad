@@ -28,20 +28,25 @@ type
     jsFramework,
     cupcakes,
 
+dbProcsForEnum EmployeeProficiency
+dbProcsForEnum BusinessField
+dbProcsForEnum BusinessProject
+
 const availableProjects*: Table[BusinessField, set[BusinessProject]] =
   {
     eikt: {iotHardware},
     baking: {cupcakes}
   }.toTable()
 
-dbProcsForEnum EmployeeProficiency
-dbProcsForEnum BusinessField
-dbProcsForEnum BusinessProject
+proc availableProjectsJSONable: Table[string, seq[string]] =
+  for k, v in availableProjects.pairs:
+    result[$k] = v.toSeq().mapIt($it)
 
 const enumJson* = $ %* {
   "EmployeeProficiency": EmployeeProficiency.mapIt($it),
   "BusinessField": BusinessField.mapIt($it),
-  "BusinessProject": BusinessProject.mapIt($it)
+  "BusinessProject": BusinessProject.mapIt($it),
+  "AvailableProjects": availableProjectsJSONable()
 }
 
 type
