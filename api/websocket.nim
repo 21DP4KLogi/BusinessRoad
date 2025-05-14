@@ -74,8 +74,8 @@ proc messageHandler(ws: WebSocket, event: WebSocketEvent, message: Message) =
       ws.send("newbusiness=" & $ %*{
         "field": businessQuery.field,
         "id": businessQuery.id,
-        "employees": [],
-        "interviewees": [],
+        "employees": {},
+        "interviewees": {},
         "projects": {},
       })
       ws.send("m=" & $playerQuery.money)

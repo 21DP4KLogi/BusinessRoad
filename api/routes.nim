@@ -7,7 +7,7 @@ import "lang_base.nim"
 let valkey = valkeyPool
 
 proc getUserGameData(player: Player): JsonNode =
-  var businessList: seq[frontendBusiness]
+  var businessList: Table[string, frontendBusiness]
 
   psql:
     if db.exists(Business, "owner = $1", player.id):
@@ -16,15 +16,15 @@ proc getUserGameData(player: Player): JsonNode =
       var projectQuery = @[Project()]
       db.select(businessQuery, "owner = $1", player.id)
       for business in businessQuery:
-        var employeeList: seq[frontendEmployee] = @[]
-        var intervieweeList: seq[frontendEmployee] = @[]
+        var employeeList: Table[string, frontendEmployee]
+        var intervieweeList: Table[string, frontendEmployee]
         var projectList: Table[string, frontendProject]
         # Employees
         if db.exists(Employee, "workplace = $1", business.id):
           db.select(employeeQuery, "workplace = $1", business.id)
           for employee in employeeQuery:
             # Currently 'frontendEmployee' and 'Employee' line up exactly, but that could change
-            employeeList.add frontendEmployee(
+            employeeList[$employee.id] = frontendEmployee(
               # There is probably some syntactic sugar for this
               id: employee.id,
               salary: employee.salary,
@@ -37,7 +37,7 @@ proc getUserGameData(player: Player): JsonNode =
         if db.exists(Employee, "interview = $1", business.id):
           db.select(employeeQuery, "interview = $1", business.id)
           for employee in employeeQuery:
-            intervieweeList.add frontendEmployee(
+            intervieweeList[$employee.id] = frontendEmployee(
               id: employee.id,
               salary: employee.salary,
               proficiency: employee.proficiency,
@@ -54,7 +54,7 @@ proc getUserGameData(player: Player): JsonNode =
               project: proj.project,
               quality: proj.quality
             )
-        businessList.add frontendBusiness(
+        businessList[$business.id] = frontendBusiness(
           id: business.id,
           field: business.field,
           employees: employeeList,

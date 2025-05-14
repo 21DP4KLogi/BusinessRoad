@@ -18,8 +18,8 @@ type FrontendEmployee = {
 type FrontendBusiness = {
   id: number;
   field: string;
-  employees: FrontendEmployee[];
-  interviewees: FrontendEmployee[];
+  employees: Object;
+  interviewees: Object;
   projects: Object;
 };
 
@@ -35,7 +35,7 @@ type GameData = {
   firstname: number;
   lastname: number;
   gender: "M" | "F";
-  businesses: FrontendBusiness[];
+  businesses: Object;
 };
 
 const defaultGameData: GameData = {
@@ -366,18 +366,15 @@ function wsHandler(event: MessageEvent) {
     }
     case "newbusiness": {
       let parsedData = JSON.parse(data);
-      let newIndex = state.gd.businesses.push(parsedData);
-      state.gamePage.selBusinessIndex = newIndex - 1;
+      state.gd.businesses[parsedData.id] = parsedData;
+      state.gamePage.selBusinessIndex = parsedData.id;
       state.gamePage.businessInfoPane.action = "info";
       break;
     }
     case "interviewees": {
       // Named like that because apparently JS thinks that name conflicts should be possible here.
       let parsedData = JSON.parse(data);
-      let businessIndex = state.gd.businesses.findIndex((biz) => {
-        return biz.id === parsedData["business"];
-      });
-      state.gd.businesses[businessIndex].interviewees =
+      state.gd.businesses[parsedData["business"]].interviewees =
         parsedData["interviewees"];
       break;
     }
@@ -387,18 +384,13 @@ function wsHandler(event: MessageEvent) {
       let employeeId = Number(splitData[1]);
       let business: FrontendBusiness =
         state.gd.businesses[
-          state.gd.businesses.findIndex((biz) => {
-            return biz.id === businessId;
-          })
+          businessId
         ];
-      let intervieweeIndex = business.interviewees.findIndex((ntrvw) => {
-        return ntrvw.id === employeeId;
-      });
-      business.employees.push(business.interviewees[intervieweeIndex]);
-      business.interviewees.splice(intervieweeIndex, 1);
       if (state.gamePage.selInterviewee.id === employeeId) {
         state.gamePage.selInterviewee = null;
       }
+      business.employees[employeeId] = business.interviewees[employeeId];
+      delete business.interviewees[employeeId];
       break;
     }
     case "loseemployee": {
@@ -407,14 +399,9 @@ function wsHandler(event: MessageEvent) {
       let employeeId = Number(splitData[1]);
       let business: FrontendBusiness =
         state.gd.businesses[
-          state.gd.businesses.findIndex((biz) => {
-            return biz.id === businessId;
-          })
+          businessId
         ];
-      let employeeIndex = business.interviewees.findIndex((ntrvw) => {
-        return ntrvw.id === employeeId;
-      });
-      business.employees.splice(employeeIndex, 1);
+      delete business.employees[employeeId];
       break;
     }
     case "loseinterviewee": {
@@ -423,42 +410,29 @@ function wsHandler(event: MessageEvent) {
       let intervieweeId = Number(splitData[1]);
       let business: FrontendBusiness =
         state.gd.businesses[
-          state.gd.businesses.findIndex((biz) => {
-            return biz.id === businessId;
-          })
+          businessId
         ];
-      let intervieweeIndex = business.interviewees.findIndex((ntrvw) => {
-        return ntrvw.id === intervieweeId;
-      });
-      business.interviewees.splice(intervieweeIndex, 1);
       if (state.gamePage.selInterviewee.id === intervieweeId) {
         state.gamePage.selInterviewee = null;
       }
+      delete business.interviewees[intervieweeId];
       break;
     }
     case "updateinterviewee": {
       let splitData = data.split(":");
-      let businessId = Number(splitData[0]);
-      let intervieweeId = Number(splitData[1]);
+      let businessId = splitData[0];
+      let intervieweeId = splitData[1];
       let newSalary = Number(splitData[2]);
       let business: FrontendBusiness =
         state.gd.businesses[
-          state.gd.businesses.findIndex((biz) => {
-            return biz.id === businessId;
-          })
+          businessId
         ];
-      let intervieweeIndex = business.interviewees.findIndex((ntrvw) => {
-        return ntrvw.id === intervieweeId;
-      });
-      business.interviewees[intervieweeIndex].salary = newSalary;
+      business.interviewees[intervieweeId].salary = newSalary;
       break;
     }
     case "newproject": {
       let parsedData = JSON.parse(data);
-      let businessIndex = state.gd.businesses.findIndex((biz) => {
-        return biz.id === parsedData.business;
-      });
-      state.gd.businesses[businessIndex].projects[parsedData.id] = {
+      state.gd.businesses[parsedData.business].projects[parsedData.id] = {
         business: parsedData.business,
         project: parsedData.project,
         quality: parsedData.quality,

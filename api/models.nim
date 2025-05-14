@@ -103,8 +103,8 @@ type
   frontendBusiness* = object
     id*: int64
     field*: BusinessField
-    employees*: seq[frontendEmployee]
-    interviewees*: seq[frontendEmployee]
+    employees*: Table[string, frontendEmployee]
+    interviewees*: Table[string, frontendEmployee]
     projects*: Table[string, frontendProject]
 
   frontendProject* = object
