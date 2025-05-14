@@ -136,14 +136,14 @@ let gamePage = render:
           select:
             sValue "gamePage.newProjectType"
             option:
-              sEach "proj in data.AvailableProjects[selBusiness.field].map(e => e)"
+              sEach "proj in data.AvailableProjects[selBusiness?.field]"
               sText "l('businessProject', [proj])"
               sValue "data.BusinessProject.findIndex(e => e == proj)"
           button:
             sText "l('startNewProject')"
             sOn "click", "() => {wssend('createProject', [selBusiness.id, gamePage.newProjectType])}"
           tdiv:
-            sEach "proj, id in selBusiness.projects"
+            sEach "proj, id in selBusiness?.projects"
             sText "'Project: ' + id + ' ' + proj.project + ' ' + proj.quality"
 
 let main* = render:
