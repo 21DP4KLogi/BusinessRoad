@@ -7,6 +7,7 @@ import "parsedcsv.nim"
 # don't have those, and implementing them as such would be optional.
 
 const lang* = $ %* {
+  "langcode": "en",
   "title": "Business Road",
   "greeting": "Hello, [firstname.$0.$1] [lastname.$2]!",
   "fullname": "[firstname.$0.$1] [lastname.$2]",

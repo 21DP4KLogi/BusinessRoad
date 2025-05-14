@@ -303,6 +303,8 @@ let scope = {
   l(query: string, params: Array<number>) {
     return localise(this.lang, query, params);
   },
+  get langcode() {return this.lang["langcode"]},
+  set langcode(val) {if (!val) {return}; changeLang(val)},
   loaded: false,
   motd: "",
   authed: false,
@@ -337,9 +339,6 @@ let scope = {
   loginFunc: login,
   deleteFunc: deleteAccount,
   logoutFunc: logout,
-  changelangFunc: (langCode: string) => {
-    changeLang(langCode);
-  },
   // This would make more sense next to `selBusinessIndex`, but I can't access `gd` from that scope
   get selBusiness() {
     return this.gd.businesses[this.gamePage.selBusinessIndex];

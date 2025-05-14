@@ -2,27 +2,21 @@ import dekao
 import "sprae.nim"
 
 let authPage = render:
-  tdiv "#authcodeAndButton":
-    input "#authInput":
-      placeholder "••••••••"
-      sValue "authPage.codeInput"
-      maxlength "8"
-    button:
-      sText "l(authPage.action)"
-      sOn "click", "() => {authPage.buttonAction()}"
-  p "#authModeSelectionMenu":
+  input "#authInput":
+    placeholder "••••••••"
+    sValue "authPage.codeInput"
+    maxlength "8"
+  tdiv "#authmodesel":
     span ".authModeSelection":
       sText "authPage.action == 'login' ? l('login').toUpperCase() : l('login')"
       sOn "click", "() => {authPage.action = 'login'; authPage.buttonAction = loginFunc}"
-    span: say " - "
     span ".authModeSelection":
       sText "authPage.action == 'register' ? l('register').toUpperCase() : l('register')"
       sOn "click", "() => {authPage.action = 'register'; authPage.buttonAction = registerFunc}"
-    span: say " - "
     span ".authModeSelection":
       sText "authPage.action == 'delete' ? l('delete').toUpperCase() : l('delete')"
       sOn "click", "() => {authPage.action = 'delete'; authPage.buttonAction = deleteFunc}"
-  tdiv:
+  tdiv "#authreg":
     sIf "authPage.action == 'register'"
     button:
       say "<->"
@@ -41,110 +35,13 @@ let authPage = render:
         sEach "lname in authPage.namelist('lastname')"
         sValue "lname[0]"
         sText "lname[1]"
+  button "#authbutton":
+    sText "l(authPage.action)"
+    sOn "click", "() => {authPage.buttonAction()}"
+    
 
 let gamePage = render:
-  button:
-    sText "l('logout')"
-    sOn "click", "() => {logoutFunc()}"
-  span:
-    sText "l('fullname', [gd.gender, gd.firstname, gd.lastname])"
-  h3: sText "l('greeting', [gd.gender, gd.firstname, gd.lastname])"
-  p:
-    sText "l('moneyIndicator') + gd.money"
-  tdiv "#TEMPinfoPanes":
-    tdiv "#businessPane":
-      tdiv "#buyBusinessButton":
-        sText "l('startBusiness')"
-        sOn "click", "() => {gamePage.businessInfoPane.action = 'new'}"
-      tdiv "#businessList":
-        tdiv ".businessListCard":
-          sEach "business, index in gd.businesses"
-          sOn "click", "() => {gamePage.selBusinessIndex = index; gamePage.businessInfoPane.action = 'info'}"
-          h3:
-            sText "l('businessField', [business.field])"
-          p:
-            sText "'Emp.: ' + Object.keys(business.employees).length"
-
-    tdiv "#businessInfoPane":
-      # New business menu
-      tdiv:
-        sIf "gamePage.businessInfoPane.action == 'new'"
-        tdiv ".title":
-          h3: sText "l('startBusiness')"
-          button:
-            say "X"
-            sOn "click", "() => {gamePage.businessInfoPane.action = ''}"
-        tdiv ".content":
-          select:
-            sValue "gamePage.businessInfoPane.newBusinessType"
-            # sWith "{l: l, gamePage: {businessFields: gamePage.businessFields}}"
-            option:
-              sEach "field, index in data.BusinessField"
-              sValue "index"
-              sText "l('businessField', [field])"
-          button:
-            sProp "disabled", "gd.money < 5000"
-            sOn "click", "() => {wssend('foundBusiness', [gamePage.businessInfoPane.newBusinessType])}"
-            sText "l('startBusinessCost')"
-      # Business info
-      tdiv:
-        sIf "gamePage.businessInfoPane.action == 'info'"
-        tdiv ".title":
-          h3: sText "l('businessField', [selBusiness?.field])"
-          button:
-            say "X"
-            sOn "click", "() => {gamePage.businessInfoPane.action = ''}"
-        tdiv ".content":
-          button:
-            sText "l('findEmployees')"
-            sOn "click", "() => {wssend('findEmployees', [selBusiness?.id])}"
-          # Interviewees
-          ul:
-            li:
-              sEach "ntrvw in selBusiness?.interviewees"
-              button:
-                sText "l('fullname', [ntrvw.gender, ntrvw.firstname, ntrvw.lastname]) + ' - ' + l('proficiency', [ntrvw.proficiency, ntrvw.gender])"
-                sOn "click", "() => {gamePage.selInterviewee = ntrvw; gamePage.suggestedSalary = ntrvw.salary}"
-              span:
-                sText "' - ' + ntrvw.salary + '$/5s'"
-          # Selected Interviewee
-          span:
-            sIf "gamePage.selInterviewee != null"
-            span:
-              sText "l('fullname', [gamePage.selInterviewee.gender, gamePage.selInterviewee.firstname, gamePage.selInterviewee.lastname])"
-            input:
-              sValue "gamePage.suggestedSalary"
-            button:
-              sText "l('suggestSalary')"
-              sOn "click", "() => {wssend('haggleWithInterviewee', [gamePage.selInterviewee.id, selBusiness.id, gamePage.suggestedSalary])}"
-            button:
-              sText "l('hireEmp')"
-              sOn "click", "() => {wssend('hireEmployee', [selBusiness.id, gamePage.selInterviewee.id])}"
-          # Employees
-          ul:
-            li:
-              sEach "emply in selBusiness?.employees"
-              span:
-                sText "l('fullname', [emply.gender, emply.firstname, emply.lastname]) + ' - ' + l('proficiency', [emply.proficiency, emply.gender])"
-              span:
-                sText "' - ' + emply.salary + '$/5s'"
-              button:
-                sText "l('fireEmp')"
-                sOn "click", "() => {wssend('fireEmployee', [selBusiness.id, emply.id])}"
-          # Projects
-          br: discard
-          select:
-            sValue "gamePage.newProjectType"
-            option:
-              sEach "proj in data.AvailableProjects[selBusiness?.field]"
-              sText "l('businessProject', [proj])"
-              sValue "data.BusinessProject.findIndex(e => e == proj)"
-          button:
-            sText "l('startNewProject')"
-            sOn "click", "() => {wssend('createProject', [selBusiness.id, gamePage.newProjectType])}"
-          tdiv:
-            sEach "proj, id in selBusiness?.projects"
-            sText "'Project: ' + id + ' ' + proj.project + ' ' + proj.quality"
+  p: say "wah"
 
 let main* = render:
   say: "<!DOCTYPE html>"
@@ -160,35 +57,43 @@ let main* = render:
         rel "stylesheet"
       title: say "Business Road"
     body:
-      button:
-        say "DEBUG"
-        sOn "click", "() => {debug()}"
-      h1 "#title": sText "l('title')"
-      i:
-        sIf "loaded"
-        q:
-          sText "motd"
-      # TODO: improve language selector
-      tdiv "#langSelection":
-        button:
-          sOn "click", "() => {changelangFunc('en')}"
-          say "English"
-        button:
-          sOn "click", "() => {changelangFunc('lv')}"
-          say "Latviešu"
-      hr: discard
-      tdiv:
-        sIf "!loaded"
-        h3: say "Loading..."
-        noscript: h3: say "or not? JavaScript seems to be disabled."
-        tstyle:
-          say "#content {display: none}"
-      tdiv "#content":
-        # There is probably a more efficient approach than putting each page in a div.
-        # Correction: div per page is probably fine, what I probably meant was avoid nesting
-        tdiv:
+      tdiv "#topbar":
+        span ".left":
+          h1: sText "l('title')"
+          q:
+            sIf "loaded"
+            sText "motd"
+        span ".right":
+          select "#langsel":
+            sValue "langcode"
+            option:
+              say "English"
+              value "en"
+            option:
+              say "Latviešu"
+              value "lv"
+          select "#themesel":
+            option: say "Light"
+            option: say "Dark"
+            option: say "Gruvbox"
+          button:
+            sIf "curPage == 'game' && loaded"
+            sText "l('logout')"
+            sOn "click", "() => {logoutFunc()}"
+          span:
+            sIf "curPage == 'game' && loaded"
+            sText "l('fullname', [gd.gender, gd.firstname, gd.lastname])"
+      tdiv "#infobar": discard
+      tdiv "#main":
+        tdiv "#loading":
+          sIf "!loaded"
+          h3: say "Loading..."
+          noscript: h3: say "or not? JavaScript seems to be disabled."
+          tstyle:
+            say "#authpage, #gamepage {display: none}"
+        tdiv "#authpage":
           sIf "curPage == 'guest' && loaded"
           say authPage
-        tdiv "#gamePage":
+        tdiv "#gamepage":
           sIf "curPage == 'game' && loaded"
           say gamePage
