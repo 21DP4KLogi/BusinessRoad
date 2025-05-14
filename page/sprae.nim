@@ -12,5 +12,5 @@ proc sFx*(value: string) = attr ":fx", value
 proc sRef*(value: string) = attr ":ref", value
 proc sOn*(event, value: string) = attr ":on" & event, value
 
-# template ttemplate*(selector = "", inner) = tag selector, "template", inner
-# template ttemplate*(inner) = tag "", "template", inner
+template ttemplate*(selector = "", inner) = tag selector, "template", inner
+template ttemplate*(inner) = tag "", "template", inner

@@ -41,7 +41,102 @@ let authPage = render:
     
 
 let gamePage = render:
-  p: say "wah"
+
+  tdiv "#bizlist":
+    tdiv "#buybizbutton":
+      sText "l('startBusiness')"
+      sOn "click", "() => {gamePage.openNewBizMenu()}"
+
+    tdiv ".bizcard":
+      sEach "business, index in gd.businesses"
+      sOn "click", "() => {gamePage.selBusinessIndex = index; gamePage.selInterviewee = null; gamePage.businessInfoPane.action = 'info'}"
+      h3:
+        sText "l('businessField', [business.field])"
+      p:
+        sText "'Emp.: ' + Object.keys(business.employees).length"
+
+  tdiv "#bizinfo":
+    tdiv "#biztitle":
+      sIf "gamePage.businessInfoPane.action !== ''"
+      button:
+        say "X"
+        sOn "click", "() => {gamePage.businessInfoPane.action = ''}"
+      ttemplate:
+        sIf "gamePage.businessInfoPane.action == 'new'"
+        h3: sText "l('startBusiness')"
+      ttemplate:
+        sIf "gamePage.businessInfoPane.action == 'info'"
+        h3: sText "l('businessField', [selBusiness?.field])"
+
+    tdiv "#bizcontent":
+      ttemplate:
+        sIf "gamePage.businessInfoPane.action == 'new'"
+        select:
+          sValue "gamePage.businessInfoPane.newBusinessType"
+          # sWith "{l: l, gamePage: {businessFields: gamePage.businessFields}}"
+          option:
+            sEach "field, index in data.BusinessField"
+            sValue "index"
+            sText "l('businessField', [field])"
+        button:
+          sProp "disabled", "gd.money < 5000"
+          sOn "click", "() => {wssend('foundBusiness', [gamePage.businessInfoPane.newBusinessType])}"
+          sText "l('startBusinessCost')"
+      ttemplate:
+        sIf "gamePage.businessInfoPane.action == 'info'"
+        tdiv:
+          button:
+            sText "l('findEmployees')"
+            sOn "click", "() => {wssend('findEmployees', [selBusiness?.id])}"
+          # Interviewees
+          ul:
+            li:
+              sEach "ntrvw in selBusiness?.interviewees"
+              button:
+                sText "l('fullname', [ntrvw.gender, ntrvw.firstname, ntrvw.lastname]) + ' - ' + l('proficiency', [ntrvw.proficiency, ntrvw.gender])"
+                sOn "click", "() => {gamePage.selInterviewee = ntrvw; gamePage.suggestedSalary = ntrvw.salary}"
+              span:
+                sText "' - ' + ntrvw.salary + '$/5s'"
+          # Selected Interviewee
+          span:
+            sIf "gamePage?.selInterviewee != null"
+            span:
+              sText "l('fullname', [gamePage.selInterviewee.gender, gamePage.selInterviewee.firstname, gamePage.selInterviewee.lastname])"
+            input:
+              sValue "gamePage.suggestedSalary"
+            button:
+              sText "l('suggestSalary')"
+              sOn "click", "() => {wssend('haggleWithInterviewee', [gamePage.selInterviewee.id, selBusiness.id, gamePage.suggestedSalary])}"
+            button:
+              sText "l('hireEmp')"
+              sOn "click", "() => {wssend('hireEmployee', [selBusiness.id, gamePage.selInterviewee.id])}"
+          # Employees
+          ul:
+            li:
+              sEach "emply in selBusiness?.employees"
+              span:
+                sText "l('fullname', [emply.gender, emply.firstname, emply.lastname]) + ' - ' + l('proficiency', [emply.proficiency, emply.gender])"
+              span:
+                sText "' - ' + emply.salary + '$/5s'"
+              button:
+                sText "l('fireEmp')"
+                sOn "click", "() => {wssend('fireEmployee', [selBusiness.id, emply.id])}"
+          # Projects
+          br: discard
+          select:
+            sValue "gamePage.newProjectType"
+            option:
+              sEach "proj in selBizAvailableProjects"
+              sText "l('businessProject', [proj])"
+              sValue "data.BusinessProject.findIndex(e => e == proj)"
+          button:
+            sText "l('startNewProject')"
+            sOn "click", "() => {wssend('createProject', [selBusiness.id, gamePage.newProjectType])}"
+          tdiv:
+            sEach "proj, id in selBusiness?.projects"
+            sText "'Project: ' + id + ' ' + proj.project + ' ' + proj.quality"
+
+    tdiv "#bizitemoptions": discard
 
 let main* = render:
   say: "<!DOCTYPE html>"
@@ -73,9 +168,17 @@ let main* = render:
               say "Latviešu"
               value "lv"
           select "#themesel":
-            option: say "Light"
-            option: say "Dark"
-            option: say "Gruvbox"
+            sValue "colortheme"
+            sOn "change", "() => {setColorsToTheme(colortheme)}"
+            option:
+              say "Light"
+              value "light"
+            option:
+              say "Dark"
+              value "dark"
+            option:
+              say "attempt at Gruvbox"
+              value "gruvbox"
           button:
             sIf "curPage == 'game' && loaded"
             sText "l('logout')"
@@ -83,7 +186,10 @@ let main* = render:
           span:
             sIf "curPage == 'game' && loaded"
             sText "l('fullname', [gd.gender, gd.firstname, gd.lastname])"
-      tdiv "#infobar": discard
+      tdiv "#infobar":
+        p "#moneycount":
+          sIf "curPage == 'game' && loaded"
+          sText "l('moneyIndicator') + gd.money"
       tdiv "#main":
         tdiv "#loading":
           sIf "!loaded"

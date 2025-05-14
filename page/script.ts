@@ -234,6 +234,7 @@ async function logout(): Promise<void> {
   // state.money = -1;
   state.gamePage.businessInfoPane.action = "";
   state.gamePage.selBusinessIndex = -1;
+  state.gamePage.selInterviewee = null;
   state.gd = defaultGameData;
   clearInterval(wsPingIntervalId);
 }
@@ -242,6 +243,51 @@ async function changeLang(langCode: string): Promise<void> {
   let response = await processedFetch("/api/setlang/" + langCode);
   state.lang = JSON.parse(response);
   document.documentElement.setAttribute("lang", langCode);
+}
+
+function setColorsToTheme(themeName: string): void {
+  let theme = {}
+  switch (themeName) {
+    case "light":
+      theme = {
+        "--topbar-col": "#fc0",
+        "--topbar-acccol": "#b80",
+        "--infobar-col": "#da2",
+        "--mainbg-col": "#151",
+        "--main-col": "#5b8",
+        "--main-lowcol": "#297",
+        "--bizpane-col": "#ddd",
+        "--bizpane-lowcol": "#aaa",
+      }
+      break;
+    case "dark":
+      theme = {
+        "--topbar-col": "#eb0",
+        "--topbar-acccol": "#a70",
+        "--infobar-col": "#c91",
+        "--mainbg-col": "#040",
+        "--main-col": "#4a7",
+        "--main-lowcol": "#186",
+        "--bizpane-col": "#ccc",
+        "--bizpane-lowcol": "#999",
+      }
+      break;
+    case "gruvbox":
+      theme = {
+        "--topbar-col": "#928374",
+        "--topbar-acccol": "#7c6f64",
+        "--infobar-col": "#665c54",
+        "--mainbg-col": "#282828",
+        "--main-col": "#504945",
+        "--main-lowcol": "#3c3836",
+        "--bizpane-col": "#bdae93",
+        "--bizpane-lowcol": "#928374",
+      }
+      break;
+  }
+  for (const [k, v] of Object.entries(theme)) {
+    document.documentElement.style.setProperty(k, v)
+  }
 }
 
 async function openGamePage(): Promise<void> {
@@ -303,8 +349,11 @@ let scope = {
   l(query: string, params: Array<number>) {
     return localise(this.lang, query, params);
   },
+  // This causes an unnecessary lang object request
   get langcode() {return this.lang["langcode"]},
   set langcode(val) {if (!val) {return}; changeLang(val)},
+  colortheme: "light",
+  setColorsToTheme: setColorsToTheme,
   loaded: false,
   motd: "",
   authed: false,
@@ -333,6 +382,11 @@ let scope = {
     newProjectType: -1,
     selInterviewee: null,
     suggestedSalary: -1,
+    openNewBizMenu() {
+      this.businessInfoPane.action = "new";
+      this.selBusinessIndex = -1;
+      this.selInterviewee = null;
+    },
   },
   authOngoing: false,
   registerFunc: register,
@@ -342,6 +396,10 @@ let scope = {
   // This would make more sense next to `selBusinessIndex`, but I can't access `gd` from that scope
   get selBusiness() {
     return this.gd.businesses[this.gamePage.selBusinessIndex];
+  },
+  get selBizAvailableProjects() {
+    // Buggy without deep copying
+    return structuredClone(modeldata.AvailableProjects[this.selBusiness?.field])
   },
   gd: defaultGameData,
   get data() {return modeldata}
@@ -373,14 +431,16 @@ function wsHandler(event: MessageEvent) {
     case "interviewees": {
       // Named like that because apparently JS thinks that name conflicts should be possible here.
       let parsedData = JSON.parse(data);
-      state.gd.businesses[parsedData["business"]].interviewees =
-        parsedData["interviewees"];
+      state.gd.businesses[parsedData["business"]].interviewees = {}
+      for (let ntrvw of parsedData.interviewees) {
+        state.gd.businesses[parsedData["business"]].interviewees[ntrvw.id] = ntrvw;
+      }
       break;
     }
     case "newemployee": {
       let splitData = data.split(":");
-      let businessId = Number(splitData[0]);
-      let employeeId = Number(splitData[1]);
+      let businessId = splitData[0];
+      let employeeId = splitData[1];
       let business: FrontendBusiness =
         state.gd.businesses[
           businessId

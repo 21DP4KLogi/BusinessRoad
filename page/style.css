@@ -3,6 +3,10 @@
   --topbar-acccol: #b80;
   --infobar-col: #da2;
   --mainbg-col: #151;
+  --main-col: #5b8;
+  --main-lowcol: #297;
+  --bizpane-col: #ddd;
+  --bizpane-lowcol: #aaa;
 }
 
 body {
@@ -51,7 +55,13 @@ body {
   }
   > #infobar {
     background-color: var(--infobar-col);
+    display: flex;
+    align-items: center;
     height: 3rem;
+    > #moneycount {
+      font-size: 2rem;
+      margin-left: 2rem;
+    }
   }
   > #main {
     background-color: var(--mainbg-col);
@@ -118,6 +128,80 @@ body {
         text-align: center;
         font-size: 2rem;
       }
+    }
+    > #gamepage {
+      display: flex;
+      > #bizlist {
+        flex: 1;
+        flex-direction: column;
+        overflow-y: scroll;
+        > #buybizbutton {
+          width: 100%;
+          height: 4rem;
+          align-content: center;
+          text-align: center;
+          font-size: 2rem;
+          background-color: var(--main-col);
+          border: 5px solid var(--main-lowcol);
+          box-sizing: border-box;
+          margin-bottom: 1rem;
+        }
+        > .bizcard {
+          width: 100%;
+          height: 5rem;
+          background-color: var(--main-col);
+          border: 5px solid var(--main-lowcol);
+          box-sizing: border-box;
+          > h3 {
+            font-size: 2rem;
+            text-align: center;
+            margin: 0;
+          }
+          > p {
+            margin: 0.5rem;
+          }
+        }
+      }
+      > #bizinfo {
+        flex: 3;
+        flex-direction: column;
+        display: flex;
+        button, select {
+          background-color: var(--bizpane-col);
+          border: 2px solid var(--bizpane-lowcol);
+          padding: 0.25rem;
+        }
+        > div {
+          background-color: var(--bizpane-col);
+          width: 100%;
+        }
+        > #biztitle {
+          display: flex;
+          align-items: center;
+          border-bottom: 3px solid var(--bizpane-lowcol);
+          box-sizing: border-box;
+          height: 4rem;
+          > button {
+            aspect-ratio: 1;
+            margin: 0.5rem;
+            padding: 0;
+            width: 2.5rem;
+            border: 3px solid var(--bizpane-lowcol);
+          }
+          > h3 {
+            font-size: 2rem;
+            margin: 0;
+            margin-left: 1rem;
+          }
+        }
+        > #bizcontent {
+          padding: 1rem;
+          flex: 1;
+          box-sizing: border-box;
+        }
+        > #bizitemoptions {}
+      }
+
     }
   }
 }
