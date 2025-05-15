@@ -16,8 +16,8 @@ This is a pile of code that is expected to conglomerate into a browser-based mul
 	- [ ] Multiplayer
 	- [x] Moneymaking
 	- [ ] Mischief
-- [ ] Nice GUI
-	- [ ] Color themes (Light, Dark, Gruvbox)
+- [x] ~Nice~ GUI
+	- [x] Color themes (Light, Dark, Gruvbox)
 - [ ] Security
 
 ---
