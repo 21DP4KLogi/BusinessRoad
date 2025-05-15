@@ -28,6 +28,7 @@ const lang* = $ %* {
   "startBusinessCost": "Dibināt biznesu par 5000$",
   "startNewProject": "Sākt jaunu projektu",
   "businessProject": "[businessProject.$0]",
+  "colortheme": "[colortheme.$0]",
   "_": {
     "firstnameNom": {
       "M": namesCsv["lv-m-fn-nom"],
@@ -66,7 +67,12 @@ const lang* = $ %* {
         "hungry": "Izsalkusi",
         "vimuser": "Vim lietotāja",
       }
-    }
+    },
+    "colortheme": {
+      "light": "Gaišs",
+      "dark": "Tumšs",
+      "gruvbox": "Gruvbox mēģinājums",
+    },
   }
 }
 

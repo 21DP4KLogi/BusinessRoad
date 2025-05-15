@@ -6,7 +6,7 @@ import "mummy_base"
 import "websocket.nim"
 
 const
-  TickRateInMs = 500
+  TickRateInMs = 1000
   EmployeeToPlayerRatio = 5
 
 const
@@ -38,8 +38,10 @@ func tick(ticker: var TickInterval, currentTime: float): void =
 var
   currentTime = epochTime()
   lastTime = currentTime
-  secondTicker = newTickInterval(1, currentTime, 0)
-  fiveSecondTicker = newTickInterval(5, currentTime, 0.5)
+  # secondTicker = newTickInterval(1, currentTime, 0)
+  # fiveSecondTicker = newTickInterval(5, currentTime, 0.5)
+  projectProfitTicker = newTickInterval(3, currentTime, 0)
+  employeeSalaryTicker = newTickInterval(12, currentTime, 1)
   dayTicker = newTickInterval(Day, currentTime, 0)
   playerCount = 0
   businessCount = 0
@@ -78,8 +80,8 @@ proc computeGameLogic* =
       discard valkey.command("SET", "currentMotd", newMotd)
       # echo "\nNew MOTD: " & newMotd
 
-    if fiveSecondTicker.elapsed(currentTime):
-      fiveSecondTicker.tick(currentTime)
+    if employeeSalaryTicker.elapsed(currentTime):
+      employeeSalaryTicker.tick(currentTime)
       var
         playerQuery = Player()
         businessQuery = @[Business()]
@@ -101,8 +103,8 @@ proc computeGameLogic* =
         # db.update(employeeQuery) # Psql raises error, I believe this might be a bug with Norm
         db.update(playerQuery)
 
-    if secondTicker.elapsed(currentTime):
-      secondTicker.tick(currentTime)
+    if projectProfitTicker.elapsed(currentTime):
+      projectProfitTicker.tick(currentTime)
 
       var counts = ModelCounts()
       db.rawSelect("""
@@ -153,33 +155,45 @@ proc computeGameLogic* =
         playerQuery = Player()
         businessQuery = @[Business()]
         employeeQuery = @[Employee()]
+        projectQuery = @[Project()]
       # TODO/idea: Instead of loading all of it at once, utilise LIMIT and OFFSET
       # to manage queries in chunks.
       db.selectAll(businessQuery)
       for business in businessQuery:
         if not db.exists(Employee, "workplace = $1", business.id): continue
+        if not db.exists(Project, "business = $1", business.id): continue
         # Businesses always have an owner, that could change though
         db.select(playerQuery, "id = $1", business.owner)
         db.select(employeeQuery, "workplace = $1", business.id)
-        case business.field:
-        of BusinessField.eikt:
-          for emp in employeeQuery:
-            case emp.proficiency:
-            of EmployeeProficiency.taxpayer:
-              playerQuery.money += 2
-            of EmployeeProficiency.hungry:
-              playerQuery.money += 1
-            of EmployeeProficiency.vimuser:
-              playerQuery.money += 3
-        of BusinessField.baking:
-          for emp in employeeQuery:
-            case emp.proficiency:
-            of EmployeeProficiency.taxpayer:
-              playerQuery.money += 2
-            of EmployeeProficiency.hungry:
-              playerQuery.money += 3
-            of EmployeeProficiency.vimuser:
-              playerQuery.money += 1
+        db.select(projectQuery, "business = $1", business.id)
+        for proj in projectQuery:
+          case proj.project:
+          of BusinessProject.iotHardware:
+            for emp in employeeQuery:
+              case emp.proficiency:
+              of EmployeeProficiency.taxpayer:
+                proj.quality += 2
+              of EmployeeProficiency.hungry:
+                proj.quality += 1
+              of EmployeeProficiency.vimuser:
+                proj.quality += 3
+
+          of BusinessProject.cupcakes:
+            for emp in employeeQuery:
+              case emp.proficiency:
+              of EmployeeProficiency.taxpayer:
+                proj.quality += 2
+              of EmployeeProficiency.hungry:
+                proj.quality += 3
+              of EmployeeProficiency.vimuser:
+                proj.quality += 1
+
+          else: discard
+          playerQuery.money += proj.quality
+          var projvar = proj
+          db.update(projvar)
+
+        # db.update(projectQuery) # Another bug with bulk updating
         db.update(playerQuery)
         var ws: WebSocket
         withLockedWs:

@@ -28,6 +28,7 @@ const lang* = $ %* {
   "startBusinessCost": "Found business for $5000",
   "startNewProject": "Start new project",
   "businessProject": "[businessProject.$0]",
+  "colortheme": "[colortheme.$0]",
   "_": {
     "firstname": {
       "M": namesCsv["en-m-fn"],
@@ -48,6 +49,11 @@ const lang* = $ %* {
       "iotHardware": "IoT hardware",
       "jsFramework": "JS framework",
       "cupcakes": "Cupcakes",
+    },
+    "colortheme": {
+      "light": "Light",
+      "dark": "Dark",
+      "gruvbox": "Gruvbox attempt",
     },
   }
 }

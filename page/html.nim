@@ -52,8 +52,8 @@ let gamePage = render:
       sOn "click", "() => {gamePage.selBusinessIndex = index; gamePage.selInterviewee = null; gamePage.businessInfoPane.action = 'info'}"
       h3:
         sText "l('businessField', [business.field])"
-      p:
-        sText "'Emp.: ' + Object.keys(business.employees).length"
+      span:
+        sText "'Emp.: ' + Object.keys(business.employees).length + ' - ' + 'Proj.: ' + Object.keys(business.projects).length"
 
   tdiv "#bizinfo":
     tdiv "#biztitle":
@@ -96,7 +96,7 @@ let gamePage = render:
                 sText "l('fullname', [ntrvw.gender, ntrvw.firstname, ntrvw.lastname]) + ' - ' + l('proficiency', [ntrvw.proficiency, ntrvw.gender])"
                 sOn "click", "() => {gamePage.selInterviewee = ntrvw; gamePage.suggestedSalary = ntrvw.salary}"
               span:
-                sText "' - ' + ntrvw.salary + '$/5s'"
+                sText "' - ' + ntrvw.salary + '$/3s'"
           # Selected Interviewee
           span:
             sIf "gamePage?.selInterviewee != null"
@@ -117,7 +117,7 @@ let gamePage = render:
               span:
                 sText "l('fullname', [emply.gender, emply.firstname, emply.lastname]) + ' - ' + l('proficiency', [emply.proficiency, emply.gender])"
               span:
-                sText "' - ' + emply.salary + '$/5s'"
+                sText "' - ' + emply.salary + '$/3s'"
               button:
                 sText "l('fireEmp')"
                 sOn "click", "() => {wssend('fireEmployee', [selBusiness.id, emply.id])}"
@@ -132,9 +132,10 @@ let gamePage = render:
           button:
             sText "l('startNewProject')"
             sOn "click", "() => {wssend('createProject', [selBusiness.id, gamePage.newProjectType])}"
-          tdiv:
-            sEach "proj, id in selBusiness?.projects"
-            sText "'Project: ' + id + ' ' + proj.project + ' ' + proj.quality"
+          ul:
+            li:
+              sEach "proj, id in selBusiness?.projects"
+              sText "l('businessProject', [proj.project]) + ' - ' + proj.quality + '$/12s'"
 
     tdiv "#bizitemoptions": discard
 
@@ -171,13 +172,13 @@ let main* = render:
             sValue "colortheme"
             sOn "change", "() => {setColorsToTheme(colortheme)}"
             option:
-              say "Light"
+              sText "l('colortheme', ['light'])"
               value "light"
             option:
-              say "Dark"
+              sText "l('colortheme', ['dark'])"
               value "dark"
             option:
-              say "attempt at Gruvbox"
+              sText "l('colortheme', ['gruvbox'])"
               value "gruvbox"
           button:
             sIf "curPage == 'game' && loaded"

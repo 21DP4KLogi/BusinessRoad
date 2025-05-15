@@ -445,7 +445,7 @@ function wsHandler(event: MessageEvent) {
         state.gd.businesses[
           businessId
         ];
-      if (state.gamePage.selInterviewee.id === employeeId) {
+      if (state.gamePage.selInterviewee.id === Number(employeeId)) {
         state.gamePage.selInterviewee = null;
       }
       business.employees[employeeId] = business.interviewees[employeeId];
@@ -454,8 +454,8 @@ function wsHandler(event: MessageEvent) {
     }
     case "loseemployee": {
       let splitData = data.split(":");
-      let businessId = Number(splitData[0]);
-      let employeeId = Number(splitData[1]);
+      let businessId = splitData[0];
+      let employeeId = splitData[1];
       let business: FrontendBusiness =
         state.gd.businesses[
           businessId
@@ -465,13 +465,13 @@ function wsHandler(event: MessageEvent) {
     }
     case "loseinterviewee": {
       let splitData = data.split(":");
-      let businessId = Number(splitData[0]);
-      let intervieweeId = Number(splitData[1]);
+      let businessId = splitData[0];
+      let intervieweeId = splitData[1];
       let business: FrontendBusiness =
         state.gd.businesses[
           businessId
         ];
-      if (state.gamePage.selInterviewee.id === intervieweeId) {
+      if (state.gamePage.selInterviewee.id === Number(intervieweeId)) {
         state.gamePage.selInterviewee = null;
       }
       delete business.interviewees[intervieweeId];
