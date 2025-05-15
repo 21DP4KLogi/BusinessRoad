@@ -166,7 +166,11 @@ proc computeGameLogic* =
         db.select(playerQuery, "id = $1", business.owner)
         db.select(employeeQuery, "workplace = $1", business.id)
         db.select(projectQuery, "business = $1", business.id)
+        let employeeCount = employeeQuery.len
+        var projIndex = 1
         for proj in projectQuery:
+          if (employeeCount < (projIndex * (projIndex + 1)) div 2): break
+          projIndex += 1
           case proj.project:
           of BusinessProject.iotHardware:
             for emp in employeeQuery:
