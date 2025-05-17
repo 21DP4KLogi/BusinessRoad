@@ -242,8 +242,8 @@ body {
         flex: 3;
         flex-direction: column;
         display: flex;
-        overflow-y: scroll;
-        button, select {
+        button,
+        select {
           background-color: var(--bizpane-col);
           border: 2px solid var(--bizpane-lowcol);
           padding: 0.25rem;
@@ -288,20 +288,44 @@ body {
           }
         }
         > #bizcontent {
-          padding: 1rem;
           flex: 1;
           box-sizing: border-box;
+          overflow-y: hidden;
           @media (orientation: portrait) {
-            li, input, span {
+            li,
+            input,
+            span {
               font-size: 4rem;
             }
             input {
               display: block;
             }
           }
-          
+          > #bizcontent-info {
+            display: flex;
+            flex-direction: row;
+            max-height: 100%;
+            > div + div {
+              border-left: 3px solid var(--bizpane-lowcol);
+            }
+            > div {
+              padding: 0 1rem;
+              flex: 1;
+              overflow-y: scroll;
+              > .divtabtitle {
+                font-size: 2rem;
+                text-align: center;
+                font-weight: bold;
+                margin: 0.5rem;
+              }
+            }
+          }
         }
-        > #bizitemoptions {}
+        > #bizitemoptions {
+          border-top: 3px solid var(--bizpane-lowcol);
+          min-height: 20vh;
+          /* flex: 1; */
+        }
       }
     }
   }

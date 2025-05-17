@@ -49,7 +49,7 @@ let gamePage = render:
 
     tdiv ".bizcard":
       sEach "business, index in gd.businesses"
-      sOn "click", "() => {gamePage.selBusinessIndex = index; gamePage.selInterviewee = null; gamePage.businessInfoPane.action = 'info'}"
+      sOn "click", "() => {gamePage.selBusinessIndex = index; gamePage.unselectBizItem(); gamePage.businessInfoPane.action = 'info'}"
       h3:
         sText "l('businessField', [business.field])"
       span:
@@ -60,7 +60,7 @@ let gamePage = render:
       sIf "gamePage.businessInfoPane.action !== ''"
       button:
         say "X"
-        sOn "click", "() => {gamePage.businessInfoPane.action = ''}"
+        sOn "click", "() => {gamePage.businessInfoPane.action = '', gamePage.unselectBizItem()}"
       ttemplate:
         sIf "gamePage.businessInfoPane.action == 'new'"
         h3: sText "l('startBusiness')"
@@ -82,46 +82,39 @@ let gamePage = render:
           sProp "disabled", "gd.money < 5000"
           sOn "click", "() => {wssend('foundBusiness', [gamePage.businessInfoPane.newBusinessType])}"
           sText "l('startBusinessCost')"
-      ttemplate:
+      tdiv "#bizcontent-info":
         sIf "gamePage.businessInfoPane.action == 'info'"
+        # Interviewees
         tdiv:
+          p ".divtabtitle": say "Interviewees"
           button:
             sText "l('findEmployees')"
             sOn "click", "() => {wssend('findEmployees', [selBusiness?.id])}"
-          # Interviewees
           ul:
             li:
               sEach "ntrvw in selBusiness?.interviewees"
               button:
                 sText "l('fullname', [ntrvw.gender, ntrvw.firstname, ntrvw.lastname]) + ' - ' + l('proficiency', [ntrvw.proficiency, ntrvw.gender])"
-                sOn "click", "() => {gamePage.selInterviewee = ntrvw; gamePage.suggestedSalary = ntrvw.salary}"
+                sOn "click", "() => {gamePage.selInterviewee = ntrvw.id; gamePage.suggestedSalary = ntrvw.salary}"
               span:
-                sText "' - ' + ntrvw.salary + '$/3s'"
-          # Selected Interviewee
-          span:
-            sIf "gamePage?.selInterviewee != null"
-            span:
-              sText "l('fullname', [gamePage.selInterviewee.gender, gamePage.selInterviewee.firstname, gamePage.selInterviewee.lastname])"
-            input:
-              sValue "gamePage.suggestedSalary"
-            button:
-              sText "l('suggestSalary')"
-              sOn "click", "() => {wssend('haggleWithInterviewee', [gamePage.selInterviewee.id, selBusiness.id, gamePage.suggestedSalary])}"
-            button:
-              sText "l('hireEmp')"
-              sOn "click", "() => {wssend('hireEmployee', [selBusiness.id, gamePage.selInterviewee.id])}"
-          # Employees
+                sText "' - ' + ntrvw.salary + '$/12s'"
+        # Employees
+        tdiv:
+          p ".divtabtitle": say "Employees"
           ul:
             li:
               sEach "emply in selBusiness?.employees"
-              span:
-                sText "l('fullname', [emply.gender, emply.firstname, emply.lastname]) + ' - ' + l('proficiency', [emply.proficiency, emply.gender])"
-              span:
-                sText "' - ' + emply.salary + '$/3s'"
               button:
-                sText "l('fireEmp')"
-                sOn "click", "() => {wssend('fireEmployee', [selBusiness.id, emply.id])}"
-          # Projects
+                sText "l('fullname', [emply.gender, emply.firstname, emply.lastname]) + ' - ' + l('proficiency', [emply.proficiency, emply.gender])"
+                sOn "click", "() => {gamePage.selEmployee = emply.id}"
+              span:
+                sText "' - ' + emply.salary + '$/12s'"
+              # button:
+              #   sText "l('fireEmp')"
+              #   sOn "click", "() => {wssend('fireEmployee', [selBusiness.id, emply.id])}"
+        # Projects
+        tdiv:
+          p ".divtabtitle": say "Projects"
           br: discard
           select:
             sValue "gamePage.newProjectType"
@@ -135,9 +128,32 @@ let gamePage = render:
           ul:
             li:
               sEach "proj, id in selBusiness?.projects"
-              sText "l('businessProject', [proj.project]) + ' - ' + proj.quality + '$/12s'"
+              button:
+                sText "l('businessProject', [proj.project])"
+                sOn "click", "() => {gamePage.selProject = id}"
+              span:
+                sText "' - ' + proj.quality + '$/3s'"
 
-    tdiv "#bizitemoptions": discard
+    tdiv "#bizitemoptions":
+      # Selected Interviewee
+      tdiv:
+        sIf "gamePage.selBizItem[0] == 'I'"
+        span:
+          sText "l('fullname', [selInterviewee.gender, selInterviewee.firstname, selInterviewee.lastname])"
+        input:
+          sValue "gamePage.suggestedSalary"
+        button:
+          sText "l('suggestSalary')"
+          sOn "click", "() => {wssend('haggleWithInterviewee', [selInterviewee.id, selBusiness.id, gamePage.suggestedSalary])}"
+        button:
+          sText "l('hireEmp')"
+          sOn "click", "() => {wssend('hireEmployee', [selBusiness.id, selInterviewee.id])}"
+      tdiv:
+        sIf "gamePage.selBizItem[0] == 'E'"
+        h3: say "Employee menu"
+      tdiv:
+        sIf "gamePage.selBizItem[0] == 'P'"
+        h3: say "Project menu"
 
 let main* = render:
   say: "<!DOCTYPE html>"

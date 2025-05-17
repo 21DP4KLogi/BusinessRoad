@@ -4,6 +4,14 @@ import langLengthsJson from "../dist/langdata.json";
 import modelDataJson from "../dist/modeldata.json";
 import { solve } from "../dist/public/pow.js";
 
+enum BizItemCategory {
+  None = 'N',
+  Interviewee = 'I',
+  Employee = 'E',
+  Project = 'P',
+}
+
+type BizItemOptionSelection = [BizItemCategory, number];
 type numberStringPair = [number, string];
 
 type FrontendEmployee = {
@@ -380,13 +388,36 @@ let scope = {
       newBusinessType: -1,
     },
     newProjectType: -1,
-    selInterviewee: null,
+    // selInterviewee: null,
     suggestedSalary: -1,
     openNewBizMenu() {
       this.businessInfoPane.action = "new";
       this.selBusinessIndex = -1;
-      this.selInterviewee = null;
+      this.unselectBizItem();
     },
+    selBizItem: [BizItemCategory.None, -1],
+    get selInterviewee() {return},
+    set selInterviewee(val) {
+      // Strangely, the UI updates without even waiting for the entire array to be set,
+      // so I have to do it one step at a time.
+      this.selBizItem[0] = BizItemCategory.None;
+      this.selBizItem[1] = val;
+      this.selBizItem[0] = BizItemCategory.Interviewee;
+      // this.selBizItem = [BizItemCategory.Interviewee, val];
+    },
+    get selEmployee() {return},
+    set selEmployee(val) {
+      this.selBizItem[0] = BizItemCategory.None;
+      this.selBizItem[1] = val;
+      this.selBizItem[0] = BizItemCategory.Employee;
+    },
+    get selProject() {return},
+    set selProject(val) {
+      this.selBizItem[0] = BizItemCategory.None;
+      this.selBizItem[1] = val;
+      this.selBizItem[0] = BizItemCategory.Project;
+    },
+    unselectBizItem() {this.selBizItem = [BizItemCategory.None, -1]},
   },
   authOngoing: false,
   registerFunc: register,
@@ -399,7 +430,10 @@ let scope = {
   },
   get selBizAvailableProjects() {
     // Buggy without deep copying
-    return structuredClone(modeldata.AvailableProjects[this.selBusiness?.field])
+    return structuredClone(modeldata.AvailableProjects[this.selBusiness?.field]);
+  },
+  get selInterviewee() {
+    return this.gd.businesses[this.gamePage.selBusinessIndex].interviewees[this.gamePage.selBizItem[1]];
   },
   gd: defaultGameData,
   get data() {return modeldata}
