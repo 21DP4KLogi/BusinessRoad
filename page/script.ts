@@ -242,7 +242,7 @@ async function logout(): Promise<void> {
   // state.money = -1;
   state.gamePage.businessInfoPane.action = "";
   state.gamePage.selBusinessIndex = -1;
-  state.gamePage.selInterviewee = null;
+  state.gamePage.selBizItemAction = BizItemCategory.None;
   state.gd = defaultGameData;
   clearInterval(wsPingIntervalId);
 }
@@ -388,36 +388,32 @@ let scope = {
       newBusinessType: -1,
     },
     newProjectType: -1,
-    // selInterviewee: null,
     suggestedSalary: -1,
     openNewBizMenu() {
       this.businessInfoPane.action = "new";
       this.selBusinessIndex = -1;
       this.unselectBizItem();
     },
-    selBizItem: [BizItemCategory.None, -1],
+    selBizItemId: -1,
+    selBizItemAction: BizItemCategory.None,
     get selInterviewee() {return},
     set selInterviewee(val) {
-      // Strangely, the UI updates without even waiting for the entire array to be set,
-      // so I have to do it one step at a time.
-      this.selBizItem[0] = BizItemCategory.None;
-      this.selBizItem[1] = val;
-      this.selBizItem[0] = BizItemCategory.Interviewee;
-      // this.selBizItem = [BizItemCategory.Interviewee, val];
+      this.selBizItemId = val;
+      this.selBizItemAction = BizItemCategory.Interviewee
     },
     get selEmployee() {return},
     set selEmployee(val) {
-      this.selBizItem[0] = BizItemCategory.None;
-      this.selBizItem[1] = val;
-      this.selBizItem[0] = BizItemCategory.Employee;
+      this.selBizItemId = val;
+      this.selBizItemAction = BizItemCategory.Employee;
     },
     get selProject() {return},
     set selProject(val) {
-      this.selBizItem[0] = BizItemCategory.None;
-      this.selBizItem[1] = val;
-      this.selBizItem[0] = BizItemCategory.Project;
+      this.selBizItemId = val;
+      this.selBizItemAction = BizItemCategory.Project;
     },
-    unselectBizItem() {this.selBizItem = [BizItemCategory.None, -1]},
+    unselectBizItem() {
+      this.selBizItemAction = BizItemCategory.None;
+    },
   },
   authOngoing: false,
   registerFunc: register,
@@ -428,12 +424,15 @@ let scope = {
   get selBusiness() {
     return this.gd.businesses[this.gamePage.selBusinessIndex];
   },
+  get selInterviewee() {
+    return this.gd.businesses[this.gamePage.selBusinessIndex]?.interviewees[this.gamePage.selBizItemId];
+  },
+  get selEmployee() {
+    return this.gd.businesses[this.gamePage.selBusinessIndex]?.employees[this.gamePage.selBizItemId];
+  },
   get selBizAvailableProjects() {
     // Buggy without deep copying
     return structuredClone(modeldata.AvailableProjects[this.selBusiness?.field]);
-  },
-  get selInterviewee() {
-    return this.gd.businesses[this.gamePage.selBusinessIndex].interviewees[this.gamePage.selBizItem[1]];
   },
   gd: defaultGameData,
   get data() {return modeldata}
@@ -479,8 +478,8 @@ function wsHandler(event: MessageEvent) {
         state.gd.businesses[
           businessId
         ];
-      if (state.gamePage.selInterviewee.id === Number(employeeId)) {
-        state.gamePage.selInterviewee = null;
+      if (state.selInterviewee?.id === Number(employeeId)) {
+        state.selInterviewee = null;
       }
       business.employees[employeeId] = business.interviewees[employeeId];
       delete business.interviewees[employeeId];
@@ -494,6 +493,9 @@ function wsHandler(event: MessageEvent) {
         state.gd.businesses[
           businessId
         ];
+      if (state.selEmployee?.id === Number(employeeId)) {
+        state.gamePage.unselectBizItem();
+      }
       delete business.employees[employeeId];
       break;
     }
@@ -505,8 +507,8 @@ function wsHandler(event: MessageEvent) {
         state.gd.businesses[
           businessId
         ];
-      if (state.gamePage.selInterviewee.id === Number(intervieweeId)) {
-        state.gamePage.selInterviewee = null;
+      if (state.selInterviewee?.id === Number(intervieweeId)) {
+        state.gamePage.unselectBizItem();
       }
       delete business.interviewees[intervieweeId];
       break;

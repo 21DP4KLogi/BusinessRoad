@@ -86,7 +86,7 @@ let gamePage = render:
         sIf "gamePage.businessInfoPane.action == 'info'"
         # Interviewees
         tdiv:
-          p ".divtabtitle": say "Interviewees"
+          p ".divtabtitle": sText "l('interviewees')"
           button:
             sText "l('findEmployees')"
             sOn "click", "() => {wssend('findEmployees', [selBusiness?.id])}"
@@ -100,7 +100,7 @@ let gamePage = render:
                 sText "' - ' + ntrvw.salary + '$/12s'"
         # Employees
         tdiv:
-          p ".divtabtitle": say "Employees"
+          p ".divtabtitle": sText "l('employees')"
           ul:
             li:
               sEach "emply in selBusiness?.employees"
@@ -109,13 +109,9 @@ let gamePage = render:
                 sOn "click", "() => {gamePage.selEmployee = emply.id}"
               span:
                 sText "' - ' + emply.salary + '$/12s'"
-              # button:
-              #   sText "l('fireEmp')"
-              #   sOn "click", "() => {wssend('fireEmployee', [selBusiness.id, emply.id])}"
         # Projects
         tdiv:
-          p ".divtabtitle": say "Projects"
-          br: discard
+          p ".divtabtitle": sText "l('projects')"
           select:
             sValue "gamePage.newProjectType"
             option:
@@ -136,23 +132,31 @@ let gamePage = render:
 
     tdiv "#bizitemoptions":
       # Selected Interviewee
+      sIf "gamePage.selBizItemAction != 'N'"
+      button:
+        say "X"
+        sOn "click", "() => {gamePage.unselectBizItem()}"
       tdiv:
-        sIf "gamePage.selBizItem[0] == 'I'"
+        sIf "gamePage.selBizItemAction == 'I'"
         span:
-          sText "l('fullname', [selInterviewee.gender, selInterviewee.firstname, selInterviewee.lastname])"
+          # Just checking if undefined, too buggy otherwise
+          sText "selInterviewee && l('fullname', [selInterviewee.gender, selInterviewee.firstname, selInterviewee.lastname])"
         input:
           sValue "gamePage.suggestedSalary"
         button:
           sText "l('suggestSalary')"
-          sOn "click", "() => {wssend('haggleWithInterviewee', [selInterviewee.id, selBusiness.id, gamePage.suggestedSalary])}"
+          sOn "click", "() => {wssend('haggleWithInterviewee', [gamePage.selBizItemId, selBusiness.id, gamePage.suggestedSalary])}"
         button:
           sText "l('hireEmp')"
-          sOn "click", "() => {wssend('hireEmployee', [selBusiness.id, selInterviewee.id])}"
+          sOn "click", "() => {wssend('hireEmployee', [selBusiness.id, gamePage.selBizItemId])}"
       tdiv:
-        sIf "gamePage.selBizItem[0] == 'E'"
+        sIf "gamePage.selBizItemAction == 'E'"
         h3: say "Employee menu"
+        button:
+          sText "l('fireEmp')"
+          sOn "click", "() => {wssend('fireEmployee', [selBusiness.id, gamePage.selBizItemId])}"
       tdiv:
-        sIf "gamePage.selBizItem[0] == 'P'"
+        sIf "gamePage.selBizItemAction == 'P'"
         h3: say "Project menu"
 
 let main* = render:

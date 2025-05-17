@@ -29,6 +29,9 @@ const lang* = $ %* {
   "startNewProject": "Start new project",
   "businessProject": "[businessProject.$0]",
   "colortheme": "[colortheme.$0]",
+  "interviewees": "Interviewees",
+  "employees": "Employees",
+  "projects": "Projects",
   "_": {
     "firstname": {
       "M": namesCsv["en-m-fn"],

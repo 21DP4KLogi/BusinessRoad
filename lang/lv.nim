@@ -29,6 +29,9 @@ const lang* = $ %* {
   "startNewProject": "Sākt jaunu projektu",
   "businessProject": "[businessProject.$0]",
   "colortheme": "[colortheme.$0]",
+  "interviewees": "Darba meklētāji",
+  "employees": "Darbinieki",
+  "projects": "Projekti",
   "_": {
     "firstnameNom": {
       "M": namesCsv["lv-m-fn-nom"],
