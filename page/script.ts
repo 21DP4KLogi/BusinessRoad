@@ -376,6 +376,7 @@ let scope = {
     },
     unselectBizItem() {
       this.selBizItemAction = BizItemCategory.None;
+      this.selBizItemId = -1;
     },
   },
   authOngoing: false,
@@ -392,6 +393,9 @@ let scope = {
   },
   get selEmployee() {
     return this.gd.businesses[this.gamePage.selBusinessIndex]?.employees[this.gamePage.selBizItemId];
+  },
+  get selProject() {
+    return this.gd.businesses[this.gamePage.selBusinessIndex]?.projects[this.gamePage.selBizItemId];
   },
   get selBizAvailableProjects() {
     // Buggy without deep copying
@@ -445,7 +449,7 @@ function wsHandler(event: MessageEvent) {
           businessId
         ];
       if (state.selInterviewee?.id === Number(employeeId)) {
-        state.selInterviewee = null;
+        state.gamePage.unselectBizItem()
       }
       business.employees[employeeId] = business.interviewees[employeeId];
       delete business.interviewees[employeeId];

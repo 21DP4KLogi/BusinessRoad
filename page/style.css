@@ -260,7 +260,8 @@ body {
         flex-direction: column;
         display: flex;
         button,
-        select {
+        select,
+        input {
           color: inherit;
           background-color: var(--bizpane-col);
           border: 2px solid var(--bizpane-lowcol);
