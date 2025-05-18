@@ -56,7 +56,7 @@ const lang* = $ %* {
     "colortheme": {
       "light": "Light",
       "dark": "Dark",
-      "gruvbox": "Gruvbox attempt",
+      "gruvbox": "Gruvbox",
     },
   }
 }

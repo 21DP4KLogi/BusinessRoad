@@ -64,6 +64,7 @@ body {
         text-align: right;
       }
       > select, > button {
+        color: inherit;
         width: 7rem;
         margin: 0.5rem;
         background-color: var(--topbar-col);
@@ -253,12 +254,14 @@ body {
       }
       > #bizinfo {
         color: var(--bizpane-txt);
+        border-left: 3px solid var(--bizpane-lowcol);
         max-height: 100%;
         flex: 3;
         flex-direction: column;
         display: flex;
         button,
         select {
+          color: inherit;
           background-color: var(--bizpane-col);
           border: 2px solid var(--bizpane-lowcol);
           padding: 0.25rem;
@@ -272,6 +275,9 @@ body {
           }
           &.selected {
             background-color: var(--bizpane-selcol);
+          }
+          &[disabled] {
+            color: var(--bizpane-hovercol);
           }
         }
         > div {
