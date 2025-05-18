@@ -321,7 +321,7 @@ let scope = {
   },
   // This causes an unnecessary lang object request
   get langcode() {return this.lang["langcode"]},
-  set langcode(val) {if (!val) {return}; changeLang(val)},
+  set langcode(val) {if (!this.langcode) {return}; changeLang(val)},
   colortheme: "light",
   setColorsToTheme: setColorsToTheme,
   loaded: false,
@@ -429,7 +429,6 @@ function wsHandler(event: MessageEvent) {
       break;
     }
     case "interviewees": {
-      // Named like that because apparently JS thinks that name conflicts should be possible here.
       let parsedData = JSON.parse(data);
       state.gd.businesses[parsedData["business"]].interviewees = {}
       if (state.gamePage.selBizItemAction == BizItemCategory.Interviewee) {

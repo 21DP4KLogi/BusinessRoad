@@ -383,16 +383,33 @@ body {
           border-top: 3px solid var(--bizpane-lowcol);
           min-height: 20vh;
           flex: 1;
-          > button {
-            aspect-ratio: 1;
-            margin: 0.5rem;
-            padding: 0;
-            height: 3rem;
-            border: 3px solid var(--bizpane-lowcol);
-            font-size: 2rem;
+          > #bizitemoptions-title {
+            display: flex;
+            align-items: center;
+            border-bottom: 3px dashed var(--bizpane-lowcol);
+            box-sizing: border-box;
+            height: 4rem;
             @media (orientation: portrait) {
-              height: 7rem;
-              font-size: 5rem;
+              height: 8rem;
+            }
+            > button {
+              aspect-ratio: 1;
+              margin: 0.5rem;
+              padding: 0;
+              height: 80%;
+              border: 3px solid var(--bizpane-lowcol);
+              font-size: 2rem;
+              @media (orientation: portrait) {
+                font-size: 5rem;
+              }
+            }
+            > h3 {
+              font-size: 2rem;
+              margin: 0;
+              margin-left: 1rem;
+              @media (orientation: portrait) {
+                font-size: 6rem;
+              }
             }
           }
         }

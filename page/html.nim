@@ -138,14 +138,29 @@ let gamePage = render:
     tdiv "#bizitemoptions":
       # Selected Interviewee
       sIf "gamePage.selBizItemAction != 'N'"
-      button:
-        say "X"
-        sOn "click", "() => {gamePage.unselectBizItem()}"
+      tdiv "#bizitemoptions-title":
+        button:
+          say "X"
+          sOn "click", "() => {gamePage.unselectBizItem()}"
+
+        ttemplate:
+          sIf "gamePage.selBizItemAction == 'I'"
+          h3:
+            # Just checking if undefined, too buggy otherwise
+            sText "selInterviewee && l('fullname', [selInterviewee.gender, selInterviewee.firstname, selInterviewee.lastname])"
+
+        ttemplate:
+          sIf "gamePage.selBizItemAction == 'E'"
+          h3:
+            sText "selEmployee && l('fullname', [selEmployee.gender, selEmployee.firstname, selEmployee.lastname])"
+
+        ttemplate:
+          sIf "gamePage.selBizItemAction == 'P'"
+          h3:
+            sText "selProject && l('businessProject', [selProject.project])"
+
       tdiv:
         sIf "gamePage.selBizItemAction == 'I'"
-        span:
-          # Just checking if undefined, too buggy otherwise
-          sText "selInterviewee && l('fullname', [selInterviewee.gender, selInterviewee.firstname, selInterviewee.lastname])"
         input:
           sValue "gamePage.suggestedSalary"
         button:
@@ -156,7 +171,6 @@ let gamePage = render:
           sOn "click", "() => {wssend('hireEmployee', [selBusiness.id, gamePage.selBizItemId])}"
       tdiv:
         sIf "gamePage.selBizItemAction == 'E'"
-        h3: say "Employee menu"
         button:
           sText "l('fireEmp')"
           sOn "click", "() => {wssend('fireEmployee', [selBusiness.id, gamePage.selBizItemId])}"
