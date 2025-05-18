@@ -1,0 +1,53 @@
+{
+  "light": {
+    "--topbar-col": "#fc0",
+    "--topbar-acccol": "#b80",
+    "--topbar-hovercol": "#eb0",
+    "--topbar-txt": "#000",
+    "--infobar-col": "#da2",
+    "--infobar-txt": "#000",
+    "--mainbg-col": "#151",
+    "--main-col": "#5b8",
+    "--main-lowcol": "#297",
+    "--main-txt": "#000",
+    "--bizpane-col": "#ddd",
+    "--bizpane-lowcol": "#aaa",
+    "--bizpane-hovercol": "#ccc",
+    "--bizpane-selcol": "#8e9",
+    "--bizpane-txt": "#000"
+  },
+  "dark": {
+    "--topbar-col": "#eb0",
+    "--topbar-acccol": "#a70",
+    "--topbar-hovercol": "#da0",
+    "--topbar-txt": "#000",
+    "--infobar-col": "#c91",
+    "--infobar-txt": "#000",
+    "--mainbg-col": "#040",
+    "--main-col": "#4a7",
+    "--main-lowcol": "#186",
+    "--main-txt": "#000",
+    "--bizpane-col": "#ccc",
+    "--bizpane-lowcol": "#999",
+    "--bizpane-hovercol": "#bbb",
+    "--bizpane-selcol": "#7d8",
+    "--bizpane-txt": "#000"
+  },
+  "gruvbox": {
+    "--topbar-col": "#928374",
+    "--topbar-acccol": "#7c6f64",
+    "--topbar-hovercol": "#eb0",
+    "--topbar-txt": "#000",
+    "--infobar-col": "#665c54",
+    "--infobar-txt": "#000",
+    "--mainbg-col": "#282828",
+    "--main-col": "#504945",
+    "--main-lowcol": "#3c3836",
+    "--main-txt": "#000",
+    "--bizpane-col": "#bdae93",
+    "--bizpane-lowcol": "#928374",
+    "--bizpane-hovercol": "#ccc",
+    "--bizpane-selcol": "#8e9",
+    "--bizpane-txt": "#000"
+  }
+}

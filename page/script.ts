@@ -2,6 +2,7 @@ import sprae from "sprae";
 import { localise } from "./localisation.ts";
 import langLengthsJson from "../dist/langdata.json";
 import modelDataJson from "../dist/modeldata.json";
+import colorThemesJson from "./colorThemes.json";
 import { solve } from "../dist/public/pow.js";
 
 enum BizItemCategory {
@@ -254,46 +255,7 @@ async function changeLang(langCode: string): Promise<void> {
 }
 
 function setColorsToTheme(themeName: string): void {
-  let theme = {}
-  switch (themeName) {
-    case "light":
-      theme = {
-        "--topbar-col": "#fc0",
-        "--topbar-acccol": "#b80",
-        "--infobar-col": "#da2",
-        "--mainbg-col": "#151",
-        "--main-col": "#5b8",
-        "--main-lowcol": "#297",
-        "--bizpane-col": "#ddd",
-        "--bizpane-lowcol": "#aaa",
-      }
-      break;
-    case "dark":
-      theme = {
-        "--topbar-col": "#eb0",
-        "--topbar-acccol": "#a70",
-        "--infobar-col": "#c91",
-        "--mainbg-col": "#040",
-        "--main-col": "#4a7",
-        "--main-lowcol": "#186",
-        "--bizpane-col": "#ccc",
-        "--bizpane-lowcol": "#999",
-      }
-      break;
-    case "gruvbox":
-      theme = {
-        "--topbar-col": "#928374",
-        "--topbar-acccol": "#7c6f64",
-        "--infobar-col": "#665c54",
-        "--mainbg-col": "#282828",
-        "--main-col": "#504945",
-        "--main-lowcol": "#3c3836",
-        "--bizpane-col": "#bdae93",
-        "--bizpane-lowcol": "#928374",
-      }
-      break;
-  }
-  for (const [k, v] of Object.entries(theme)) {
+  for (const [k, v] of Object.entries(colorThemesJson[themeName])) {
     document.documentElement.style.setProperty(k, v)
   }
 }
@@ -384,13 +346,14 @@ let scope = {
     selBusinessIndex: -1,
     businessInfoPane: {
       action: "",
-      title: "",
+      // title: "",
       newBusinessType: -1,
     },
     newProjectType: -1,
     suggestedSalary: -1,
     openNewBizMenu() {
       this.businessInfoPane.action = "new";
+      this.businessInfoPane.newBusinessType = -1;
       this.selBusinessIndex = -1;
       this.unselectBizItem();
     },
@@ -465,6 +428,9 @@ function wsHandler(event: MessageEvent) {
       // Named like that because apparently JS thinks that name conflicts should be possible here.
       let parsedData = JSON.parse(data);
       state.gd.businesses[parsedData["business"]].interviewees = {}
+      if (state.gamePage.selBizItemAction == BizItemCategory.Interviewee) {
+        state.gamePage.unselectBizItem();
+      }
       for (let ntrvw of parsedData.interviewees) {
         state.gd.businesses[parsedData["business"]].interviewees[ntrvw.id] = ntrvw;
       }

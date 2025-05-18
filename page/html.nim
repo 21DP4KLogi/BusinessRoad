@@ -69,17 +69,16 @@ let gamePage = render:
         h3: sText "l('businessField', [selBusiness?.field])"
 
     tdiv "#bizcontent":
-      ttemplate:
+      tdiv "#bizcontent-new":
         sIf "gamePage.businessInfoPane.action == 'new'"
-        select:
-          sValue "gamePage.businessInfoPane.newBusinessType"
-          # sWith "{l: l, gamePage: {businessFields: gamePage.businessFields}}"
-          option:
-            sEach "field, index in data.BusinessField"
-            sValue "index"
+        tdiv:
+          button:
+            sEach "field, index in data.BusinessField.map(e => e)"
             sText "l('businessField', [field])"
+            sClass "{'selected': gamePage.businessInfoPane.newBusinessType == index}"
+            sOn "click", "() => {gamePage.businessInfoPane.newBusinessType = index}"
         button:
-          sProp "disabled", "gd.money < 5000"
+          sProp "disabled", "gd.money < 5000 || gamePage.businessInfoPane.newBusinessType == -1"
           sOn "click", "() => {wssend('foundBusiness', [gamePage.businessInfoPane.newBusinessType])}"
           sText "l('startBusinessCost')"
       tdiv "#bizcontent-info":
@@ -96,6 +95,7 @@ let gamePage = render:
               button:
                 sText "l('fullname', [ntrvw.gender, ntrvw.firstname, ntrvw.lastname]) + ' - ' + l('proficiency', [ntrvw.proficiency, ntrvw.gender])"
                 sOn "click", "() => {gamePage.selInterviewee = ntrvw.id; gamePage.suggestedSalary = ntrvw.salary}"
+                sClass "{'selected': gamePage.selBizItemId == ntrvw.id && gamePage.selBizItemAction == 'I'}"
               span:
                 sText "' - ' + ntrvw.salary + '$/12s'"
         # Employees
