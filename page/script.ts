@@ -243,7 +243,7 @@ async function logout(): Promise<void> {
   // state.money = -1;
   state.gamePage.businessInfoPane.action = "";
   state.gamePage.selBusinessIndex = -1;
-  state.gamePage.selBizItemAction = BizItemCategory.None;
+  state.gamePage.unselectBizItem();
   state.gd = defaultGameData;
   clearInterval(wsPingIntervalId);
 }
@@ -357,26 +357,24 @@ let scope = {
       this.selBusinessIndex = -1;
       this.unselectBizItem();
     },
-    selBizItemId: -1,
-    selBizItemAction: BizItemCategory.None,
+    selBizItem: {
+      action: BizItemCategory.None,
+      id: -1
+    },
     get selInterviewee() {return},
     set selInterviewee(val) {
-      this.selBizItemId = val;
-      this.selBizItemAction = BizItemCategory.Interviewee
+      this.selBizItem = {action: BizItemCategory.Interviewee, id: val}
     },
     get selEmployee() {return},
     set selEmployee(val) {
-      this.selBizItemId = val;
-      this.selBizItemAction = BizItemCategory.Employee;
+      this.selBizItem = {action: BizItemCategory.Employee, id: val}
     },
     get selProject() {return},
     set selProject(val) {
-      this.selBizItemId = val;
-      this.selBizItemAction = BizItemCategory.Project;
+      this.selBizItem = {action: BizItemCategory.Project, id: val}
     },
     unselectBizItem() {
-      this.selBizItemAction = BizItemCategory.None;
-      this.selBizItemId = -1;
+      this.selBizItem = {action: BizItemCategory.None, id: -1}
     },
   },
   authOngoing: false,
@@ -389,13 +387,13 @@ let scope = {
     return this.gd.businesses[this.gamePage.selBusinessIndex];
   },
   get selInterviewee() {
-    return this.gd.businesses[this.gamePage.selBusinessIndex]?.interviewees[this.gamePage.selBizItemId];
+    return this.gd.businesses[this.gamePage.selBusinessIndex]?.interviewees[this.gamePage.selBizItem.id];
   },
   get selEmployee() {
-    return this.gd.businesses[this.gamePage.selBusinessIndex]?.employees[this.gamePage.selBizItemId];
+    return this.gd.businesses[this.gamePage.selBusinessIndex]?.employees[this.gamePage.selBizItem.id];
   },
   get selProject() {
-    return this.gd.businesses[this.gamePage.selBusinessIndex]?.projects[this.gamePage.selBizItemId];
+    return this.gd.businesses[this.gamePage.selBusinessIndex]?.projects[this.gamePage.selBizItem.id];
   },
   get selBizAvailableProjects() {
     // Buggy without deep copying
@@ -431,7 +429,7 @@ function wsHandler(event: MessageEvent) {
     case "interviewees": {
       let parsedData = JSON.parse(data);
       state.gd.businesses[parsedData["business"]].interviewees = {}
-      if (state.gamePage.selBizItemAction == BizItemCategory.Interviewee) {
+      if (state.gamePage.selBizItem.action == BizItemCategory.Interviewee) {
         state.gamePage.unselectBizItem();
       }
       for (let ntrvw of parsedData.interviewees) {

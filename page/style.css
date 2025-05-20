@@ -114,6 +114,7 @@ body {
       }
     }
     > #authpage {
+      color: var(--topbar-txt);
       align-self: flex-start;
       text-align: center;
       width: 40vw;
@@ -137,7 +138,7 @@ body {
       > #authmodesel {
         display: flex;
         font-size: 1.5rem;
-        color: white;
+        background-color: var(--topbar-col);
         justify-content: space-evenly;
         border-top: 3px solid var(--infobar-col);
         border-bottom: 3px solid var(--infobar-col);
@@ -163,6 +164,7 @@ body {
         > select, > button {
           font-size: 1.25rem;
           height: 2rem;
+          color: inherit;
           background-color: var(--topbar-col);
           border: 2px solid var(--topbar-acccol);
           text-align: center;
@@ -178,6 +180,7 @@ body {
         width: 60%;
         height: 3rem;
         background-color: var(--topbar-col);
+        color: inherit;
         border: 2px solid var(--topbar-acccol);
         text-align: center;
         font-size: 2rem;
