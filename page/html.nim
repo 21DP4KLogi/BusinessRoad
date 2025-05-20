@@ -66,7 +66,7 @@ let gamePage = render:
         h3: sText "l('startBusiness')"
       ttemplate:
         sIf "gamePage.businessInfoPane.action == 'info'"
-        h3: sText "l('businessField', [selBusiness?.field])"
+        h3: sText "l('businessField', [selBusiness.field])"
 
     tdiv "#bizcontent":
       tdiv "#bizcontent-new":
@@ -88,10 +88,10 @@ let gamePage = render:
           p ".divtabtitle": sText "l('interviewees')"
           button:
             sText "l('findEmployees')"
-            sOn "click", "() => {wssend('findEmployees', [selBusiness?.id])}"
+            sOn "click", "() => {wssend('findEmployees', [selBusiness.id])}"
           ul:
             li:
-              sEach "ntrvw in selBusiness?.interviewees"
+              sEach "ntrvw in selBusiness.interviewees"
               button:
                 sText "l('fullname', [ntrvw.gender, ntrvw.firstname, ntrvw.lastname]) + ' - ' + l('proficiency', [ntrvw.proficiency, ntrvw.gender])"
                 sOn "click", "() => {gamePage.selInterviewee = ntrvw.id; gamePage.suggestedSalary = ntrvw.salary}"
@@ -103,7 +103,7 @@ let gamePage = render:
           p ".divtabtitle": sText "l('employees')"
           ul:
             li:
-              sEach "emply in selBusiness?.employees"
+              sEach "emply in selBusiness.employees"
               button:
                 sText "l('fullname', [emply.gender, emply.firstname, emply.lastname]) + ' - ' + l('proficiency', [emply.proficiency, emply.gender])"
                 sOn "click", "() => {gamePage.selEmployee = emply.id}"
@@ -124,7 +124,7 @@ let gamePage = render:
             sOn "click", "() => {wssend('createProject', [selBusiness.id, gamePage.newProjectType])}"
           ul:
             li:
-              sEach "proj, id in selBusiness?.projects"
+              sEach "proj, id in selBusiness.projects"
               button:
                 sText "l('businessProject', [proj.project])"
                 sOn "click", "() => {gamePage.selProject = id}"

@@ -1,10 +1,12 @@
 {
   "dependencies": {
     "esbuild": "^0.25.1",
-    "sprae": "^11.5.1"
+    "sprae": "^11.5.3"
   },
   "scripts": {
     "dev": "esbuild script.ts style.css --watch --bundle --outdir=../dist/public --sourcemap",
-    "preview": "esbuild script.ts style.css --watch --bundle --outdir=../dist/public --minify"
+    "preview": "esbuild script.ts style.css --watch --bundle --outdir=../dist/public --minify",
+    "build": "esbuild script.ts style.css --bundle --outdir=../dist/public --minify",
+    "build-compat": "esbuild script.ts style.css --target=safari11 --bundle --outdir=../dist/public --minify"
   }
 }

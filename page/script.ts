@@ -188,6 +188,7 @@ async function login(): Promise<void> {
       let content = JSON.parse(responseText);
       parseAndApplyGamedata(content);
       state.authed = true;
+      openGamePage();
       state.authPage.codeInput = "";
       break;
     default:
@@ -195,9 +196,6 @@ async function login(): Promise<void> {
       break;
   }
   state.authOngoing = false;
-  if (state.authed) {
-    openGamePage();
-  }
 }
 
 async function deleteAccount(): Promise<void> {
@@ -260,7 +258,7 @@ function setColorsToTheme(themeName: string): void {
   }
 }
 
-async function openGamePage(): Promise<void> {
+function openGamePage(): void {
   ws = new WebSocket("/api/ws");
   ws.onopen = () => {
     // if (ws == null) return
@@ -384,6 +382,7 @@ let scope = {
   logoutFunc: logout,
   // This would make more sense next to `selBusinessIndex`, but I can't access `gd` from that scope
   get selBusiness() {
+    if (this.gamePage.selBusinessIndex == -1) {return {}}
     return this.gd.businesses[this.gamePage.selBusinessIndex];
   },
   get selInterviewee() {
@@ -397,7 +396,7 @@ let scope = {
   },
   get selBizAvailableProjects() {
     // Buggy without deep copying
-    return structuredClone(modeldata.AvailableProjects[this.selBusiness?.field]);
+    return modeldata.AvailableProjects[this.selBusiness?.field]?.map(e => e) ?? [];
   },
   gd: defaultGameData,
   get data() {return modeldata}
