@@ -2,15 +2,12 @@ import ready
 import norm/[postgres, types, pool, pragmas, model]
 import std/[os, macros]
 import "models.nim"
+import "env.nim"
 
 export ready
 export postgres, types
 export models
 
-putEnv("DB_HOST", "localhost:5002")
-putEnv("DB_USER", "businessman")
-putEnv("DB_PASS", "hunter2")
-putEnv("DB_NAME", "BusinessRoadDev")
 
 const Dbtimeout = 5
 echo "Connecting to Valkey:"
@@ -18,7 +15,7 @@ for i in 1..Dbtimeout:
   echo "  Attempt: " & $i
   try:
     # Opens to test if connection possible, and if so, also closes.
-    newRedisConn("localhost", Port(5003)).close()
+    newRedisConn(VK_HOST, VK_PORT).close()
     echo "  Connected!"
     break
   except:
@@ -41,8 +38,8 @@ for i in 1..Dbtimeout:
       raise newException(OSError, "Could not connect to database")
     continue
 
-let valkeyPool*: RedisPool = newRedisPool(4, "localhost", Port(5003))
-let valkeySingle*: RedisConn = newRedisConn("localhost", Port(5003))
+let valkeyPool*: RedisPool = newRedisPool(4, VK_HOST, VK_PORT)
+let valkeySingle*: RedisConn = newRedisConn(VK_HOST, VK_PORT)
 
 var psqlPool = newPool[DbConn](8)
 let psqlSingle* = getDb()

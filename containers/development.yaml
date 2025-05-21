@@ -2,8 +2,7 @@ services:
 
   server:
     build:
-      context: ..
-      dockerfile: ./containers/nginx.dockerfile
+      dockerfile: ./nginx_dev.dockerfile
     image: nginx:stable-alpine-slim
     container_name: brDev_server
     network_mode: "host"

@@ -6,6 +6,7 @@ import "security.nim"
 import "mummy_base.nim"
 import "routes.nim" # Has effect, despite not being considered used
 import "websocket.nim"
+import "env.nim"
 
 # Valkey setup
 let valkey = valkeySingle
@@ -30,4 +31,4 @@ let apiServer = newServer(router, websocketHandler)
 # API server launch
 echo "Serving on http://localhost:5001"
 echo "- - - - - - - - - -"
-apiServer.serve(Port(5001))
+apiServer.serve(API_PORT, API_HOST)

@@ -1,0 +1,55 @@
+services:
+
+  server:
+    build:
+      context: ..
+      dockerfile: ./containers/nginx_rel.dockerfile
+    image: nginx:stable-alpine-slim
+    container_name: br_server
+    ports: "5000:5000"
+    volumes:
+      - dist:/var/www/html/:ro
+      # - type: volume
+      #   source: dist
+      #   target: /var/www/html/:ro
+      #   volume:
+      #     public
+    depends_on:
+      - nimapi
+
+  nimapi:
+    build:
+      context: ..
+      dockerfile: ./containers/nimapi.dockerfile
+    container_name: br_nimapi
+    volumes:
+      - dist:/nimapi/dist/public
+    environment:
+      - DB_HOST=postgres
+      - DB_USER=${DB_USER}
+      - DB_PASS=${DB_PASS}
+      - DB_NAME=${DB_NAME}
+      - VK_HOST=valkey
+      - VK_PORT=6379
+      - API_HOST=0.0.0.0 # could not bind to "server"
+      - API_PORT=5001
+    depends_on:
+      - postgres
+      - valkey
+
+  postgres:
+    image: postgres:alpine
+    container_name: br_psql
+    environment:
+      - POSTGRES_PASSWORD=${DB_PASS}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_DB=${DB_NAME}
+
+  valkey:
+    image: valkey:alpine
+    container_name: br_valkey
+
+volumes:
+  dist:
+    external: false
+    name: "br_dist_volume"
