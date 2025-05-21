@@ -4,7 +4,7 @@ services:
     build:
       context: ..
       dockerfile: ./containers/nginx_rel.dockerfile
-    image: nginx:stable-alpine-slim
+    image: br_server
     container_name: br_server
     ports: "5000:5000"
     volumes:
@@ -21,6 +21,7 @@ services:
     build:
       context: ..
       dockerfile: ./containers/nimapi.dockerfile
+    image: br_api
     container_name: br_nimapi
     volumes:
       - dist:/nimapi/dist/public
