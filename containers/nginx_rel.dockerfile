@@ -1,53 +1,45 @@
-FROM nim:2.0.14-ubuntu-regular AS nimstage
-
-RUN git clone https://github.com/emscripten-core/emsdk
+FROM nim:2.0.8-regular AS powstage
 
 RUN \
+  git clone https://github.com/emscripten-core/emsdk && \
   cd emsdk && \
   ./emsdk install latest && \
-  ./emsdk activate latest  && \
-  export PATH=$PATH:/emsdk/upstream/emscripten
-
-WORKDIR /nimapi
-
+  ./emsdk activate latest
+WORKDIR /app
 COPY BusinessRoad.nimble .
-
 RUN nimble install -dy
-
-COPY api/ api/
-
 COPY pow/ pow/
-
-COPY lang/ lang/
-
-COPY page/ page/
-
 RUN mkdir dist/public -p
-
 RUN \
   export PATH=$PATH:/emsdk && \
   export PATH=$PATH:/emsdk/upstream/emscripten && \
   emcc --version && \
-  nimble build -d:release
+  nimble build brPow
 
-RUN ./brPage
+
+FROM nim:2.0.8-alpine AS nimstage
+
+WORKDIR /app
+COPY BusinessRoad.nimble .
+COPY api/ api/
+COPY lang/ lang/
+COPY page/ page/
+COPY --from=powstage /app/dist ./dist
+RUN nimble install -dy
+RUN nimble run brPage
+
 
 FROM node:22-alpine AS nodestage
 
-WORKDIR /nimapi
-
-COPY --from=nimstage /nimapi/dist ./dist
-
-COPY --from=nimstage /nimapi/page ./page
-
-WORKDIR /nimapi/page
-
+WORKDIR /app
+COPY page/ page/
+COPY --from=nimstage /app/dist ./dist
+WORKDIR /app/page
 RUN npm install
+RUN npm run build-compat
 
-RUN npm run build
 
 FROM nginx:stable-alpine-slim
 
-COPY --from=nodestage /nimapi/dist/public /var/www/html
-
 COPY containers/nginx_rel.conf /etc/nginx/nginx.conf
+COPY --from=nodestage /app/dist/public /var/www/html
