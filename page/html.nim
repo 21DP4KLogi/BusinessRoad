@@ -173,7 +173,7 @@ let gamePage = render:
           sOn "click", "() => {wssend('fireEmployee', [selBusiness.id, gamePage.selBizItem.id])}"
       tdiv:
         sIf "gamePage.selBizItem.action == 'P'"
-        h3: say "Project menu"
+        sText "selProject && selProject.quality + '$/3s'"
 
 let main* = render:
   say: "<!DOCTYPE html>"

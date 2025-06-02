@@ -36,6 +36,7 @@ const MOTDs = [
   "I will not buy this baked goods, it is scratched!",
   "I don't know what a steamed apple wallet is",
   "MOTD WOOO",
+  "VGM 4PL",
 ]
 
 randomize()

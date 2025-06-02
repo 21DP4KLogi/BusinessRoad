@@ -500,6 +500,11 @@ function wsHandler(event: MessageEvent) {
       };
       break;
     }
+    case "wproj": {
+      let parsedData = data.split(":")
+      state.gd.businesses[parsedData[0]].projects[parsedData[1]].quality = parsedData[2];
+      break;
+    }
     default:
       alert("Server sent some incoherent gobbledegook via websocket");
   }

@@ -4,6 +4,7 @@ import "lang_base.nim"
 import "motd.nim"
 import "mummy_base"
 import "websocket.nim"
+import "security.nim"
 
 const
   TickRateInMs = 1000
@@ -205,3 +206,5 @@ proc computeGameLogic* =
             ws = websocketsById[playerQuery.id]
           else: continue
         ws.send("m=" & $playerQuery.money)
+        for proj in projectQuery:
+          ws.send("wproj=" & colonSerialize(proj.business, proj.id, proj.quality))
