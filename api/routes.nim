@@ -256,7 +256,22 @@ post "/delete":
       if codeValid:
         var playerQuery = Player()
         db.select(playerQuery, "code = $1", sentCode)
-        # Will be more complicated when more features get added
+        db.exec(sql """
+          UPDATE "Employees" SET workplace = NULL WHERE workplace IN (
+            SELECT id FROM "Businesses" WHERE owner = $1
+          )
+        """, playerQuery.id)
+        db.exec(sql """
+          UPDATE "Employees" SET interview = NULL WHERE interview IN (
+            SELECT id FROM "Businesses" WHERE owner = $1
+          )
+        """, playerQuery.id)
+        db.exec(sql """
+          DELETE FROM "Projects" WHERE business IN (
+            SELECT id FROM "Businesses" WHERE owner = $1
+          )
+        """, playerQuery.id)
+        db.exec(sql "DELETE FROM " & modelTableName(Business) & " WHERE owner = $1", playerQuery.id)
         db.delete(playerQuery)
         resp 204
       else:
