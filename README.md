@@ -55,7 +55,39 @@ Without Tmux, you need to launch the following:
 Whenever you need to build the frontend: `nimble run brPage`
 
 ### For hosting
-Uhh, once there is something to host, I will make the container composing files.
+
+Requires
+- Podman or Docker
+
+Before the containers can run, an .env file needs to be created in `containers/`, the same directory as the compose file.
+Take example from `containers/template.env`, infact, if you don't forward the postgres database, I'm pretty sure the data is irrelevant and you can just rename `template.env` to `.env` and just use it as is.
+
+If Podman does not automatically pull images from docker.io, you can download them manually (all from docker.io):
+- nimlang/nim:2.0.8-alpine
+- nimlang/nim:2.0.8-regular (Needed for one build stage that the alpine one didn't work right with)
+- \_/node:22-alpine
+- \_/nginx:stable-alpine-slim
+- \_/postgres:alpine
+- \_/valkey:alpine
+
+The compose file used here will be `containers/release.yaml`, the commands assume you are in the project root directory (where this README is).
+
+`[program]` means either `podman-compose` or `docker compose`.
+
+Build the containers:
+`[program] -f containers/release.yaml build`
+
+Run them (should also build them if not already built):
+`[program] -f containers/release.yaml up -d`
+
+Shut them down:
+`[program] -f containers/release.yaml down`
+
+Unless intended to be used only via localhost, this system is expected to be run behind a reverse proxy
+(in addition to the one use internally) -
+it is configured to run on port 5000 and does not provide HTTPS itself.
+
+NOTE - some of the cached images during the build process might be quite large, use `[program] images` to view all images and `[program] image rm [id of unneeded image]` to remove them.
 
 ---
 
