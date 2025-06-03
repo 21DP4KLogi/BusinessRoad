@@ -1,4 +1,4 @@
-FROM nim:2.0.8-alpine AS buildstage
+FROM nimlang/nim:2.0.8-alpine AS buildstage
 
 WORKDIR /app
 COPY BusinessRoad.nimble .
@@ -10,7 +10,7 @@ COPY page/ page/
 RUN nimble build -d:release -d:useMalloc brApi
 
 
-FROM nim:2.0.8-alpine
+FROM nimlang/nim:2.0.8-alpine
 
 WORKDIR /app
 RUN apk add libpq

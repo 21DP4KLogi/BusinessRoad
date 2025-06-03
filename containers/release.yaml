@@ -6,7 +6,8 @@ services:
       dockerfile: ./containers/nginx_rel.dockerfile
     image: br_server
     container_name: br_server
-    ports: "5000:5000"
+    ports:
+      - "5000:5000"
     volumes:
       - dist:/var/www/html/:ro
       # - type: volume
@@ -47,7 +48,7 @@ services:
       - POSTGRES_DB=${DB_NAME}
 
   valkey:
-    image: valkey:alpine
+    image: valkey/valkey:alpine
     container_name: br_valkey
 
 volumes:

@@ -1,4 +1,4 @@
-FROM nim:2.0.8-regular AS powstage
+FROM nimlang/nim:2.0.8-regular AS powstage
 
 RUN \
   git clone https://github.com/emscripten-core/emsdk && \
@@ -17,7 +17,7 @@ RUN \
   nimble build brPow
 
 
-FROM nim:2.0.8-alpine AS nimstage
+FROM nimlang/nim:2.0.8-alpine AS nimstage
 
 WORKDIR /app
 COPY BusinessRoad.nimble .
