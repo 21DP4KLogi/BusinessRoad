@@ -26,6 +26,9 @@ task devvalkey, "Enter valkey-cli in dev container":
 task devpsql, "Enter psql in dev container":
   exec "podman exec -ti brDev_psql psql -U businessman BusinessRoadDev"
 
+task devwipepsql, "Wipe psql database":
+  exec "podman exec brDev_psql bash -c \"dropdb -U businessman BusinessRoadDev && createdb -U businessman BusinessRoadDev\""
+
 task devpage, "Start ESBuild in page/ for development":
   exec "(cd page && npm run dev)"
 
