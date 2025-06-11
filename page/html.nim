@@ -49,7 +49,9 @@ let gamePage = render:
 
     tdiv ".bizcard":
       sEach "business, index in gd.businesses"
-      sOn "click", "() => {gamePage.selBusinessIndex = index; gamePage.unselectBizItem(); gamePage.businessInfoPane.action = 'info'}"
+      sOn "click",
+        "() => {gamePage.selBusinessIndex = index; gamePage.unselectBizItem();" &
+        " gamePage.businessInfoPane.action = 'info'}"
       h3:
         sText "l('businessField', [business.field])"
       span:
@@ -84,53 +86,52 @@ let gamePage = render:
       tdiv "#bizcontent-info":
         sIf "gamePage.businessInfoPane.action == 'info'"
         # Interviewees
-        tdiv:
+        tdiv "#infotab-interviewees":
           p ".divtabtitle": sText "l('interviewees')"
-          button:
+          button ".divtabtopcontent":
             sText "l('findEmployees')"
             sOn "click", "() => {wssend('findEmployees', [selBusiness.id])}"
-          ul:
-            li:
-              sEach "ntrvw in selBusiness.interviewees"
-              button:
-                sText "l('fullname', [ntrvw.gender, ntrvw.firstname, ntrvw.lastname]) + ' - ' + l('proficiency', [ntrvw.proficiency, ntrvw.gender])"
-                sOn "click", "() => {gamePage.selInterviewee = ntrvw.id; gamePage.suggestedSalary = ntrvw.salary}"
-                sClass "{'selected': gamePage.selBizItem.id == ntrvw.id && gamePage.selBizItem.action == 'I'}"
-              span:
-                sText "' - ' + ntrvw.salary + '$/12s'"
+          tdiv:
+            sEach "ntrvw in selBusiness.interviewees"
+            button:
+              sText:
+                "l('fullname', [ntrvw.gender, ntrvw.firstname, ntrvw.lastname]) " & 
+                " + ' - ' + l('proficiency', [ntrvw.proficiency, ntrvw.gender]) " &
+                " + ' - ' + ntrvw.salary + '$/12s'"
+              sOn "click", "() => {gamePage.selInterviewee = ntrvw.id; gamePage.suggestedSalary = ntrvw.salary}"
+              sClass "{'selected': gamePage.selBizItem.id == ntrvw.id && gamePage.selBizItem.action == 'I'}"
         # Employees
-        tdiv:
+        tdiv "#infotab-employees":
           p ".divtabtitle": sText "l('employees')"
-          ul:
-            li:
-              sEach "emply in selBusiness.employees"
-              button:
-                sText "l('fullname', [emply.gender, emply.firstname, emply.lastname]) + ' - ' + l('proficiency', [emply.proficiency, emply.gender])"
-                sOn "click", "() => {gamePage.selEmployee = emply.id}"
-                sClass "{'selected': gamePage.selBizItem.id == emply.id && gamePage.selBizItem.action == 'E'}"
-              span:
-                sText "' - ' + emply.salary + '$/12s'"
+          tdiv:
+            sEach "emply in selBusiness.employees"
+            button:
+              sText:
+                "l('fullname', [emply.gender, emply.firstname, emply.lastname]) " & 
+                "+ ' - ' + l('proficiency', [emply.proficiency, emply.gender]) " &
+                "+ ' - ' + emply.salary + '$/12s'"
+              sOn "click", "() => {gamePage.selEmployee = emply.id}"
+              sClass "{'selected': gamePage.selBizItem.id == emply.id && gamePage.selBizItem.action == 'E'}"
         # Projects
-        tdiv:
+        tdiv "#infotab-projects":
           p ".divtabtitle": sText "l('projects')"
-          select:
+          select ".divtabtopcontent":
             sValue "gamePage.newProjectType"
             option:
               sEach "proj in selBizAvailableProjects"
               sText "l('businessProject', [proj])"
               sValue "data.BusinessProject.findIndex(e => e == proj)"
-          button:
+          button ".divtabtopcontent":
             sText "l('startNewProject')"
             sOn "click", "() => {wssend('createProject', [selBusiness.id, gamePage.newProjectType])}"
-          ul:
-            li:
-              sEach "proj, id in selBusiness.projects"
-              button:
-                sText "l('businessProject', [proj.project])"
-                sOn "click", "() => {gamePage.selProject = id}"
-                sClass "{'selected': gamePage.selBizItem.id == id && gamePage.selBizItem.action == 'P'}"
-              span:
-                sText "' - ' + proj.quality + '$/3s'"
+          tdiv:
+            sEach "proj, id in selBusiness.projects"
+            button:
+              sText:
+                "l('businessProject', [proj.project]) " &
+                "+ ' - ' + proj.quality + '$/3s'"
+              sOn "click", "() => {gamePage.selProject = id}"
+              sClass "{'selected': gamePage.selBizItem.id == id && gamePage.selBizItem.action == 'P'}"
 
     tdiv "#bizitemoptions":
       # Selected Interviewee

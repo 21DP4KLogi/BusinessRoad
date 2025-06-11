@@ -23,9 +23,6 @@ body {
   margin: 0;
   width: 100%;
   height: 100vh;
-  /* > * { */
-  /*   flex: 1; */
-  /* } */
   > #topbar {
     color: var(--topbar-txt);
     background-color: var(--topbar-col);
@@ -210,7 +207,6 @@ body {
         > #buybizbutton {
           width: 100%;
           min-height: 4rem;
-          /* align-content: center; */
           text-align: center;
           font-size: 2rem;
           background-color: var(--main-col);
@@ -272,7 +268,7 @@ body {
           margin: 0.25rem;
           @media (orientation: portrait) {
             font-size: 3rem;
-            border-width: 3px;
+            border-width: 6px;
           }
           &:where(:hover:not([disabled])) {
             background-color: var(--bizpane-hovercol);
@@ -301,9 +297,7 @@ body {
             aspect-ratio: 1;
             margin: 0.5rem;
             padding: 0;
-            /* width: 2.5rem; */
             height: 80%;
-            border: 3px solid var(--bizpane-lowcol);
             font-size: 2rem;
             @media (orientation: portrait) {
               font-size: 5rem;
@@ -343,16 +337,12 @@ body {
               gap: 2rem;
               margin-bottom: 1rem;
               > button {
-                /* box-sizing: border-box; */
                 text-align: center;
                 font-size: 4rem;
                 min-width: 20vw;
-                /* height: 10vh; */
-                border: 3px solid var(--bizpane-lowcol);
               }
             }
             > button {
-              /* width: 40%; */
               font-size: 2rem;
               padding: 1rem;
               align-self: center;
@@ -379,6 +369,22 @@ body {
                 font-weight: bold;
                 margin: 0.5rem;
               }
+              > .divtabtopcontent {
+                margin-bottom: 1rem;
+              }
+              > div > button {
+                margin: 0.1rem 0;
+                width: 100%;
+              }
+            }
+            > #infotab-interviewees {
+
+            }
+            > #infotab-employees {
+
+            }
+            > #infotab-projects {
+
             }
           }
         }
@@ -400,7 +406,6 @@ body {
               margin: 0.5rem;
               padding: 0;
               height: 80%;
-              border: 3px solid var(--bizpane-lowcol);
               font-size: 2rem;
               @media (orientation: portrait) {
                 font-size: 5rem;
