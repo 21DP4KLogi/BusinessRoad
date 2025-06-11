@@ -54,12 +54,12 @@ proc messageHandler(ws: WebSocket, event: WebSocketEvent, message: Message) =
 
     of "foundBusiness":
       if
-        "" in parameters or
+        invalidParameters(parameters, 1) or
         playerQuery.money < 5000 or
-        parameters.len > 1 or
-        parameters[0].containsAnythingBut(Digits) or
-        parameters[0].len > SafeInt16Len
-        : return
+        invalidInt16(parameters[0])
+        :
+        ws.send("ERR=Invalid")
+        return
       let sentField = parameters[0].parseInt
       if sentField notin BusinessField: return
 
@@ -85,7 +85,9 @@ proc messageHandler(ws: WebSocket, event: WebSocketEvent, message: Message) =
         "" in parameters or
         parameters[0].containsAnythingBut(Digits) or
         parameters[0].len > SafeInt64Len
-      : return
+        :
+        ws.send("ERR=Invalid")
+        return
       let sentBusinessId = int64(parameters[0].parseInt)
       psql:
         if not db.exists(Business, "id = $1 AND owner = $2", sentBusinessId, playerId):
@@ -119,15 +121,11 @@ proc messageHandler(ws: WebSocket, event: WebSocketEvent, message: Message) =
 
     of "haggleWithInterviewee":
       if
-        "" in parameters or
-        parameters.len != 3 or
-        parameters[0].containsAnythingBut(Digits) or
-        parameters[0].len > SafeInt64Len or
-        parameters[1].containsAnythingBut(Digits) or
-        parameters[1].len > SafeInt64Len or
-        parameters[2].containsAnythingBut(Digits) or
-        parameters[2].len > SafeInt32Len
-        : 
+        invalidParameters(parameters, 3) or
+        invalidInt64(parameters[0]) or
+        invalidInt64(parameters[1]) or
+        invalidInt32(parameters[2])
+        :
         ws.send("ERR=Invalid")
         return
       let
@@ -186,13 +184,12 @@ proc messageHandler(ws: WebSocket, event: WebSocketEvent, message: Message) =
     of "hireEmployee":
     # IMPORTANT TODO: Validate user's authorisation
       if
-        "" in parameters or
-        parameters.len != 2 or
-        parameters[0].containsAnythingBut(Digits) or
-        parameters[0].len > SafeInt64Len or
-        parameters[1].containsAnythingBut(Digits) or
-        parameters[1].len > SafeInt64Len
-        : return
+        invalidParameters(parameters, 2) or
+        invalidInt64(parameters[0]) or
+        invalidInt64(parameters[1])
+        :
+        ws.send("ERR=Invalid")
+        return
       let sentBusinessId = int64(parameters[0].parseInt)
       let sentEmployeeId = int64(parameters[1].parseInt)
       psql:
@@ -210,13 +207,12 @@ proc messageHandler(ws: WebSocket, event: WebSocketEvent, message: Message) =
     of "fireEmployee":
     # IMPORTANT TODO: Validate user's authorisation
       if
-        "" in parameters or
-        parameters.len != 2 or
-        parameters[0].containsAnythingBut(Digits) or
-        parameters[0].len > SafeInt64Len or
-        parameters[1].containsAnythingBut(Digits) or
-        parameters[1].len > SafeInt64Len
-        : return
+        invalidParameters(parameters, 2) or
+        invalidInt64(parameters[0]) or
+        invalidInt64(parameters[1])
+        :
+        ws.send("ERR=Invalid")
+        return
       let sentBusinessId = int64(parameters[0].parseInt)
       let sentEmployeeId = int64(parameters[1].parseInt)
       psql:
@@ -233,12 +229,9 @@ proc messageHandler(ws: WebSocket, event: WebSocketEvent, message: Message) =
 
     of "createProject":
       if
-        "" in parameters or
-        parameters.len != 2 or
-        parameters[0].containsAnythingBut(Digits) or
-        parameters[0].len > SafeInt64Len or
-        parameters[1].containsAnythingBut(Digits) or
-        parameters[1].len > SafeInt16Len
+        invalidParameters(parameters, 2) or
+        invalidInt64(parameters[0]) or
+        invalidInt16(parameters[1])
         :
         ws.send("ERR=Invalid")
         return
@@ -271,12 +264,9 @@ proc messageHandler(ws: WebSocket, event: WebSocketEvent, message: Message) =
 
     of "dproj":
       if
-        "" in parameters or
-        parameters.len != 2 or
-        parameters[0].containsAnythingBut(Digits) or
-        parameters[0].len > SafeInt64Len or
-        parameters[1].containsAnythingBut(Digits) or
-        parameters[1].len > SafeInt64Len
+        invalidParameters(parameters, 2) or
+        invalidInt64(parameters[0]) or
+        invalidInt64(parameters[1])
         :
         ws.send("ERR=Invalid")
         return
@@ -301,10 +291,16 @@ proc messageHandler(ws: WebSocket, event: WebSocketEvent, message: Message) =
       discard
 
     of "setprojectactive":
-      validateParameters:
-        modelId sentBusinessId
-        modelId sentProjectId
-      # echo sentProjectId
+      # validateParameters:
+      #   playerOwnedBusiness sentBusinessId
+      #   modelId sentProjectId
+      if
+        invalidParameters(parameters, 2) or
+        invalidInt64(parameters[0]) or
+        invalidInt64(parameters[1])
+        :
+        ws.send("ERR=Invalid")
+        return
       return
 
     else:

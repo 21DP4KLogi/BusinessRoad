@@ -86,96 +86,77 @@ proc verifyPowResponse*(valkey: RedisPool, salt, signature: string, secretNumber
 template submitPowResponse*(valkey: RedisPool, signature: string) =
   discard valkey.command("SADD", "usedPowSignatures", signature)
 
+# Simple parameter validation
+template invalidParameters*(params: seq[string], exactLen: Natural): bool =
+  ("" in params) or (params.len != exactLen)
+
+template invalidInt64*(param: string): bool =
+  (param.containsAnythingBut(Digits)) or (param.len > SafeInt64Len)
+
+template invalidInt32*(param: string): bool =
+  (param.containsAnythingBut(Digits)) or (param.len > SafeInt32Len)
+
+template invalidInt16*(param: string): bool =
+  (param.containsAnythingBut(Digits)) or (param.len > SafeInt16Len)
+
 #
-# Parameters
+# Parameter validation
+# Way too excessive, comment kept for future reference
 #
-# type
-#   ParamValidationType* = enum
-#     modelId
-
-  # ParamValidation = object
-  #   name: Id
-  #   validation: ParamValidationType
-
-
-# template `is`*(name: untyped, index: int, validation: ParamValidations) =
-#   let name {.inject.} = parameters[index]
-
-# template validate*(params: seq[string], validations: varargs[untyped]): void =
-#   if params.len != validations.len:
-#     ws.send("ERR=Invalid")
-#     return
-#   validations
-
-# template iss*(name: untyped, validation: ParamValidationType) =
-#   (name.repr, validation)
-
-# template modelId*(name: untyped) =
-#   let name {.inject.} = 123
-
-# template validateIndividualParam(name: untyped, validation: untyped) =
-
-# template validateParameters*(validations: typed) =
-#   echo "Wahoo"
-#   validations
-#   echo "Thats all folks!"
-
-macro validateParameters*(validations: untyped) =
-  result = nnkStmtList.newTree()
-  let statementCount = validations.len
-  result.add quote do:
-    if
-      parameters.len != `statementCount` or # Using `validations.len` directly broke the AST
-      "" in parameters:
-      ws.send("ERR=Invalid")
-      return
-  for index, val in validations.pairs:
-    val.expectLen 2 # Due to tree structure, this is not that effective
-    val.expectKind nnkCommand
-    val[0].expectKind nnkIdent
-    val[1].expectKind nnkIdent
-    let
-      validationType = val[0]
-      paramName = val[1]
-    case validationType.repr:
-    of "modelId": result.add quote do:
-      if
-        parameters[`index`].containsAnythingBut(Digits) or
-        parameters[`index`].len > SafeInt64Len
-        :
-        ws.send("ERR=Invalid")
-        return
-      let `paramName`: int64 = parameters[`index`].parseInt
-    # echo $index & " === " & val.treeRepr
-  echo "!===!"
-  echo result.repr
-  # echo "!===!"
-  # echo result.treeRepr
-
-# macro validateParameters*(validations: untyped #[static[varargs[tuple[name: string, validation: ParamValidationType]]] ]#) =
+# macro validateParameters*(validations: untyped) =
 #   result = nnkStmtList.newTree()
-#   for i, val in validations.pairs:
+#   let statementCount = validations.len
+#   result.add quote do:
+#     if
+#       parameters.len != `statementCount` or # Using `validations.len` directly broke the AST
+#       "" in parameters:
+#       ws.send("ERR=Invalid")
+#       return
+#   var psqlEnabled = false
+#   for index, val in validations.pairs:
+#     val.expectLen 2 # Due to tree structure, this is not that effective
+#     val.expectKind nnkCommand
+#     val[0].expectKind nnkIdent
+#     val[1].expectKind nnkIdent
 #     let
 #       validationType = val[0]
-#       varName = val[1]
-#     result.add quote do:
-#       let `varName`: int = 5
+#       paramName = val[1]
+#     case validationType.repr:
+
+#       of "modelId":
+#         result.add quote do:
+#           if
+#             parameters[`index`].containsAnythingBut(Digits) or
+#             parameters[`index`].len > SafeInt64Len
+#             :
+#             ws.send("ERR=Invalid")
+#             return
+#           let `paramName`: int64 = parameters[`index`].parseInt
+
+#       of "playerOwnedBusiness": 
+#         if not psqlEnabled:
+#           psqlEnabled = true
+#           # result.add quote do:
+#           #   psql: discard
+#           # result.add nnkCall.newNimNode
+#           # psqlCallNode.strVal = "psql"
+#           let psqlCallNode = newNimNode(nnkCall)
+#           # psqlCallNode.add newNimNode(nnkSym)
+#           psqlCallNode.add newIdentNode("psql")
+#           # psqlCallNode.add nnkSym.newNimNode
+#           # psqlCallNode.body = newStrLitNode("psql")
+#           result.add psqlCallNode
+#           # echo psqlCallNode.treeRepr
+#         result[^1].add quote do:
+#           if
+#             parameters[`index`].containsAnythingBut(Digits) or
+#             parameters[`index`].len > SafeInt64Len
+#             :
+#             ws.send("ERR=Invalid")
+#             return
+#           let `paramName`: int64 = parameters[`index`].parseInt
+#   echo "!===!"
+#   echo result.repr
+#   echo "!===!"
 #   echo result.treeRepr
 
-  # for val in validations:
-    # echo val.kind
-  # result = quote do:
-  #   dumpTree:
-  #     `validations`
-  # result = nnkStmtList.newTree()
-  # result.add quote do:
-  #   if parameters.len != `validations.len`:
-  #     ws.send("ERR=Invalid")
-  #     return
-  # for index, val in validations.pairs:
-  #   dumpTree:
-  #     val
-    # case val.validation:
-    # of modelId:
-    #   result.add quote do:
-    #     let `val.name` = parameters[`index`]
