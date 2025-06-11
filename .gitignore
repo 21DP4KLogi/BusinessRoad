@@ -2,3 +2,4 @@ dist/**
 page/node_modules/**
 brApi
 brPage
+containers/.env
