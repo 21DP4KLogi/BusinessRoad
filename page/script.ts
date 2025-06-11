@@ -494,6 +494,7 @@ function wsHandler(event: MessageEvent) {
     case "newproject": {
       let parsedData = JSON.parse(data);
       state.gd.businesses[parsedData.business].projects[parsedData.id] = {
+        id: parsedData.id,
         business: parsedData.business,
         project: parsedData.project,
         quality: parsedData.quality,
@@ -501,8 +502,16 @@ function wsHandler(event: MessageEvent) {
       break;
     }
     case "wproj": {
-      let parsedData = data.split(":")
+      let parsedData = data.split(":");
       state.gd.businesses[parsedData[0]].projects[parsedData[1]].quality = parsedData[2];
+      break;
+    }
+    case "dproj": {
+      let parsedData = data.split(":");
+      delete state.gd.businesses[parsedData[0]].projects[parsedData[1]];
+      if (state.selProject?.id === Number(parsedData[1])) {
+        state.gamePage.unselectBizItem();
+      }
       break;
     }
     default:

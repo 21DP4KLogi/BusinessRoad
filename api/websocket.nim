@@ -269,7 +269,38 @@ proc messageHandler(ws: WebSocket, event: WebSocketEvent, message: Message) =
         "quality": projectQuery.quality,
       })
 
-    of "deleteProject":
+    of "dproj":
+      if
+        "" in parameters or
+        parameters.len != 2 or
+        parameters[0].containsAnythingBut(Digits) or
+        parameters[0].len > SafeInt64Len or
+        parameters[1].containsAnythingBut(Digits) or
+        parameters[1].len > SafeInt64Len
+        :
+        ws.send("ERR=Invalid")
+        return
+      let sentBusinessId = parameters[0].parseInt
+      let sentProjectId = parameters[1].parseInt
+      psql:
+        if not db.exists(Business, "id = $1 AND owner = $2", sentBusinessId, playerId):
+          ws.send("ERR=Not authorised")
+          return
+        if not db.exists(Project, "id = $1 AND business = $2", sentProjectId, sentBusinessId):
+          ws.send("ERR=Not authorised")
+          return
+        var projectQuery = Project()
+        db.select(projectQuery, "id = $1", sentProjectId)
+        if projectQuery.contract != none int64:
+          ws.send("ERR=Project in contract")
+          return
+        db.delete(projectQuery)
+      ws.send("dproj=" & colonSerialize(sentBusinessId, sentProjectId))
+
+
+      discard
+
+    of "setprojectactive":
       discard
 
     else:
