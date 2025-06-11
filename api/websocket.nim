@@ -301,7 +301,11 @@ proc messageHandler(ws: WebSocket, event: WebSocketEvent, message: Message) =
       discard
 
     of "setprojectactive":
-      discard
+      validateParameters:
+        modelId sentBusinessId
+        modelId sentProjectId
+      # echo sentProjectId
+      return
 
     else:
       ws.send "ERR=Unknown command (with parameter)"

@@ -1,5 +1,5 @@
 import nimcrypto
-import std/[sysrand, strutils, base64, math]
+import std/[sysrand, strutils, base64, math, macros]
 import "databases.nim"
 import "cookies.nim"
 
@@ -85,3 +85,97 @@ proc verifyPowResponse*(valkey: RedisPool, salt, signature: string, secretNumber
 
 template submitPowResponse*(valkey: RedisPool, signature: string) =
   discard valkey.command("SADD", "usedPowSignatures", signature)
+
+#
+# Parameters
+#
+# type
+#   ParamValidationType* = enum
+#     modelId
+
+  # ParamValidation = object
+  #   name: Id
+  #   validation: ParamValidationType
+
+
+# template `is`*(name: untyped, index: int, validation: ParamValidations) =
+#   let name {.inject.} = parameters[index]
+
+# template validate*(params: seq[string], validations: varargs[untyped]): void =
+#   if params.len != validations.len:
+#     ws.send("ERR=Invalid")
+#     return
+#   validations
+
+# template iss*(name: untyped, validation: ParamValidationType) =
+#   (name.repr, validation)
+
+# template modelId*(name: untyped) =
+#   let name {.inject.} = 123
+
+# template validateIndividualParam(name: untyped, validation: untyped) =
+
+# template validateParameters*(validations: typed) =
+#   echo "Wahoo"
+#   validations
+#   echo "Thats all folks!"
+
+macro validateParameters*(validations: untyped) =
+  result = nnkStmtList.newTree()
+  let statementCount = validations.len
+  result.add quote do:
+    if
+      parameters.len != `statementCount` or # Using `validations.len` directly broke the AST
+      "" in parameters:
+      ws.send("ERR=Invalid")
+      return
+  for index, val in validations.pairs:
+    val.expectLen 2 # Due to tree structure, this is not that effective
+    val.expectKind nnkCommand
+    val[0].expectKind nnkIdent
+    val[1].expectKind nnkIdent
+    let
+      validationType = val[0]
+      paramName = val[1]
+    case validationType.repr:
+    of "modelId": result.add quote do:
+      if
+        parameters[`index`].containsAnythingBut(Digits) or
+        parameters[`index`].len > SafeInt64Len
+        :
+        ws.send("ERR=Invalid")
+        return
+      let `paramName`: int64 = parameters[`index`].parseInt
+    # echo $index & " === " & val.treeRepr
+  echo "!===!"
+  echo result.repr
+  # echo "!===!"
+  # echo result.treeRepr
+
+# macro validateParameters*(validations: untyped #[static[varargs[tuple[name: string, validation: ParamValidationType]]] ]#) =
+#   result = nnkStmtList.newTree()
+#   for i, val in validations.pairs:
+#     let
+#       validationType = val[0]
+#       varName = val[1]
+#     result.add quote do:
+#       let `varName`: int = 5
+#   echo result.treeRepr
+
+  # for val in validations:
+    # echo val.kind
+  # result = quote do:
+  #   dumpTree:
+  #     `validations`
+  # result = nnkStmtList.newTree()
+  # result.add quote do:
+  #   if parameters.len != `validations.len`:
+  #     ws.send("ERR=Invalid")
+  #     return
+  # for index, val in validations.pairs:
+  #   dumpTree:
+  #     val
+    # case val.validation:
+    # of modelId:
+    #   result.add quote do:
+    #     let `val.name` = parameters[`index`]
