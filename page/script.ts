@@ -37,6 +37,7 @@ type FrontendProject = {
   business: number;
   project: string;
   quality: number;
+  active: boolean;
 };
 
 type GameData = {
@@ -99,7 +100,7 @@ async function solveChallenge(): Promise<string> {
   if (secretNumber == -1) {
     return "err";
   }
-  // console.log(secretNumber)
+  console.log(secretNumber)
   return salt + ":" + signature + ":" + secretNumber.toString();
 }
 
@@ -498,10 +499,11 @@ function wsHandler(event: MessageEvent) {
         business: parsedData.business,
         project: parsedData.project,
         quality: parsedData.quality,
+        active: parsedData.active,
       };
       break;
     }
-    case "wproj": {
+    case "wprojquality": {
       let parsedData = data.split(":");
       state.gd.businesses[parsedData[0]].projects[parsedData[1]].quality = parsedData[2];
       break;
@@ -512,6 +514,11 @@ function wsHandler(event: MessageEvent) {
       if (state.selProject?.id === Number(parsedData[1])) {
         state.gamePage.unselectBizItem();
       }
+      break;
+    }
+    case "wprojactive": {
+      let parsedData = data.split(":");
+      state.gd.businesses[parsedData[0]].projects[parsedData[1]].active = parsedData[2] == "T";
       break;
     }
     default:

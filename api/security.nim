@@ -86,6 +86,9 @@ proc verifyPowResponse*(valkey: RedisPool, salt, signature: string, secretNumber
 template submitPowResponse*(valkey: RedisPool, signature: string) =
   discard valkey.command("SADD", "usedPowSignatures", signature)
 
+func triangleNumber*(index: int): int =
+  (index * (index + 1)) div 2
+
 # Simple parameter validation
 template invalidParameters*(params: seq[string], exactLen: Natural): bool =
   ("" in params) or (params.len != exactLen)
@@ -99,6 +102,11 @@ template invalidInt32*(param: string): bool =
 template invalidInt16*(param: string): bool =
   (param.containsAnythingBut(Digits)) or (param.len > SafeInt16Len)
 
+template ownsBusiness*(player: int64, db: DbConn, businessId: int64): bool =
+  db.exists(Business, "owner = $1", player)
+
+template ownsProject*(businessId: int64, db: DbConn, projectId: int64): bool =
+  db.exists(Project, "business = $1", businessId)
 #
 # Parameter validation
 # Way too excessive, comment kept for future reference

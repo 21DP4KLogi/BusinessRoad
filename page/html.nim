@@ -128,8 +128,9 @@ let gamePage = render:
             sEach "proj, id in selBusiness.projects"
             button:
               sText:
-                "l('businessProject', [proj.project]) " &
-                "+ ' - ' + proj.quality + '$/3s'"
+                "l('businessProject', [proj.project])" &
+                "+ ' - ' + proj.quality + '$/3s'" &
+                "+ ' - ' + (proj.active ? 'Active' : 'Inactive')"
               sOn "click", "() => {gamePage.selProject = id}"
               sClass "{'selected': gamePage.selBizItem.id == id && gamePage.selBizItem.action == 'P'}"
 
@@ -179,6 +180,10 @@ let gamePage = render:
           sText "'Scrap project'"
           sOn "click",
             "() => {wssend('dproj', [selBusiness.id, selProject.id])}"
+        button:
+          sText "'Toggle active'"
+          sOn "click",
+            "() => {wssend('wprojactive', [selBusiness.id, selProject.id, selProject.active ? 'F' : 'T'])}"
 
 let main* = render:
   say: "<!DOCTYPE html>"

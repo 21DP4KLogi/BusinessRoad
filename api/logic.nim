@@ -162,16 +162,16 @@ proc computeGameLogic* =
       db.selectAll(businessQuery)
       for business in businessQuery:
         if not db.exists(Employee, "workplace = $1", business.id): continue
-        if not db.exists(Project, "business = $1", business.id): continue
+        if not db.exists(Project, "business = $1 AND active = TRUE", business.id): continue
         # Businesses always have an owner, that could change though
         db.select(playerQuery, "id = $1", business.owner)
         db.select(employeeQuery, "workplace = $1", business.id)
-        db.select(projectQuery, "business = $1", business.id)
-        let employeeCount = employeeQuery.len
-        var projIndex = 1
+        db.select(projectQuery, "business = $1 AND active = TRUE", business.id)
+        # let employeeCount = employeeQuery.len
+        # var projIndex = 1
         for proj in projectQuery:
-          if (employeeCount < (projIndex * (projIndex + 1)) div 2): break
-          projIndex += 1
+          # if (employeeCount < (projIndex * (projIndex + 1)) div 2): break
+          # projIndex += 1
           case proj.project:
           of BusinessProject.iotHardware:
             for emp in employeeQuery:
@@ -207,4 +207,4 @@ proc computeGameLogic* =
           else: continue
         ws.send("m=" & $playerQuery.money)
         for proj in projectQuery:
-          ws.send("wproj=" & colonSerialize(proj.business, proj.id, proj.quality))
+          ws.send("wprojquality=" & colonSerialize(proj.business, proj.id, proj.quality))

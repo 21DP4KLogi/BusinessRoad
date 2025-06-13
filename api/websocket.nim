@@ -241,25 +241,30 @@ proc messageHandler(ws: WebSocket, event: WebSocketEvent, message: Message) =
         return
       let sentBusinessId = parameters[0].parseInt
       var businessQuery = Business()
+      var projectQuery = Project()
       psql:
         if not db.exists(Business, "id = $1 AND owner = $2", sentBusinessId, playerId):
           ws.send("ERR=Not authorised")
           return
         db.select(businessQuery, "id = $1", sentBusinessId)
-      if BusinessProject(sentProjectType) notin availableProjects[businessQuery.field]:
-        ws.send("ERR=Project type not available for given business")
-        return
-      var projectQuery = Project(
-        business: sentBusinessId,
-        project: BusinessProject(sentProjectType)
-      )
-      psql:
+        if BusinessProject(sentProjectType) notin availableProjects[businessQuery.field]:
+          ws.send("ERR=Project type not available for given business")
+          return
+        let
+          employeeCount = db.count(Employee, "*", dist=false, "workplace = $1", sentBusinessId)
+          activeProjectCount = db.count(Project, "*", dist=false, "business = $1 AND active = TRUE", sentBusinessId)
+        projectQuery = Project(
+          business: sentBusinessId,
+          project: BusinessProject(sentProjectType),
+          active: if employeeCount >= triangleNumber(activeProjectCount + 1): true else: false,
+        )
         db.insert(projectQuery)
       ws.send("newproject=" & $ %*{
         "id": projectQuery.id,
         "business": projectQuery.business,
         "project": projectQuery.project,
         "quality": projectQuery.quality,
+        "active": projectQuery.active,
       })
 
     of "dproj":
@@ -290,17 +295,45 @@ proc messageHandler(ws: WebSocket, event: WebSocketEvent, message: Message) =
 
       discard
 
-    of "setprojectactive":
-      # validateParameters:
-      #   playerOwnedBusiness sentBusinessId
-      #   modelId sentProjectId
+    of "wprojactive":
       if
-        invalidParameters(parameters, 2) or
+        invalidParameters(parameters, 3) or
         invalidInt64(parameters[0]) or
-        invalidInt64(parameters[1])
+        invalidInt64(parameters[1]) or
+        parameters[2] notin ["T", "F"]
         :
         ws.send("ERR=Invalid")
         return
+      let
+        sentBusinessId = parameters[0].parseInt
+        sentProjectId = parameters[1].parseInt
+        sentProjectStatus: bool = parameters[2] == "T"
+      psql:
+        if
+          not playerId.ownsBusiness(db, sentBusinessId) or
+          not sentBusinessId.ownsProject(db, sentProjectId)
+          :
+          ws.send("ERR=Not authorised")
+          return
+        let
+          employeeCount = db.count(Employee, "*", dist=false, "workplace = $1", sentBusinessId)
+          activeProjectCount = db.count(Project, "*", dist=false, "business = $1 AND active = TRUE", sentBusinessId)
+        # Active project limit is TriangleNumber(employeeCount)
+        if
+          sentProjectStatus == true and
+          employeeCount < triangleNumber(activeProjectCount + 1):
+          ws.send("ERR=Not enough employees")
+          return
+        var projectQuery = Project()
+        db.select(projectQuery, "id = $1", sentProjectId)
+        projectQuery.active = sentProjectStatus
+        db.update(projectQuery)
+      ws.send("wprojactive=" & colonSerialize(
+        sentBusinessId,
+        sentProjectId,
+        if sentProjectStatus: "T" else: "F"
+        )
+      )
       return
 
     else:

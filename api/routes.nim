@@ -43,7 +43,7 @@ proc getUserGameData(player: Player): JsonNode =
               proficiency: employee.proficiency,
               gender: employee.gender,
               firstname: employee.firstname,
-              lastname: employee.lastname
+              lastname: employee.lastname,
             )
         if db.exists(Project, "business = $1", business.id):
           db.select(projectQuery, "business = $1", business.id)
@@ -52,7 +52,8 @@ proc getUserGameData(player: Player): JsonNode =
               id: proj.id,
               business: proj.business,
               project: proj.project,
-              quality: proj.quality
+              quality: proj.quality,
+              active: proj.active,
             )
         businessList[$business.id] = frontendBusiness(
           id: business.id,

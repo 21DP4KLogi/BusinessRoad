@@ -114,6 +114,7 @@ type
     business*: int64
     project*: BusinessProject = BusinessProject.serverHosting
     quality*: int32 = 0
+    active*: bool = false
   #   beneficiary*: int64
 
   # frontendContract* = object
