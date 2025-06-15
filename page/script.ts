@@ -156,6 +156,8 @@ async function register(): Promise<void> {
     case 401:
       alert("Error: Server considers solution incorrect (401)");
     case 200:
+      state.authPage.authmessage = "registersuccess";
+      state.authPage.authmessagecolor = "goodmsg";
       state.authPage.codeInput = await response.text();
   }
   state.authOngoing = false;
@@ -163,26 +165,33 @@ async function register(): Promise<void> {
 
 async function login(): Promise<void> {
   state.authOngoing = true;
+  let code = state.authPage.codeInput;
+  if (code.length != 8) {
+    state.authPage.authmessage = "mustbe8chars";
+    state.authPage.authmessagecolor = "errmsg";
+    return;
+  }
   let powSolution = await solveChallenge();
   if (powSolution == "err") {
     alert("Error: The PoW solver returned -1");
     state.authOngoing = false;
     return;
   }
-  let code = state.authPage.codeInput;
   let response = await fetch("/api/login", {
     method: "POST",
     body: code + ":" + powSolution,
   });
   switch (response.status) {
     case 400:
-      alert("Error: Server considers request malformed (400)");
+      state.authPage.authmessage = "invalidchars";
+      state.authPage.authmessagecolor = "errmsg";
       break;
     case 401:
       alert("Error: Server considers solution incorrect (401)");
       break;
     case 404:
-      alert("Error: Server cannot find user with that code (404)");
+      state.authPage.authmessage = "usernotfound";
+      state.authPage.authmessagecolor = "errmsg";
       break;
     case 200:
       let responseText = await response.text();
@@ -201,29 +210,37 @@ async function login(): Promise<void> {
 
 async function deleteAccount(): Promise<void> {
   state.authOngoing = true;
+  let code = state.authPage.codeInput;
+  if (code.length != 8) {
+    state.authPage.authmessage = "mustbe8chars";
+    state.authPage.authmessagecolor = "errmsg";
+    return;
+  }
   let powSolution = await solveChallenge();
   if (powSolution == "err") {
     alert("Error: The PoW solver returned -1");
     state.authOngoing = false;
     return;
   }
-  let code = state.authPage.codeInput;
   let response = await fetch("/api/delete", {
     method: "POST",
     body: code + ":" + powSolution,
   });
   switch (response.status) {
     case 400:
-      alert("Error: Server considers request malformed (400)");
+      state.authPage.authmessage = "invalidchars";
+      state.authPage.authmessagecolor = "errmsg";
       break;
     case 401:
       alert("Error: Server considers solution incorrect (401)");
       break;
     case 404:
-      alert("Error: Server cannot find user with that code (404)");
+      state.authPage.authmessage = "usernotfound";
+      state.authPage.authmessagecolor = "errmsg";
       break;
     case 204:
-      alert("Account deleted successfully!");
+      state.authPage.authmessage = "deletesuccess";
+      state.authPage.authmessagecolor = "goodmsg";
       break;
     default:
       alert("Error: Unexpected status code - " + response.status);
@@ -318,7 +335,6 @@ let scope = {
   l(query: string, params: Array<number>) {
     return localise(this.lang, query, params);
   },
-  // This causes an unnecessary lang object request
   get langcode() {return this.lang["langcode"]},
   set langcode(val) {if (!this.langcode) {return}; changeLang(val)},
   colortheme: "light",
@@ -334,12 +350,34 @@ let scope = {
     selLname: 0,
     action: "login",
     codeInput: "",
+    authmessage: "login",
+    authmessagecolor: "infomsg",
+    registerFunc: register,
+    loginFunc: login,
+    deleteFunc: deleteAccount,
+    setAction(action: "login" | "register" | "delete") {
+      this.action = action;
+      this.authmessage = action;
+      this.authmessagecolor = "infomsg";
+      switch (action) {
+        case "login": {
+          this.buttonAction = this.loginFunc;
+          break;
+        }
+        case "register": {
+          this.buttonAction = this.registerFunc;
+          break;
+        }
+        case "delete": {
+          this.buttonAction = this.deleteFunc;
+          break;
+        }
+      }
+    },
     namelist(namepart: "firstname" | "lastname") {
       return namelist(this.selGender, namepart);
     },
-    buttonAction: () => {
-      state.loginFunc();
-    },
+    buttonAction: login
   },
   gamePage: {
     selBusinessIndex: -1,
@@ -377,9 +415,6 @@ let scope = {
     },
   },
   authOngoing: false,
-  registerFunc: register,
-  loginFunc: login,
-  deleteFunc: deleteAccount,
   logoutFunc: logout,
   // This would make more sense next to `selBusinessIndex`, but I can't access `gd` from that scope
   get selBusiness() {

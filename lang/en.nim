@@ -29,6 +29,7 @@ const lang* = $ %* {
   "startNewProject": "Start new project",
   "businessProject": "[businessProject.$0]",
   "colortheme": "[colortheme.$0]",
+  "authmsg": "[authmsg.$0]",
   "interviewees": "Interviewees",
   "employees": "Employees",
   "projects": "Projects",
@@ -57,6 +58,16 @@ const lang* = $ %* {
       "light": "Light",
       "dark": "Dark",
       "gruvbox": "Gruvbox",
+    },
+    "authmsg": {
+      "login": "Enter your authentication code to log in.",
+      "register": "Choose your character's bio and register.",
+      "delete": "Enter your authentication code to delete your account.",
+      "registersuccess": "Account successfully created!",
+      "deletesuccess": "Account successfully deleted!",
+      "usernotfound": "No account with the provided code exists.",
+      "mustbe8chars": "The code must be 8 characters long.",
+      "invalidchars": "The code can only consist of letters A-Z (upper and lower case), numbers and characters '+' and '/'",
     },
   }
 }

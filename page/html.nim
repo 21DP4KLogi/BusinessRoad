@@ -6,16 +6,22 @@ let authPage = render:
     placeholder "••••••••"
     sValue "authPage.codeInput"
     maxlength "8"
+  p "#authmessage":
+    sText: "l('authmsg', [authPage.authmessage])"
+    sClass: "authPage.authmessagecolor"
   tdiv "#authmodesel":
     span ".authModeSelection":
       sText "authPage.action == 'login' ? l('login').toUpperCase() : l('login')"
-      sOn "click", "() => {authPage.action = 'login'; authPage.buttonAction = loginFunc}"
+      sOn "click", "() => {authPage.setAction('login')}"
+      # sOn "click", "() => {authPage.action = 'login'; authPage.buttonAction = loginFunc}"
     span ".authModeSelection":
       sText "authPage.action == 'register' ? l('register').toUpperCase() : l('register')"
-      sOn "click", "() => {authPage.action = 'register'; authPage.buttonAction = registerFunc}"
+      sOn "click", "() => {authPage.setAction('register')}"
+      # sOn "click", "() => {authPage.action = 'register'; authPage.buttonAction = registerFunc}"
     span ".authModeSelection":
       sText "authPage.action == 'delete' ? l('delete').toUpperCase() : l('delete')"
-      sOn "click", "() => {authPage.action = 'delete'; authPage.buttonAction = deleteFunc}"
+      sOn "click", "() => {authPage.setAction('delete')}"
+      # sOn "click", "() => {authPage.action = 'delete'; authPage.buttonAction = deleteFunc}"
   tdiv "#authreg":
     sIf "authPage.action == 'register'"
     button:
@@ -38,6 +44,7 @@ let authPage = render:
   button "#authbutton":
     sText "l(authPage.action)"
     sOn "click", "() => {authPage.buttonAction()}"
+    sProp "disabled", "authOngoing"
     
 
 let gamePage = render:

@@ -29,6 +29,7 @@ const lang* = $ %* {
   "startNewProject": "Sākt jaunu projektu",
   "businessProject": "[businessProject.$0]",
   "colortheme": "[colortheme.$0]",
+  "authmsg": "[authmsg.$0]",
   "interviewees": "Darba meklētāji",
   "employees": "Darbinieki",
   "projects": "Projekti",
@@ -75,6 +76,16 @@ const lang* = $ %* {
       "light": "Gaišs",
       "dark": "Tumšs",
       "gruvbox": "Gruvbox",
+    },
+    "authmsg": {
+      "login": "Ievadiet savu autentifikācijas kodu, lai pierakstītos.",
+      "register": "Izvēlaties sava tēla bio un reģistrējieties.",
+      "delete": "Ievadiet savu autentifikācijas kodu, lai dzēstu savu kontu.",
+      "registersuccess": "Konts veiksmīgi reģistrēts!",
+      "deletesuccess": "Konts veiksmīgi izdzēsts!",
+      "usernotfound": "Netika atrasts konts ar doto lietotāja kodu.",
+      "mustbe8chars": "Kodam ir jābūt tieši 8 rakstzīmēm garam.",
+      "invalidchars": "Kods var saturēt tikai angļu alfabēta burtus A-Z (lielos un mazos burtus), ciparus un zīmes '+' un '/'",
     },
   }
 }

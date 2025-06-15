@@ -14,6 +14,9 @@
   --bizpane-hovercol: #ccc;
   --bizpane-selcol: #8e9;
   --bizpane-txt: #000;
+  --msg-info: #fff;
+  --msg-good: #0f0;
+  --msg-err: #f00;
 }
 
 body {
@@ -128,8 +131,22 @@ body {
         letter-spacing: 0.2ch;
         width: 9.6ch;
         margin: 2rem;
+        margin-bottom: 0;
         @media (orientation: portrait) {
           font-size: 8rem;
+        }
+      }
+      > #authmessage {
+        font-size: 1.5rem;
+        margin: 1rem;
+        &.infomsg {
+          color: var(--msg-info);
+        }
+        &.goodmsg {
+          color: var(--msg-good);
+        }
+        &.errmsg {
+          color: var(--msg-err);
         }
       }
       > #authmodesel {
@@ -184,6 +201,12 @@ body {
         @media (orientation: portrait) {
           height: 7rem;
           font-size: 4rem;
+        }
+        &:where(:hover:not([disabled])) {
+          background-color: var(--topbar-hovercol);
+        }
+        &[disabled] {
+          color: var(--topbar-acccol);
         }
       }
     }

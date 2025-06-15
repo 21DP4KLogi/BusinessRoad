@@ -14,7 +14,10 @@
     "--bizpane-lowcol": "#aaa",
     "--bizpane-hovercol": "#ccc",
     "--bizpane-selcol": "#8e9",
-    "--bizpane-txt": "#000"
+    "--bizpane-txt": "#000",
+    "--msg-info": "#fff",
+    "--msg-good": "#0f0",
+    "--msg-err": "#f00"
   },
   "dark": {
     "--topbar-col": "#970",
@@ -31,7 +34,10 @@
     "--bizpane-lowcol": "#555",
     "--bizpane-hovercol": "#777",
     "--bizpane-selcol": "#3a6",
-    "--bizpane-txt": "#fff"
+    "--bizpane-txt": "#fff",
+    "--msg-info": "#fff",
+    "--msg-good": "#0f0",
+    "--msg-err": "#f00"
   },
   "gruvbox": {
     "--topbar-col": "#504945",
@@ -48,6 +54,9 @@
     "--bizpane-lowcol": "#665c54",
     "--bizpane-hovercol": "#3c3836",
     "--bizpane-selcol": "#504945",
-    "--bizpane-txt": "#98971a"
+    "--bizpane-txt": "#98971a",
+    "--msg-info": "#d79921",
+    "--msg-good": "#98971a",
+    "--msg-err": "#cc241d"
   }
 }
