@@ -45,7 +45,6 @@ let authPage = render:
     sText "l(authPage.action)"
     sOn "click", "() => {authPage.buttonAction()}"
     sProp "disabled", "authOngoing"
-    
 
 let gamePage = render:
 
@@ -62,7 +61,9 @@ let gamePage = render:
       h3:
         sText "l('businessField', [business.field])"
       span:
-        sText "'Emp.: ' + Object.keys(business.employees).length + ' - ' + 'Proj.: ' + Object.keys(business.projects).length"
+        sText:
+          "'Emp.: ' + Object.keys(business.employees).length + ' - ' +" &
+          " 'Proj.: ' + Object.keys(business.projects).length"
 
   tdiv "#bizinfo":
     tdiv "#biztitle":
@@ -102,7 +103,7 @@ let gamePage = render:
             sEach "ntrvw in selBusiness.interviewees"
             button:
               sText:
-                "l('fullname', [ntrvw.gender, ntrvw.firstname, ntrvw.lastname]) " & 
+                "l('fullname', [ntrvw.gender, ntrvw.firstname, ntrvw.lastname]) " &
                 " + ' - ' + l('proficiency', [ntrvw.proficiency, ntrvw.gender]) " &
                 " + ' - ' + ntrvw.salary + '$/12s'"
               sOn "click", "() => {gamePage.selInterviewee = ntrvw.id; gamePage.suggestedSalary = ntrvw.salary}"
@@ -114,7 +115,7 @@ let gamePage = render:
             sEach "emply in selBusiness.employees"
             button:
               sText:
-                "l('fullname', [emply.gender, emply.firstname, emply.lastname]) " & 
+                "l('fullname', [emply.gender, emply.firstname, emply.lastname]) " &
                 "+ ' - ' + l('proficiency', [emply.proficiency, emply.gender]) " &
                 "+ ' - ' + emply.salary + '$/12s'"
               sOn "click", "() => {gamePage.selEmployee = emply.id}"
@@ -137,7 +138,7 @@ let gamePage = render:
               sText:
                 "l('businessProject', [proj.project])" &
                 "+ ' - ' + proj.quality + '$/3s'" &
-                "+ ' - ' + (proj.active ? 'Active' : 'Inactive')"
+                "+ ' - ' + (proj.active ? l('projectActive') : l('projectInactive'))"
               sOn "click", "() => {gamePage.selProject = id}"
               sClass "{'selected': gamePage.selBizItem.id == id && gamePage.selBizItem.action == 'P'}"
 
@@ -184,11 +185,11 @@ let gamePage = render:
         sIf "gamePage.selBizItem.action == 'P'"
         p: sText "selProject && selProject.quality + '$/3s'"
         button:
-          sText "'Scrap project'"
+          sText "l('scrapProject')"
           sOn "click",
             "() => {wssend('dproj', [selBusiness.id, selProject.id])}"
         button:
-          sText "'Toggle active'"
+          sText "l('toggleProjectActive')"
           sOn "click",
             "() => {wssend('wprojactive', [selBusiness.id, selProject.id, selProject.active ? 'F' : 'T'])}"
 

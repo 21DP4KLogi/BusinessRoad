@@ -8,7 +8,7 @@ import "security.nim"
 
 const
   TickRateInMs = 1000
-  EmployeeToPlayerRatio = 5
+  EmployeeToPlayerRatio = 10
 
 const
   Second = 1

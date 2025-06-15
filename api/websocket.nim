@@ -321,7 +321,8 @@ proc messageHandler(ws: WebSocket, event: WebSocketEvent, message: Message) =
         # Active project limit is TriangleNumber(employeeCount)
         if
           sentProjectStatus == true and
-          employeeCount < triangleNumber(activeProjectCount + 1):
+          employeeCount < triangleNumber(activeProjectCount + 1)
+          :
           ws.send("ERR=Not enough employees")
           return
         var projectQuery = Project()
