@@ -182,7 +182,6 @@ proc messageHandler(ws: WebSocket, event: WebSocketEvent, message: Message) =
         discard
 
     of "hireEmployee":
-    # IMPORTANT TODO: Validate user's authorisation
       if
         invalidParameters(parameters, 2) or
         invalidInt64(parameters[0]) or
@@ -193,6 +192,9 @@ proc messageHandler(ws: WebSocket, event: WebSocketEvent, message: Message) =
       let sentBusinessId = int64(parameters[0].parseInt)
       let sentEmployeeId = int64(parameters[1].parseInt)
       psql:
+        if not db.exists(Business, "id = $1 AND owner = $2", sentBusinessId, playerId):
+          ws.send "ERR=Not authorised"
+          return
         if not db.exists(Employee, "id = $1 AND interview = $2", sentEmployeeId, sentBusinessId):
           ws.send "ERR=No applicable interviewee"
           return
@@ -205,7 +207,6 @@ proc messageHandler(ws: WebSocket, event: WebSocketEvent, message: Message) =
       return
 
     of "fireEmployee":
-    # IMPORTANT TODO: Validate user's authorisation
       if
         invalidParameters(parameters, 2) or
         invalidInt64(parameters[0]) or
@@ -216,6 +217,9 @@ proc messageHandler(ws: WebSocket, event: WebSocketEvent, message: Message) =
       let sentBusinessId = int64(parameters[0].parseInt)
       let sentEmployeeId = int64(parameters[1].parseInt)
       psql:
+        if not db.exists(Business, "id = $1 AND owner = $2", sentBusinessId, playerId):
+          ws.send "ERR=Not authorised"
+          return
         if not db.exists(Employee, "id = $1 AND workplace = $2", sentEmployeeId, sentBusinessId):
           ws.send "ERR=No applicable interviewee"
           return
@@ -224,6 +228,19 @@ proc messageHandler(ws: WebSocket, event: WebSocketEvent, message: Message) =
         employeeQuery.workplace = none int64
         employeeQuery.interview = none int64
         db.update(employeeQuery)
+        # Deactivate newest project if going below requirement
+        let
+          employeeCount = db.count(Employee, "*", dist=false, "workplace = $1", sentBusinessId)
+          activeProjectCount = db.count(Project, "*", dist=false, "business = $1 AND active = TRUE", sentBusinessId)
+        if employeeCount < triangleNumber(activeProjectCount):
+          var projectQuery = Project()
+          db.select(projectQuery, "business = $1 AND active = TRUE ORDER BY id DESC", sentBusinessId)
+          projectQuery.active = false
+          db.update(projectQuery)
+          ws.send("wprojactive=" & colonSerialize(
+            sentBusinessId, projectQuery.id, "F"
+            )
+          )
       ws.send("loseemployee=" & colonSerialize(sentBusinessId, sentEmployeeId))
       return
 

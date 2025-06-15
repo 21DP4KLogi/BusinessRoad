@@ -32,6 +32,7 @@ const lang* = $ %* {
   "authmsg": "[authmsg.$0]",
   "scrapProject": "Beigt projektu",
   "toggleProjectActive": "Pārslēgt projekta aktivitāti",
+  "projectsActive": "Aktīvi:",
   "projectActive": "Aktīvs",
   "projectInactive": "Neaktīvs",
   "interviewees": "Darba meklētāji",

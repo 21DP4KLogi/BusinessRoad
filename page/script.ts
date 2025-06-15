@@ -435,7 +435,33 @@ let scope = {
     return modeldata.AvailableProjects[this.selBusiness?.field]?.map(e => e) ?? [];
   },
   gd: defaultGameData,
-  get data() {return modeldata}
+  get data() {return modeldata},
+  triangleNumber(index: number) {
+    return (index*(index + 1)) / 2;
+  },
+  reverseTriangleNumber(trinum: number) {
+    // Based on:
+    // https://www.excelforum.com/excel-general/1057089-reverse-triangle-number-algorithm.html
+    // https://euler.stephan-brumme.com/42/
+    // Accessed 2025 June 15
+    let estimate = Math.round(Math.sqrt(trinum * 2));
+    if (trinum == this.triangleNumber(estimate)) {
+      return estimate;
+    } else {
+      return estimate - 1;
+    }
+  },
+  bizStats(biz: FrontendBusiness) {
+    let empCount = Object.keys(biz.employees).length;
+    return {
+      empCount: empCount,
+      totalProjCount: Object.keys(biz.projects).length,
+      activeProjCount: Object.values(biz.projects)
+                        .filter(val => val.active)
+                        .length,
+      maxactiveProjCount: this.reverseTriangleNumber(empCount),
+    }
+  }
 };
 
 function wsHandler(event: MessageEvent) {

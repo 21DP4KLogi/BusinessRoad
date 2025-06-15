@@ -62,8 +62,10 @@ let gamePage = render:
         sText "l('businessField', [business.field])"
       span:
         sText:
-          "'Emp.: ' + Object.keys(business.employees).length + ' - ' +" &
-          " 'Proj.: ' + Object.keys(business.projects).length"
+          "'Emp.: ' + bizStats(business).empCount + ' - ' + " &
+          "'Proj.: ' + bizStats(business).totalProjCount + " &
+          "', ' + bizStats(business).activeProjCount + '/' + " &
+          "bizStats(business).maxactiveProjCount"
 
   tdiv "#bizinfo":
     tdiv "#biztitle":
@@ -110,7 +112,11 @@ let gamePage = render:
               sClass "{'selected': gamePage.selBizItem.id == ntrvw.id && gamePage.selBizItem.action == 'I'}"
         # Employees
         tdiv "#infotab-employees":
-          p ".divtabtitle": sText "l('employees')"
+          p ".divtabtitle":
+            sText:
+              "l('employees')" &
+              "+ ' - ' +" &
+              "Object.keys(selBusiness.employees).length"
           tdiv:
             sEach "emply in selBusiness.employees"
             button:
@@ -122,7 +128,17 @@ let gamePage = render:
               sClass "{'selected': gamePage.selBizItem.id == emply.id && gamePage.selBizItem.action == 'E'}"
         # Projects
         tdiv "#infotab-projects":
-          p ".divtabtitle": sText "l('projects')"
+          p ".divtabtitle":
+            sText:
+              "l('projects')" &
+              "+' - '+" &
+              "bizStats(selBusiness).totalProjCount" &
+              "+', '+" &
+              "l('projectsActive')" &
+              "+' '+" &
+              "bizStats(selBusiness).activeProjCount" &
+              "+'/'+" &
+              "bizStats(selBusiness).maxactiveProjCount"
           select ".divtabtopcontent":
             sValue "gamePage.newProjectType"
             option:
@@ -132,6 +148,7 @@ let gamePage = render:
           button ".divtabtopcontent":
             sText "l('startNewProject')"
             sOn "click", "() => {wssend('createProject', [selBusiness.id, gamePage.newProjectType])}"
+            sProp "disabled", "gamePage.newProjectType == null"
           tdiv:
             sEach "proj, id in selBusiness.projects"
             button:
