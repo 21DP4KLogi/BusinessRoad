@@ -118,7 +118,6 @@ proc computeGameLogic* =
 
     if projectProfitTicker.elapsed(currentTime):
       projectProfitTicker.tick(currentTime)
-
       var counts = ModelCounts()
       db.rawSelect("""
         SELECT
