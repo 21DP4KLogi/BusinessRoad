@@ -38,28 +38,15 @@ const availableProjects*: Table[BusinessField, set[BusinessProject]] =
     baking: {cupcakes}
   }.toTable()
 
-const receivableProjects*: Table[BusinessField, set[BusinessProject]] =
-  {
-    eikt: {cupcakes},
-    baking: {iotHardware}
-  }.toTable()
-
-# proc availableProjectsJSONable: Table[string, seq[string]] =
-#   for k, v in availableProjects.pairs:
-#     result[$k] = v.toSeq().mapIt($it)
-
-proc `%`(dataset: Table[BusinessField, set[BusinessProject]]): JsonNode = 
-  var tempTable: Table[string, seq[string]]
-  for k, v in dataset.pairs:
-    tempTable[$k] = v.toSeq().mapIt($it)
-  return %tempTable
+proc availableProjectsJSONable: Table[string, seq[string]] =
+  for k, v in availableProjects.pairs:
+    result[$k] = v.toSeq().mapIt($it)
 
 const enumJson* = $ %* {
   "EmployeeProficiency": EmployeeProficiency.mapIt($it),
   "BusinessField": BusinessField.mapIt($it),
   "BusinessProject": BusinessProject.mapIt($it),
-  "AvailableProjects": availableProjects,
-  "ReceivableProjects": receivableProjects,
+  "AvailableProjects": availableProjectsJSONable()
 }
 
 type
@@ -90,36 +77,18 @@ type
     business* {.fk: Business.}: int64 = 0
     project*: BusinessProject = BusinessProject.serverHosting # Project.project is bad naming, but, eh.
     quality*: int32 = 0
-    # contract* {.fk: Contract.}: Option[int64] = none int64
+    contract* {.fk: Contract.}: Option[int64] = none int64
     active*: bool = false
-    recipient* {.fk: Business.}: Option[int64] = none int64
-    tradingFor*: Option[BusinessProject] = none BusinessProject
-
-#[
-  Contract* {.tableName: "Contract".} = ref object of Model
-    active*: bool = false
-    # Initiator
-    initiator* {.fk: Business.}: int64 = 0
-    # initiatorProject* {.fk: Project.}: int64 = 0
-    initiatorAgrees*: bool = false
-    initiatorPayment*: int32 = 0
-    # Recipient
-    recipient* {.fk: Business.}: Option[int64] = none int64
-    # recipientProject* {.fk: Project.}: int64 = 0
-    recipientAgrees*: bool = false
-    recipientPayment*: int32 = 0
-]#
+    # recipient* {.fk: Business.}: int64 = 0
 
   Contract* {.tableName: "Contract".} = ref object of Model
     active*: bool = false
     # Initiator
     initiator* {.fk: Business.}: int64 = 0
-    initiatorProject* {.fk: Project.}: int64 = 0
     initiatorAgrees*: bool = false
     initiatorPayment*: int32 = 0
     # Recipient
-    recipient* {.fk: Business.}: int64 = 0
-    recipientProject* {.fk: Project.}: int64 = 0
+    recipient* {.fk: Business.}: Option[int64] = none int64
     recipientAgrees*: bool = false
     recipientPayment*: int32 = 0
 
@@ -131,21 +100,13 @@ type
     gender*: PaddedStringOfCap[1]
     firstname*: int16 = 0
     lastname*: int16 = 0
-
-
-  frontendContractor* = object
-    firstname*: int64
-    lastname*: int64
-    gender*: string
-    businessId*: int64
-    projectId*: int64
-    contractId*: int64
-
-  frontendContract* = object
+  
+  frontendBusiness* = object
     id*: int64
-    playerPays*: int32
-    partnerPays*: int32
-    partner*: frontendContractor
+    field*: BusinessField
+    employees*: Table[string, frontendEmployee]
+    interviewees*: Table[string, frontendEmployee]
+    projects*: Table[string, frontendProject]
 
   frontendProject* = object
     id*: int64
@@ -154,46 +115,6 @@ type
     quality*: int32 = 0
     active*: bool = false
   #   beneficiary*: int64
-    tradingFor*: Option[BusinessProject] = none BusinessProject
-    status*: string
-    contract*: Option[int64] = none int64
-
-  frontendBusiness* = object
-    id*: int64
-    field*: BusinessField
-    employees*: Table[string, frontendEmployee]
-    interviewees*: Table[string, frontendEmployee]
-    projects*: Table[string, frontendProject]
-    contracts*: Table[string, frontendContract]
-
-func newFrontendProject*(proj: Project, businessId: int64): frontendProject =
-  frontendProject(
-    id: proj.id,
-    business: proj.business,
-    project: proj.project,
-    quality: proj.quality,
-    active: proj.active,
-    tradingFor: proj.tradingFor,
-    status: "0",
-    contract: none int64
-  )
-
-func newFrontendProject*(proj: Project, businessId: int64, contract: int64): frontendProject =
-  let projectStatus =
-    if proj.recipient == none int64: "0"
-    elif proj.business == businessId: "-"
-    else: "+"
-  frontendProject(
-    id: proj.id,
-    business: proj.business,
-    project: proj.project,
-    quality: proj.quality,
-    active: proj.active,
-    tradingFor: proj.tradingFor,
-    status: projectStatus,
-    contract: some contract
-  )
-  
 
   # frontendContract* = object
   #   id*: int64

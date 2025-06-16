@@ -14,13 +14,11 @@ proc getUserGameData(player: Player): JsonNode =
       var businessQuery = @[Business()]
       var employeeQuery = @[Employee()]
       var projectQuery = @[Project()]
-      var contractQuery = @[Contract()]
       db.select(businessQuery, "owner = $1", player.id)
       for business in businessQuery:
         var employeeList: Table[string, frontendEmployee]
         var intervieweeList: Table[string, frontendEmployee]
         var projectList: Table[string, frontendProject]
-        var contractList: Table[string, frontendContract]
         # Employees
         if db.exists(Employee, "workplace = $1", business.id):
           db.select(employeeQuery, "workplace = $1", business.id)
@@ -47,70 +45,16 @@ proc getUserGameData(player: Player): JsonNode =
               firstname: employee.firstname,
               lastname: employee.lastname,
             )
-        # Self hosted projects
-        if db.exists(Project, "business = $1 AND recipient IS NULL", business.id):
+        if db.exists(Project, "business = $1", business.id):
           db.select(projectQuery, "business = $1", business.id)
           for proj in projectQuery:
-            # projectList[$proj.id] = frontendProject(
-            #   id: proj.id,
-            #   business: proj.business,
-            #   project: proj.project,
-            #   quality: proj.quality,
-            #   active: proj.active,
-            #   tradingFor: proj.tradingFor
-            # )
-            projectList[$proj.id] = newFrontendProject(proj, business.id)
-        # Contracts
-        if db.exists(Contract, "initiator = $1", business.id):
-          db.select(contractQuery, "initiator = $1", business.id)
-          var partnerQuery = Player()
-          for cont in contractQuery:
-            db.select(partnerQuery, "id IN (SELECT owner FROM \"Businesses\" WHERE id = $1)", cont.recipient)
-            let partner = frontendContractor(
-              firstname: partnerQuery.firstname,
-              lastname: partnerQuery.lastname,
-              gender: $partnerQuery.gender,
-              businessId: cont.recipient,
-              projectId: cont.recipientProject,
-              contractId: cont.id
+            projectList[$proj.id] = frontendProject(
+              id: proj.id,
+              business: proj.business,
+              project: proj.project,
+              quality: proj.quality,
+              active: proj.active,
             )
-            contractList[$cont.id] = frontendContract(
-              id: cont.id,
-              playerPays: cont.initiatorPayment,
-              partnerPays: cont.recipientPayment,
-              partner: partner
-            )
-            var contractProjectQuery = Project()
-            db.select(contractProjectQuery, "id = $1", cont.recipientProject)
-            projectList[$cont.recipientProject] = newFrontendProject(contractProjectQuery, cont.initiator, cont.id)
-            db.select(contractProjectQuery, "id = $1", cont.initiatorProject)
-            projectList[$cont.initiatorProject] = newFrontendProject(contractProjectQuery, cont.recipient, cont.id)
-        if db.exists(Contract, "recipient = $1", business.id):
-          db.select(contractQuery, "recipient = $1", business.id)
-          var partnerQuery = Player()
-          for cont in contractQuery:
-            db.select(partnerQuery, "id IN (SELECT owner FROM \"Businesses\" WHERE id = $1)", cont.initiator)
-            let partner = frontendContractor(
-              firstname: partnerQuery.firstname,
-              lastname: partnerQuery.lastname,
-              gender: $partnerQuery.gender,
-              businessId: cont.initiator,
-              projectId: cont.initiatorProject,
-              contractId: cont.id
-            )
-            contractList[$cont.id] = frontendContract(
-              id: cont.id,
-              playerPays: cont.recipientPayment,
-              partnerPays: cont.initiatorPayment,
-              partner: partner
-            )
-            var contractProjectQuery = Project()
-            db.select(contractProjectQuery, "id = $1", cont.recipientProject)
-            projectList[$cont.recipientProject] = newFrontendProject(contractProjectQuery, cont.initiator, cont.id)
-            db.select(contractProjectQuery, "id = $1", cont.initiatorProject)
-            projectList[$cont.initiatorProject] = newFrontendProject(contractProjectQuery, cont.recipient, cont.id)
-        
-
         businessList[$business.id] = frontendBusiness(
           id: business.id,
           field: business.field,

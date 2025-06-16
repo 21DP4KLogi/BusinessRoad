@@ -303,9 +303,9 @@ proc messageHandler(ws: WebSocket, event: WebSocketEvent, message: Message) =
           return
         var projectQuery = Project()
         db.select(projectQuery, "id = $1", sentProjectId)
-        # if projectQuery.contract != none int64:
-        #   ws.send("ERR=Project in contract")
-        #   return
+        if projectQuery.contract != none int64:
+          ws.send("ERR=Project in contract")
+          return
         db.delete(projectQuery)
       ws.send("dproj=" & colonSerialize(sentBusinessId, sentProjectId))
 
@@ -353,38 +353,6 @@ proc messageHandler(ws: WebSocket, event: WebSocketEvent, message: Message) =
         )
       )
       return
-
-    of "wprojtradingfor":
-      if
-        invalidParameters(parameters, 3) or
-        invalidInt64(parameters[0]) or
-        invalidInt64(parameters[1]) or
-        invalidInt16(parameters[2])
-        :
-        ws.send("ERR=Invalid")
-        return
-      let
-        sentBusinessId = parameters[0].parseInt
-        sentProjectId = parameters[1].parseInt
-        sentProjectType = parameters[2].parseInt
-      if sentProjectType notin BusinessProject:
-        ws.send("err=invalid business project")
-        return
-      var
-        businessQuery = Business()
-        projectQuery = Project()
-      psql:
-        if not db.exists(Business, "owner = $1 AND id = $2", playerId, sentBusinessId):
-          ws.send("ERR=Not authorised")
-          return
-        db.select(businessQuery, "owner = $1 AND id = $2", playerId, sentBusinessId)
-        if BusinessProject(sentProjectType) notin receivableProjects[businessQuery.field]:
-          ws.send("ERR=Invalid project type request")
-          return
-        db.select(projectQuery, "business = $1 AND id = $2", sentBusinessId, sentProjectId)
-        projectQuery.tradingFor = some BusinessProject(sentProjectType)
-        db.update(projectQuery)
-      ws.send("wprojtradingfor=" & colonSerialize(sentBusinessId, sentProjectId, sentProjectType))
 
     else:
       ws.send "ERR=Unknown command (with parameter)"
