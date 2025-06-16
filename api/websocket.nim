@@ -282,8 +282,6 @@ proc messageHandler(ws: WebSocket, event: WebSocketEvent, message: Message) =
         "project": projectQuery.project,
         "quality": projectQuery.quality,
         "active": projectQuery.active,
-        "tradingFor": none int64,  
-        "status": "0",
       })
 
     of "dproj":
@@ -361,7 +359,7 @@ proc messageHandler(ws: WebSocket, event: WebSocketEvent, message: Message) =
         invalidParameters(parameters, 3) or
         invalidInt64(parameters[0]) or
         invalidInt64(parameters[1]) or
-        (parameters[2] != "-1" and invalidInt16(parameters[2]))
+        invalidInt16(parameters[2])
         :
         ws.send("ERR=Invalid")
         return
@@ -369,7 +367,7 @@ proc messageHandler(ws: WebSocket, event: WebSocketEvent, message: Message) =
         sentBusinessId = parameters[0].parseInt
         sentProjectId = parameters[1].parseInt
         sentProjectType = parameters[2].parseInt
-      if sentProjectType != -1 and sentProjectType notin BusinessProject:
+      if sentProjectType notin BusinessProject:
         ws.send("err=invalid business project")
         return
       var
@@ -380,34 +378,11 @@ proc messageHandler(ws: WebSocket, event: WebSocketEvent, message: Message) =
           ws.send("ERR=Not authorised")
           return
         db.select(businessQuery, "owner = $1 AND id = $2", playerId, sentBusinessId)
-        if sentProjectType != -1 and BusinessProject(sentProjectType) notin receivableProjects[businessQuery.field]:
+        if BusinessProject(sentProjectType) notin receivableProjects[businessQuery.field]:
           ws.send("ERR=Invalid project type request")
           return
         db.select(projectQuery, "business = $1 AND id = $2", sentBusinessId, sentProjectId)
-        if sentProjectType == -1:
-          projectQuery.tradingFor = none BusinessProject
-        else:
-          projectQuery.tradingFor = some BusinessProject(sentProjectType)
-          if db.exists(Project, "tradingFor = $1 AND project = $2", projectQuery.project, projectQuery.tradingFor):
-            var tradeProjectQuery = Project()
-            db.select(tradeProjectQuery, "tradingFor = $1 AND project = $2", projectQuery.project, projectQuery.tradingFor)
-            projectQuery.tradingFor = none BusinessProject
-            projectQuery.recipient = some tradeProjectQuery.business
-            tradeProjectQuery.tradingFor = none BusinessProject
-            tradeProjectQuery.recipient = some projectQuery.business
-            var contractQuery = Contract(
-              active: false,
-              initiator: projectQuery.business,
-              initiatorProject: projectQuery.id,
-              initiatorAgrees: false,
-              recipient: tradeProjectQuery.business,
-              recipientProject: tradeProjectQuery.id,
-              recipientAgrees: false,
-            )
-            db.update(projectQuery)
-            db.update(tradeProjectQuery)
-            db.insert(contractQuery)
-
+        projectQuery.tradingFor = some BusinessProject(sentProjectType)
         db.update(projectQuery)
       ws.send("wprojtradingfor=" & colonSerialize(sentBusinessId, sentProjectId, sentProjectType))
 

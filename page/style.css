@@ -412,7 +412,6 @@ body {
           border-top: 3px solid var(--bizpane-lowcol);
           min-height: 20vh;
           flex: 1;
-          overflow-y: scroll;
           > #bizitemoptions-title {
             display: flex;
             align-items: center;

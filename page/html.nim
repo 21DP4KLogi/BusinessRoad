@@ -201,28 +201,14 @@ let gamePage = render:
       tdiv:
         sIf "gamePage.selBizItem.action == 'P'"
         p: sText "selProject && selProject.quality + '$/3s'"
-        h1: sText "selProject.status"
-        ttemplate:
-          sIf "selProject.status == '0'"
-          button:
-            sText "l('scrapProject')"
-            sOn "click",
-              "() => {wssend('dproj', [selBusiness.id, selProject.id])}"
-          button:
-            sText "l('toggleProjectActive')"
-            sOn "click",
-              "() => {wssend('wprojactive', [selBusiness.id, selProject.id, selProject.active ? 'F' : 'T'])}"
-          h3: say "Trade for:"
-          button:
-            say "None"
-            sOn "click", "() => {wssend('wprojtradingfor', [selBusiness.id, selProject.id, -1])}"
-            sClass "{'selected': selProject.tradingFor == null}"
-          button:
-            sEach "type in data.ReceivableProjects[selBusiness.field].map(e => e)"
-            sText "l('businessProject', [type])"
-            # sValue "data.BusinessProject.findIndex(val => val == type)"
-            sClass "{'selected': selProject.tradingFor == data.BusinessProject.findIndex(val => val == type)}"
-            sOn "click", "() => {wssend('wprojtradingfor', [selBusiness.id, selProject.id, data.BusinessProject.findIndex(val => val == type)])}"
+        button:
+          sText "l('scrapProject')"
+          sOn "click",
+            "() => {wssend('dproj', [selBusiness.id, selProject.id])}"
+        button:
+          sText "l('toggleProjectActive')"
+          sOn "click",
+            "() => {wssend('wprojactive', [selBusiness.id, selProject.id, selProject.active ? 'F' : 'T'])}"
 
 let main* = render:
   say: "<!DOCTYPE html>"
