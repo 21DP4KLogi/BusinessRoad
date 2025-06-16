@@ -43,6 +43,7 @@ var
   # fiveSecondTicker = newTickInterval(5, currentTime, 0.5)
   projectProfitTicker = newTickInterval(3, currentTime, 0)
   employeeSalaryTicker = newTickInterval(12, currentTime, 1)
+  occasionalTicker = newTickInterval(30, currentTime, 2)
   dayTicker = newTickInterval(Day, currentTime, 0)
   playerCount = 0
   businessCount = 0
@@ -73,6 +74,10 @@ proc computeGameLogic* =
     stdout.writeLine "Employee count (Pl.* " & $EmployeeToPlayerRatio & "): " & $employeeCount
     stdout.cursorUp(6)
     stdout.flushFile
+
+    if occasionalTicker.elapsed(currentTime):
+      occasionalTicker.tick(currentTime)
+      discard valkey.command("SET", "topPlayers", getTopPlayers(db))
 
     if dayTicker.elapsed(currentTime):
       dayTicker.tick(currentTime)

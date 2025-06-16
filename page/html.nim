@@ -262,6 +262,16 @@ let main* = render:
         p "#moneycount":
           sIf "curPage == 'game' && loaded"
           sText "l('moneyIndicator') + gd.money"
+        tdiv "#topten":
+          button:
+            say "Top 10"
+          tdiv "#toptenpopup":
+            ol:
+              li:
+                sEach "player in topPlayers"
+                sText:
+                  "l('fullname', [player.gender, player.firstname, player.lastname])" &
+                  "+ ' - ' + player.money + '$'"
       tdiv "#main":
         tdiv "#loading":
           sIf "!loaded"

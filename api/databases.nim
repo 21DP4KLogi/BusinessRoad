@@ -1,6 +1,6 @@
 import ready
 import norm/[postgres, types, pool, pragmas, model]
-import std/[os, macros]
+import std/[os, macros, json]
 import "models.nim"
 import "env.nim"
 
@@ -51,3 +51,19 @@ template psql*(body: untyped) =
 
 template modelTableName*(model: typedesc[Model]): string =
   '"' & model.getCustomPragmaVal(tableName) & '"'
+
+proc getTopPlayers*(db: DbConn): string =
+  var playerQuery = @[Player()]
+  if db.count(Player) > 0:
+    db.select(playerQuery, "TRUE ORDER BY money DESC LIMIT 10")
+    var topPlayers: seq[frontendPlayer]
+    for player in playerQuery:
+      topPlayers.add frontendPlayer(
+        firstname: player.firstname,
+        lastname: player.lastname,
+        gender: $player.gender,
+        money: player.money
+      )
+    return $ %* topPlayers
+  else:
+    return "[]"

@@ -93,6 +93,12 @@ type
     recipientPayment*: int32 = 0
 
 type
+  frontendPlayer* = object
+    firstname*: int16
+    lastname*: int16
+    gender*: string
+    money*: int64
+
   frontendEmployee* = object
     id*: int64
     salary*: int32

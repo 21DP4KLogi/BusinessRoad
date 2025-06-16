@@ -103,13 +103,16 @@ get "/init":
   else:
     userLang = langs[DefaultLang]
   
-  let motdData = valkey.command("GET", "currentMotd").to(string)
+  let
+    motdData = valkey.command("GET", "currentMotd").to(string)
+    topPlayers = valkey.command("GET", "topPlayers").to(string)
   
   headers["Content-Type"] = "application/json"
   resp 200, $ %* {
     "gameData": gameData,
     "motd": motdData,
     "lang": userLang,
+    "top": topPlayers,
   }
 
 get "/setlang/@lang":

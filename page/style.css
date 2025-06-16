@@ -84,6 +84,7 @@ body {
     background-color: var(--infobar-col);
     display: flex;
     align-items: center;
+    justify-content: space-between;
     height: 3rem;
     @media (orientation: portrait) {
       height: 5rem;
@@ -93,6 +94,29 @@ body {
       margin-left: 2rem;
       @media (orientation: portrait) {
         font-size: 3rem;
+      }
+    }
+    > #topten {
+      color: var(--infobar-txt);
+      > button {
+        color: inherit;
+        margin-right: 1rem;
+        background-color: var(--infobar-col);
+        border: 3px solid var(--topbar-acccol);
+        padding: 0.1rem;
+        width: 7rem;
+      }
+      > #toptenpopup {
+        display: none;
+        position: absolute;
+        right: 0;
+        padding-right: 2rem;
+        background-color: var(--infobar-col);
+      }
+      &:hover {
+        > #toptenpopup {
+          display: block;
+        }
       }
     }
   }

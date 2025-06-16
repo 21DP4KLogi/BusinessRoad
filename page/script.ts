@@ -124,6 +124,7 @@ async function initPage(): Promise<void> {
   state.authed = content["gameData"] != null;
   state.motd = content["motd"];
   state.lang = JSON.parse(content["lang"]);
+  state.topPlayers = JSON.parse(content["top"])
   document.documentElement.setAttribute("lang", "en");
   parseAndApplyGamedata(content["gameData"]);
   if (state.authed) {
@@ -337,6 +338,7 @@ let scope = {
   },
   get langcode() {return this.lang["langcode"]},
   set langcode(val) {if (!this.langcode) {return}; changeLang(val)},
+  topPlayers: [],
   colortheme: "light",
   setColorsToTheme: setColorsToTheme,
   loaded: false,

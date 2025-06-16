@@ -20,6 +20,7 @@ db.createTables(Business())
 db.createTables(Employee())
 db.createTables(Contract())
 db.createTables(Project())
+discard valkey.command("SET", "topPlayers", getTopPlayers(db))
 
 # Game logic computer setup
 var thread: Thread[void]
