@@ -58,23 +58,35 @@ const lang* = $ %* {
     "businessField": {
       "eikt": "EIKT",
       "baking": "Cepšana",
+      "carpentry": "Galdniecība",
     },
     "businessProject": {
       "serverHosting": "Serveru hostings",
       "iotHardware": "IoT aparatūra",
-      "jsFramework": "JS ietvars",
-      "cupcakes": "Kūciņas",
+      "jsFramework": "Vēlviens JS ietvars",
+      "cupcakes": "Elegantas kūciņas",
+      "pizza": "Pica!",
+      "piradzini": "Speķa pīrādziņi",
+      "furniture": "Šķības mēbeles",
+      "barns": "Kūtis",
+      "figurines": "Modernas fīgūriņas",
     },
     "employeeProficiency": {
       "M": {
         "taxpayer": "Nodokļu maksātājs",
         "hungry": "Izsalcis",
         "vimuser": "Vim lietotājs",
+        "slacker": "Sliņķis",
+        "grandparent": "Vectēvs",
+        "mathematician": "Matemātiķis",
       },
       "F": {
         "taxpayer": "Nodokļu maksātāja",
         "hungry": "Izsalkusi",
         "vimuser": "Vim lietotāja",
+        "slacker": "Sliņķe",
+        "grandparent": "Vecmāte",
+        "mathematician": "Matemātiķe",
       }
     },
     "colortheme": {

@@ -17,16 +17,26 @@ type
     taxpayer,
     hungry,
     vimuser,
+    slacker,
+    grandparent,
+    mathematician,
 
   BusinessField* = enum
     eikt,
     baking,
+    carpentry,
 
   BusinessProject* = enum
     serverHosting,
     iotHardware,
     jsFramework,
     cupcakes,
+    pizza,
+    piradzini,
+    furniture,
+    barns,
+    figurines,
+
 
 dbProcsForEnum EmployeeProficiency
 dbProcsForEnum BusinessField
@@ -34,8 +44,9 @@ dbProcsForEnum BusinessProject
 
 const availableProjects*: Table[BusinessField, set[BusinessProject]] =
   {
-    eikt: {iotHardware},
-    baking: {cupcakes}
+    eikt: {serverHosting, iotHardware, jsFramework},
+    baking: {cupcakes, pizza, piradzini},
+    carpentry: {furniture, barns, figurines}
   }.toTable()
 
 proc availableProjectsJSONable: Table[string, seq[string]] =

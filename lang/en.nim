@@ -47,17 +47,26 @@ const lang* = $ %* {
     "businessField": {
       "eikt": "EICT",
       "baking": "Baking",
+      "carpentry": "Carpentry",
     },
     "employeeProficiency": {
       "taxpayer": "Taxpayer",
       "hungry": "Hungry",
       "vimuser": "Vim user",
+      "slacker": "Slacker",
+      "grandparent": "Grandparent",
+      "mathematician": "Mathematician",
     },
     "businessProject": {
       "serverHosting": "Server hosting",
       "iotHardware": "IoT hardware",
-      "jsFramework": "JS framework",
-      "cupcakes": "Cupcakes",
+      "jsFramework": "Another JS framework",
+      "cupcakes": "Fancy cupcakes",
+      "pizza": "Pizza!",
+      "piradzini": "Bacon pastries",
+      "furniture": "Wonky furniture",
+      "barns": "Barns",
+      "figurines": "Trendy figurines",
     },
     "colortheme": {
       "light": "Light",

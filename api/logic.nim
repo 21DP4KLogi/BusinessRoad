@@ -190,6 +190,22 @@ proc computeGameLogic* =
           # if (employeeCount < (projIndex * (projIndex + 1)) div 2): break
           # projIndex += 1
           case proj.project:
+          of BusinessProject.serverHosting:
+            for emp in employeeQuery:
+              case emp.proficiency:
+              of EmployeeProficiency.taxpayer:
+                proj.quality += 2
+              of EmployeeProficiency.hungry:
+                proj.quality += 2
+              of EmployeeProficiency.vimuser:
+                proj.quality += 3
+              of EmployeeProficiency.slacker:
+                proj.quality += 2
+              of EmployeeProficiency.grandparent:
+                proj.quality += 1
+              of EmployeeProficiency.mathematician:
+                proj.quality += 2
+
           of BusinessProject.iotHardware:
             for emp in employeeQuery:
               case emp.proficiency:
@@ -199,6 +215,28 @@ proc computeGameLogic* =
                 proj.quality += 1
               of EmployeeProficiency.vimuser:
                 proj.quality += 3
+              of EmployeeProficiency.slacker:
+                proj.quality += 1
+              of EmployeeProficiency.grandparent:
+                proj.quality += 1
+              of EmployeeProficiency.mathematician:
+                proj.quality += 2
+
+          of BusinessProject.jsFramework:
+            for emp in employeeQuery:
+              case emp.proficiency:
+              of EmployeeProficiency.taxpayer:
+                proj.quality += 2
+              of EmployeeProficiency.hungry:
+                proj.quality += 1
+              of EmployeeProficiency.vimuser:
+                proj.quality += 4
+              of EmployeeProficiency.slacker:
+                proj.quality += 3
+              of EmployeeProficiency.grandparent:
+                proj.quality += 1
+              of EmployeeProficiency.mathematician:
+                proj.quality += 1
 
           of BusinessProject.cupcakes:
             for emp in employeeQuery:
@@ -209,8 +247,94 @@ proc computeGameLogic* =
                 proj.quality += 3
               of EmployeeProficiency.vimuser:
                 proj.quality += 1
+              of EmployeeProficiency.slacker:
+                proj.quality += 1
+              of EmployeeProficiency.grandparent:
+                proj.quality += 3
+              of EmployeeProficiency.mathematician:
+                proj.quality += 2
 
-          else: discard
+          of BusinessProject.pizza:
+            for emp in employeeQuery:
+              case emp.proficiency:
+              of EmployeeProficiency.taxpayer:
+                proj.quality += 2
+              of EmployeeProficiency.hungry:
+                proj.quality += 4
+              of EmployeeProficiency.vimuser:
+                proj.quality += 2
+              of EmployeeProficiency.slacker:
+                proj.quality += 1
+              of EmployeeProficiency.grandparent:
+                proj.quality += 3
+              of EmployeeProficiency.mathematician:
+                proj.quality += 1
+
+          of BusinessProject.piradzini:
+            for emp in employeeQuery:
+              case emp.proficiency:
+              of EmployeeProficiency.taxpayer:
+                proj.quality += 2
+              of EmployeeProficiency.hungry:
+                proj.quality += 3
+              of EmployeeProficiency.vimuser:
+                proj.quality += 1
+              of EmployeeProficiency.slacker:
+                proj.quality += 2
+              of EmployeeProficiency.grandparent:
+                proj.quality += 4
+              of EmployeeProficiency.mathematician:
+                proj.quality += 1
+
+          of BusinessProject.furniture:
+            for emp in employeeQuery:
+              case emp.proficiency:
+              of EmployeeProficiency.taxpayer:
+                proj.quality += 2
+              of EmployeeProficiency.hungry:
+                proj.quality += 1
+              of EmployeeProficiency.vimuser:
+                proj.quality += 3
+              of EmployeeProficiency.slacker:
+                proj.quality += 1
+              of EmployeeProficiency.grandparent:
+                proj.quality += 2
+              of EmployeeProficiency.mathematician:
+                proj.quality += 3
+
+          of BusinessProject.barns:
+            for emp in employeeQuery:
+              case emp.proficiency:
+              of EmployeeProficiency.taxpayer:
+                proj.quality += 2
+              of EmployeeProficiency.hungry:
+                proj.quality += 2
+              of EmployeeProficiency.vimuser:
+                proj.quality += 1
+              of EmployeeProficiency.slacker:
+                proj.quality += 1
+              of EmployeeProficiency.grandparent:
+                proj.quality += 3
+              of EmployeeProficiency.mathematician:
+                proj.quality += 4
+
+          of BusinessProject.figurines:
+            for emp in employeeQuery:
+              case emp.proficiency:
+              of EmployeeProficiency.taxpayer:
+                proj.quality += 2
+              of EmployeeProficiency.hungry:
+                proj.quality += 2
+              of EmployeeProficiency.vimuser:
+                proj.quality += 1
+              of EmployeeProficiency.slacker:
+                proj.quality += 1
+              of EmployeeProficiency.grandparent:
+                proj.quality += 2
+              of EmployeeProficiency.mathematician:
+                proj.quality += 2
+
+          # else: discard
           playerQuery.money += proj.quality
           var projvar = proj
           db.update(projvar)
