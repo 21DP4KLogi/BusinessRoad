@@ -18,8 +18,8 @@ let db = psqlSingle
 db.createTables(Player())
 db.createTables(Business())
 db.createTables(Employee())
-db.createTables(Contract())
 db.createTables(Project())
+db.createTables(Contract())
 
 # Game logic computer setup
 var thread: Thread[void]
