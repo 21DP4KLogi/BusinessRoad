@@ -1,4 +1,4 @@
-import std/[os, times, random, terminal, tables]
+import std/[os, times, random, terminal, tables, options]
 import "databases.nim"
 import "lang_base.nim"
 import "motd.nim"
@@ -99,10 +99,22 @@ proc computeGameLogic* =
           playerQuery.money -= emp.salary
           emp.loyalty = min(emp.loyalty + 1, 10000)
           emp.experience = min(emp.experience + 1, 30000)
+          emp.salary += int32(max(float64(emp.salary) * 0.01, 1))
+          # emp.salary += 1
           var empvar = emp # Mutable version
           db.update(empvar)
         # db.update(employeeQuery) # Psql raises error, I believe this might be a bug with Norm
         db.update(playerQuery)
+        var ws: WebSocket
+        withLockedWs:
+          if websocketsById.hasKey(playerQuery.id):
+            ws = websocketsById[playerQuery.id]
+          else: continue
+        ws.send("m=" & $playerQuery.money)
+        for emp in employeeQuery:
+          ws.send("wempsal=" & colonSerialize(
+            get(emp.workplace), emp.id, emp.salary
+          ))
 
     if projectProfitTicker.elapsed(currentTime):
       projectProfitTicker.tick(currentTime)

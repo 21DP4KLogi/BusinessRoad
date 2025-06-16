@@ -582,6 +582,11 @@ function wsHandler(event: MessageEvent) {
       state.gd.businesses[parsedData[0]].projects[parsedData[1]].active = parsedData[2] == "T";
       break;
     }
+    case "wempsal": {
+      let parsedData = data.split(":");
+      state.gd.businesses[parsedData[0]].employees[parsedData[1]].salary = parsedData[2];
+      break;
+    }
     default:
       alert("Server sent some incoherent gobbledegook via websocket");
   }
