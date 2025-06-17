@@ -89,7 +89,7 @@ body {
     @media (orientation: portrait) {
       height: 5rem;
     }
-    > #moneycount {
+    > div > #moneycount {
       font-size: 2rem;
       margin-left: 2rem;
       @media (orientation: portrait) {
@@ -251,6 +251,9 @@ body {
           max-height: 30vh;
           align-items: flex-start;
         }
+        &::-webkit-scrollbar {
+          display: none;
+        }
         > #buybizbutton {
           width: 100%;
           min-height: 4rem;
@@ -407,6 +410,9 @@ body {
               border-left: 3px solid var(--bizpane-lowcol);
             }
             > div {
+              &::-webkit-scrollbar {
+                display: none;
+              }
               padding: 0 1rem;
               flex: 1;
               overflow-y: scroll;

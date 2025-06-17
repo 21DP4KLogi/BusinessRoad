@@ -259,10 +259,12 @@ let main* = render:
             sIf "curPage == 'game' && loaded"
             sText "l('fullname', [gd.gender, gd.firstname, gd.lastname])"
       tdiv "#infobar":
-        p "#moneycount":
-          sIf "curPage == 'game' && loaded"
-          sText "l('moneyIndicator') + gd.money"
+        tdiv:
+          p "#moneycount":
+            sIf "curPage == 'game' && loaded"
+            sText "l('moneyIndicator') + gd.money"
         tdiv "#topten":
+          sIf "topPlayers.length != 0"
           button:
             say "Top 10"
           tdiv "#toptenpopup":
